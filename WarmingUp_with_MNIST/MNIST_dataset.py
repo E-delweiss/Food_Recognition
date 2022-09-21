@@ -102,6 +102,7 @@ class my_mnist_dataset(torch.utils.data.Dataset):
         
         return image, box, one_hot_label
 
+##################################################################################################
 
 def get_training_dataset(BATCH_SIZE=64):
     """
@@ -122,8 +123,7 @@ def get_validation_dataset(BATCH_SIZE = None):
     return dataloader, len(dataset)
 
 def test():
-    dataset = my_mnist_dataset(root="data", split="train", download=True)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=True)
+    dataloader, len_dataset = get_training_dataset()
     imgs, boxes, labels = next(iter(dataloader))
 
     print("Image size : ", imgs.shape)

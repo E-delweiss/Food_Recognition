@@ -130,9 +130,7 @@ class YoloLoss(torch.nn.Module):
                 losses['loss_conf_obj'] += self._confidenceloss(pred_c, true_c, isObject)
                 losses['loss_conf_noobj'] += self._confidenceloss(pred_c, true_c, torch.logical_not(isObject))
                 losses['loss_class'] += self._classloss(pred_class[:,i,j], true_class, isObject)
-
-        
-        
+     
         ### Yolo_v1 loss over the batch, shape : (BATCH_SIZE)
         for key, value in losses.items():
             losses[key] = torch.sum(value)/BATCH_SIZE
