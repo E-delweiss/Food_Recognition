@@ -6,6 +6,7 @@ from utils import device
 from Yolo_loss import YoloLoss
 from MNIST_dataset import get_training_dataset, get_validation_dataset
 from Darknet_like import YoloMNIST
+from Metrics import class_acc
 
 learning_rate = 0.001
 BATCH_SIZE = 64
@@ -81,11 +82,8 @@ for epoch in range(EPOCHS) :
         optimizer.step()
 
         ##### Class accuracy
-        ### applying softmax to class predictions and compute accuracy
-        # N = range(len(img))
-        # softmax_pred_classes = torch.softmax(label_preds[N, cells_i, cells_j], dim=1)
-        # classes_acc = (1/len(img)) * torch.sum(torch.argmax(labels, dim=1) == torch.argmax(softmax_pred_classes, dim=1))
-        
+        classes_acc = class_acc(bbox_true, labels, label_preds)
+
         ######### print part #######################
         current_loss = loss.item()
         epochs_loss += current_loss
@@ -101,7 +99,7 @@ for epoch in range(EPOCHS) :
             # Recording each losses 
             batch_train_losses_list.append(losses)
             # Recording class accuracy 
-            # batch_train_class_acc.append(classes_acc)
+            batch_train_class_acc.append(classes_acc)
 
 
             print(f"--- Image : {current_training_sample}/{len_training_ds}",\
