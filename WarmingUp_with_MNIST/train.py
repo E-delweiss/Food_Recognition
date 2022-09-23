@@ -2,7 +2,7 @@ import datetime
 from timeit import default_timer as timer
 import torch
 
-from utils import device, pretty_print
+from utils import device, pretty_print, update_lr, save_model, tqdm_fct
 from Yolo_loss import YoloLoss
 from MNIST_dataset import get_training_dataset, get_validation_dataset
 from Darknet_like import YoloMNIST
@@ -11,6 +11,7 @@ from Validation import validation_loop
 
 learning_rate = 0.001
 BATCH_SIZE = 64
+SAVE_MODEL = False
 device = device() 
 
 model_MNIST = YoloMNIST(sizeHW=75, S=6, C=10, B=1)
@@ -18,8 +19,8 @@ model_MNIST = model_MNIST.to(device)
 optimizer = torch.optim.Adam(params=model_MNIST.parameters(), lr=learning_rate, weight_decay=0.0005)
 loss_yolo = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=6, device=device)
 
-training_dataset, len_training_ds = get_training_dataset()
-validation_dataset, len_validation_ds = get_validation_dataset()
+training_dataset = get_training_dataset()
+validation_dataset = get_validation_dataset()
 
 ################################################################################
 
@@ -35,6 +36,7 @@ print(f"Learning rate : {optimizer.defaults['lr']}")
 EPOCHS = 10
 S = 6
 
+
 ################################################################################
 
 nb_it = []
@@ -46,9 +48,8 @@ batch_val_MSE_box_list = []
 batch_val_confscore_list = []
 batch_val_class_acc = []
 
-for epoch in range(EPOCHS) :
-    if epoch > 7:
-        optimizer.defaults['lr'] = 0.0001
+for epoch in range(EPOCHS):
+    update_lr(epoch, optimizer)
 
     begin_time = timer()
     epochs_loss = 0.
@@ -61,11 +62,11 @@ for epoch in range(EPOCHS) :
 
     #########################################################################
 
-    for batch, (img, bbox_true, labels) in enumerate(training_dataset):
+    for batch, (img, bbox_true, labels) in tqdm_fct(training_dataset):
         model_MNIST.train()
         loss = 0
         begin_batch_time = timer()
-        img, bbox_true, labels = img.to(device), labels.to(device), bbox_true.to(device)
+        img, bbox_true, labels = img.to(device), bbox_true.to(device), labels.to(device)
         
         ### clear gradients
         optimizer.zero_grad()
@@ -89,30 +90,27 @@ for epoch in range(EPOCHS) :
         current_loss = loss.item()
         epochs_loss += current_loss
 
-        if batch+1 <= len_training_ds//BATCH_SIZE:
-            current_training_sample = (batch+1)*BATCH_SIZE
-        else:
-            current_training_sample = batch*BATCH_SIZE + len_training_ds%BATCH_SIZE
-        
-        if batch == 0 or (batch+1)%100 == 0 or batch == len_training_ds//BATCH_SIZE:
+        if batch == 0 or (batch+1)%100 == 0 or batch == len(training_dataset.dataset)//BATCH_SIZE:
             # Recording the total loss
             batch_total_train_loss_list.append(current_loss)
             # Recording each losses 
             batch_train_losses_list.append(losses)
             # Recording class accuracy 
-            batch_train_class_acc.append(classes_acc)
+            batch_train_class_acc.append(train_classes_acc)
 
-            pretty_print(current_training_sample, len_training_ds, current_loss, losses, train_classes_acc)
+            pretty_print(batch, len(training_dataset.dataset), current_loss, losses, train_classes_acc)
 
-            mse_box, mse_confidence_score, classes_acc = validation_loop(YoloMNIST, validation_dataset, S, device)
+            ############### Compute validation metrics each 100 batch ###########################################
+            mse_box, mse_confidence_score, classes_acc = validation_loop(model_MNIST, validation_dataset, S, device)
             batch_val_MSE_box_list.append(mse_box)
             batch_val_confscore_list.append(mse_confidence_score)
             batch_val_class_acc.append(classes_acc)
+            #####################################################################################################
 
-            if batch == len_training_ds//BATCH_SIZE:
+            if batch == len(training_dataset.dataset)//BATCH_SIZE:
                 print(f"Total elapsed time for training : {datetime.timedelta(seconds=timer()-begin_time)}")
                 print(f"Mean training loss for this epoch : {epochs_loss / len(training_dataset):.5f}")
                 print("\n\n")
 
-    
-
+path_save_model = f"yolo_mnist_model_{epoch}epochs_relativeCoords"
+save_model(model_MNIST, path_save_model, SAVE_MODEL)
