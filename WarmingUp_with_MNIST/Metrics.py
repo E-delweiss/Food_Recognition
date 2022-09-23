@@ -63,9 +63,35 @@ def MSE(box_true:torch.Tensor, box_pred:torch.Tensor)->float:
     return MSE_score.item()
 
 
-def test():
-    
+def MSE_confidenceScore(bbox_true:torch.Tensor, bbox_pred:torch.Tensor, S=6, device:torch.device=torch.device('cpu'))->float:
+    """
+    _summary_
 
+    Args:
+        bbox_true (torch.Tensor of shape (N,S,S,5))
+            Groundtruth box tensor.
+        bbox_pred (torch.Tensor of shape (N,S,S,5))
+            Predicted box tensor.
+        device (torch.device, optional): 
+            Defaults to CPU.
+
+    Returns:
+        mse_confidence_score (float)
+    """
+    
+    mse_confidence_score = torch.zeros(len(bbox_true)).to(device)
+    for i in range(S):
+        for j in range(S):
+            # iou = intersection_over_union(bbox_true[:,i,j], bbox_pred[:,i,j]).to(device)
+            mse_confidence_score += torch.pow(bbox_true[:,i,j,-1] - bbox_pred[:,i,j,-1], 2) #* iou,  2)
+            
+    mse_confidence_score = (1/(len(bbox_true))) * torch.sum(mse_confidence_score).item()
+    return mse_confidence_score
+
+
+
+
+def test():
     from MNIST_dataset import get_training_dataset
     
     S = 6

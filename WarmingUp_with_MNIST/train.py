@@ -1,12 +1,13 @@
 import datetime
 from timeit import default_timer as timer
 import torch
+import pickle
 
 from utils import device, pretty_print, update_lr, save_model, tqdm_fct
 from Yolo_loss import YoloLoss
 from MNIST_dataset import get_training_dataset, get_validation_dataset
 from Darknet_like import YoloMNIST
-from Metrics import class_acc
+from Metrics import MSE, MSE_confidenceScore, class_acc
 from Validation import validation_loop
 
 learning_rate = 0.001
@@ -38,8 +39,6 @@ S = 6
 
 
 ################################################################################
-
-nb_it = []
 batch_total_train_loss_list = []
 batch_train_losses_list = []
 batch_train_class_acc = []
@@ -101,10 +100,25 @@ for epoch in range(EPOCHS):
             pretty_print(batch, len(training_dataset.dataset), current_loss, losses, train_classes_acc)
 
             ############### Compute validation metrics each 100 batch ###########################################
-            mse_box, mse_confidence_score, classes_acc = validation_loop(model_MNIST, validation_dataset, S, device)
-            batch_val_MSE_box_list.append(mse_box)
+            bbox_true, bbox_preds, labels, label_preds = validation_loop(model_MNIST, validation_dataset, S, device)
+            
+            ### Validation MSE score
+            mse_score = MSE(bbox_true, bbox_preds)
+
+            ### Validation accuracy
+            acc = class_acc(bbox_true, labels, label_preds)
+
+            ### Validation confidence_score
+            mse_confidence_score = MSE_confidenceScore(bbox_true, bbox_preds)
+
+            batch_val_MSE_box_list.append(mse_score)
             batch_val_confscore_list.append(mse_confidence_score)
-            batch_val_class_acc.append(classes_acc)
+            batch_val_class_acc.append(acc)
+
+            print(f"| MSE validation box loss : {mse_score:.5f}")
+            print(f"| MSE validation confidence score : {mse_confidence_score.item():.5f}")
+            print(f"| Validation class acc : {acc*100:.2f}%")
+            print("\n")
             #####################################################################################################
 
             if batch == len(training_dataset.dataset)//BATCH_SIZE:
@@ -112,5 +126,25 @@ for epoch in range(EPOCHS):
                 print(f"Mean training loss for this epoch : {epochs_loss / len(training_dataset):.5f}")
                 print("\n\n")
 
+
+### Saving results
 path_save_model = f"yolo_mnist_model_{epoch}epochs_relativeCoords"
 save_model(model_MNIST, path_save_model, SAVE_MODEL)
+
+pickle_val_results = {
+"batch_val_MSE_box_list":batch_val_MSE_box_list,
+"batch_val_confscore_list":batch_val_confscore_list,
+"batch_val_class_acc":batch_val_class_acc
+}
+
+pickle_train_results = {
+    "batch_train_losses_list" : batch_train_losses_list,
+    "batch_train_class_acc" : batch_train_class_acc,
+}
+
+with open('train_results.pkl', 'wb') as pkl:
+    pickle.dump(pickle_train_results, pkl)
+
+with open('val_results.pkl', 'wb') as pkl:
+    pickle.dump(pickle_train_results, pkl)
+#####################################################################################################
