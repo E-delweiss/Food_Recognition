@@ -2,11 +2,12 @@ import datetime
 from timeit import default_timer as timer
 import torch
 
-from utils import device
+from utils import device, pretty_print
 from Yolo_loss import YoloLoss
 from MNIST_dataset import get_training_dataset, get_validation_dataset
 from Darknet_like import YoloMNIST
 from Metrics import class_acc
+from Validation import validation_loop
 
 learning_rate = 0.001
 BATCH_SIZE = 64
@@ -69,7 +70,7 @@ for epoch in range(EPOCHS) :
         ### clear gradients
         optimizer.zero_grad()
         
-        ### compute predictions
+        ### prediction (N,S,S,5) & (N,S,S,10)
         bbox_preds, label_preds = model_MNIST(img)
         
         ### compute losses over each grid cell for each image in the batch
@@ -82,7 +83,7 @@ for epoch in range(EPOCHS) :
         optimizer.step()
 
         ##### Class accuracy
-        classes_acc = class_acc(bbox_true, labels, label_preds)
+        train_classes_acc = class_acc(bbox_true, labels, label_preds)
 
         ######### print part #######################
         current_loss = loss.item()
@@ -93,7 +94,7 @@ for epoch in range(EPOCHS) :
         else:
             current_training_sample = batch*BATCH_SIZE + len_training_ds%BATCH_SIZE
         
-        if (batch) == 0 or (batch+1)%100 == 0 or batch == len_training_ds//BATCH_SIZE:
+        if batch == 0 or (batch+1)%100 == 0 or batch == len_training_ds//BATCH_SIZE:
             # Recording the total loss
             batch_total_train_loss_list.append(current_loss)
             # Recording each losses 
@@ -101,65 +102,14 @@ for epoch in range(EPOCHS) :
             # Recording class accuracy 
             batch_train_class_acc.append(classes_acc)
 
+            pretty_print(current_training_sample, len_training_ds, current_loss, losses, train_classes_acc)
 
-            print(f"--- Image : {current_training_sample}/{len_training_ds}",\
-                    f" : loss = {current_loss:.5f}")
-            # print(f"xy_coord training loss for this batch : {torch.sum(losses['loss_xy']) / len(img):.5f}")
-            print(f"xy_coord training loss for this batch : {losses['loss_xy']:.5f}")
-            print(f"wh_sizes training loss for this batch : {losses['loss_wh']:.5f}")
-            print(f"confidence with object training loss for this batch : {losses['loss_conf_obj']:.5f}")
-            print(f"confidence without object training loss for this batch : {losses['loss_conf_noobj']:.5f}")
-            print(f"class proba training loss for this batch : {losses['loss_class']:.5f}")
-            print("\n")
-            # print(f"Training class accuracy : {classes_acc.item()*100:.2f}%")
+            mse_box, mse_confidence_score, classes_acc = validation_loop(YoloMNIST, validation_dataset, S, device)
+            batch_val_MSE_box_list.append(mse_box)
+            batch_val_confscore_list.append(mse_confidence_score)
+            batch_val_class_acc.append(classes_acc)
 
-            # model_MNIST.eval()
-            # for (img, labels, bbox_true) in validation_dataset:
-            #     img, labels, bbox_true = img.to(device), labels.to(device), bbox_true.to(device)
-            #     with torch.no_grad():
-            #         ### prediction
-            #         bbox_preds, label_preds = model_MNIST(img)
-
-            #         ### (N,4) -> (N, S, S, 5)
-            #         bbox_true_6x6, cells_i, cells_j = bbox2Tensor(bbox_true)
-            #         bbox_true_6x6, cells_i, cells_j = bbox_true_6x6.to(device), cells_i.to(device), cells_j.to(device)
-                    
-            #         bbox_preds = bbox_preds.to(device)
-
-            #         ### keeping only cells (i,j) with an object 
-            #         # cells_with_obj = bbox_true_6x6.nonzero()[::5]
-            #         # N, cells_i, cells_j, _ = cells_with_obj.permute(1,0)
-
-            #         ### MSE along bbox coordinates and sizes in the cells containing an object
-            #         N = range(len(img))
-            #         mse_box = (1/len(img)) * torch.sum(torch.pow(bbox_true[:,:4] - bbox_preds[N, cells_i, cells_j,:4],2))
-                    
-            #         ### confidence score accuracy : sum of the all grid confidence scores
-            #         ### pred confidence score is confidence score times IoU.
-            #         mse_confidence_score = torch.zeros(len(img)).to(device)
-            #         for i in range(S):
-            #             for j in range(S):
-            #                 iou = intersection_over_union(bbox_true_6x6[:,i,j], bbox_preds[:,i,j], cells_i, cells_j).to(device)
-            #                 mse_confidence_score += torch.pow(bbox_true_6x6[:,i,j,-1] - bbox_preds[:,i,j,-1] * iou,2)
-                    
-            #         mse_confidence_score = (1/(len(img))) * torch.sum(mse_confidence_score)
-
-            #         ### applied softmax to class predictions and compute accuracy
-            #         softmax_pred_classes = torch.softmax(label_preds[N, cells_i, cells_j], dim=1)
-            #         classes_acc = (1/len(img)) * torch.sum(torch.argmax(labels, dim=1) == torch.argmax(softmax_pred_classes, dim=1))
-
-
-            #         batch_val_MSE_box_list.append(mse_box.item())
-            #         batch_val_confscore_list.append(mse_confidence_score.item())
-            #         batch_val_class_acc.append(classes_acc.item())
-
-                    # print("|")
-                    # print(f"| MSE validation box loss : {mse_box.item():.5f}")
-                    # print(f"| MSE validation confidence score : {mse_confidence_score.item():.5f}")
-                    # print(f"| Validation class acc : {classes_acc.item()*100:.2f}%")
-                    # print("\n")
-
-            if batch == (len_training_ds//BATCH_SIZE):
+            if batch == len_training_ds//BATCH_SIZE:
                 print(f"Total elapsed time for training : {datetime.timedelta(seconds=timer()-begin_time)}")
                 print(f"Mean training loss for this epoch : {epochs_loss / len(training_dataset):.5f}")
                 print("\n\n")

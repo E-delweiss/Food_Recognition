@@ -34,20 +34,54 @@ def class_acc(box_true:torch.Tensor, labels_true:torch.Tensor, labels_pred:torch
     return acc.item()
 
 
+def MSE(box_true:torch.Tensor, box_pred:torch.Tensor)->float:
+    """
+    Mean Square Error along bbox coordinates and sizes in the cells containing an object
+
+    Args:
+        box_true : torch.Tensor of shape (N, S, S, 5)
+            Groundtruth box tensor
+        box_pred : torch.Tensor of shape (N, S, S, 5)
+            Predicted box tensor
+    
+    Returns:
+        MSE_score : float
+            MSE value between 0 and 1
+    """
+    BATCH_SIZE = len(box_true)
+
+    cells_with_obj = box_true.nonzero()[::5]
+    N, cells_i, cells_j, _ = cells_with_obj.permute(1,0)
+
+    ### (N,S,S,5) -> (N,4)
+    box_true = box_true[N, cells_i, cells_j, 0:4]
+    box_pred = box_pred[N, cells_i, cells_j, 0:4]
+
+    MSE_score = torch.pow(box_true - box_pred,2)
+    MSE_score = (1/BATCH_SIZE) * torch.sum(MSE_score)
+
+    return MSE_score.item()
+
 
 def test():
+    
+
     from MNIST_dataset import get_training_dataset
     
     S = 6
     BATCH_SIZE=16
-    labels_pred = torch.rand(BATCH_SIZE, S, S, 10)
+    label_pred = torch.rand(BATCH_SIZE, S, S, 10)
 
     training_dataset, _ = get_training_dataset(BATCH_SIZE)
-    for img, boxes_true, labels_true in training_dataset:
+    for img, box_true, label_true in training_dataset:
         break
     
-    acc = class_acc(boxes_true, labels_true, labels_pred)
+    acc = class_acc(box_true, label_true, label_pred)
     print(acc)
+
+    box_pred = torch.rand(BATCH_SIZE, S, S, 5)
+    mse_score = MSE(box_true, box_pred)
+    print(mse_score)
 
 if __name__ == '__main__':
     test()
