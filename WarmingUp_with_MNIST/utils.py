@@ -1,6 +1,17 @@
+import logging
 import torch
 from tqdm import tqdm
 
+def create_logging():
+    log_format = (
+    '%(asctime)s ::%(levelname)s:: %(message)s')
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format=log_format, datefmt='%d/%m/%Y %H:%M:%S',
+        filemode="w",
+        filename=('logging.log'),
+    )
 
 def device()->torch.device:
     """
@@ -21,8 +32,9 @@ def device()->torch.device:
     else:
         device=torch.device('cpu')
     
+    logging.info("Execute on {}".format(device))
     print("\n------------------------------------")
-    print(f"Execute notebook on - {device} -")
+    print(f"Execute script on - {device} -")
     print("------------------------------------\n")
 
     return device
@@ -97,6 +109,7 @@ def tqdm_fct(training_dataset):
 
 
 if __name__ == "__main__":
+    create_logging()
     device = device()
     losses_list = ['loss_xy', 'loss_wh', 'loss_conf_obj', 'loss_conf_noobj', 'loss_class']
     losses = {key :0.5 for key in losses_list}
