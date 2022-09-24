@@ -13,3 +13,5 @@ Parameter Group 0
     weight_decay: 0.0005
 )
 24/09/2022 13:59:45 ::INFO:: Start training
+24/09/2022 14:04:58 ::INFO:: Epoch 0/1 -> loss = 0.02843
+24/09/2022 14:04:58 ::INFO:: End training.
