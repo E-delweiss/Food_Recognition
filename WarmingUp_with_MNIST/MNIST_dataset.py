@@ -83,10 +83,8 @@ class my_mnist_dataset(torch.utils.data.Dataset):
         ### 4 coords + 1 conf + 10 classes
         one_hot_label = F.one_hot(torch.as_tensor(label, dtype=torch.int64), 10)
 
-        # box_target = torch.zeros(self.S, self.S, 4+1+self.C)
         box_target = torch.zeros(self.S, self.S, 4+1)
         box_target[j, i, :5] = torch.Tensor([x_norm, y_norm, rw, rh, 1.])
-        # box_target[j, i, 5:] = one_hot_label
 
         return box_target, one_hot_label
 

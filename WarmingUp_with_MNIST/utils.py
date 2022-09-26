@@ -87,6 +87,7 @@ def update_lr(current_epoch:int, optimizer:torch.optim):
     if current_epoch > 7:
         optimizer.defaults['lr'] = 0.0001
 
+
 def save_model(model, path, save):
     from datetime import datetime
     if not save:

@@ -1,8 +1,5 @@
 import torch
 
-from Metrics import MSE, class_acc
-from IoU import intersection_over_union
-
 def validation_loop(model, validation_dataset, S=6, device=torch.device("cpu")):
     """
     Execute validation loop
