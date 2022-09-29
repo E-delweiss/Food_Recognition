@@ -95,7 +95,7 @@ def save_model(model, path, save):
     tm = datetime.now()
     tm = tm.strftime("%d%m%Y_%Hh%M")
     path = path+'_'+tm+'.pt'
-    # torch.save(model.state_dict(), path)
+    torch.save(model.state_dict(), path)
     print("\n")
     print("*"*5, "Model saved to {}.".format(path))
 

@@ -67,4 +67,4 @@ def non_max_suppression(box_pred, label_pred, iou_threshold):
 
     # 5) TODO
     box[N, m[:,0], m[:,1]] = box_max_confidence
-    return box
+    return box, m

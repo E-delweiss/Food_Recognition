@@ -15,7 +15,7 @@ from Validation import validation_loop
 
 learning_rate = 0.001
 BATCH_SIZE = 64
-SAVE_MODEL = False
+SAVE_MODEL = True
 utils.create_logging()
 device = utils.device()
 logging.info(f"Learning rate = {learning_rate}")
@@ -44,7 +44,6 @@ logging.info("Start training")
 
 EPOCHS = 10
 S = 6
-
 
 ################################################################################
 batch_total_train_loss_list = []
@@ -126,7 +125,7 @@ for epoch in range(EPOCHS):
             print(f"| MSE validation box loss : {mse_score:.5f}")
             print(f"| MSE validation confidence score : {mse_confidence_score:.5f}")
             print(f"| Validation class acc : {acc*100:.2f}%")
-            print("\n")
+            print("\n\n")
             #####################################################################################################
 
             if batch == len(training_dataset.dataset)//BATCH_SIZE:
