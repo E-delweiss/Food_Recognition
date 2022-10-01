@@ -26,8 +26,8 @@ def validation_loop(model, validation_dataset, S=6, device=torch.device("cpu")):
         with torch.no_grad():
             ### prediction (N,S,S,5) & (N,S,S,10)
             bbox_pred, labels_pred = model(img)
-
-    return bbox_true, bbox_pred, labels, labels_pred
+        break
+    return img, bbox_true, bbox_pred, labels, labels_pred
 
 
 

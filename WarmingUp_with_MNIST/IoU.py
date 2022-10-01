@@ -13,21 +13,16 @@ def relative2absolute_pred(box_pred_rel, cell_i, cell_j)->tuple:
     S = 6
     CELL_SIZE = 1/S
     BATCH_SIZE = len(box_pred_rel)
+    N = range(BATCH_SIZE)
     
-    xmin = torch.zeros((BATCH_SIZE, S*S))
-    ymin = torch.zeros((BATCH_SIZE, S*S))
-    xmax = torch.zeros((BATCH_SIZE, S*S))
-    ymax = torch.zeros((BATCH_SIZE, S*S))
-
-    it = 0
     ### Absolute center coordinates (xcyc+cell_size)*ji
-    xcr_cell, ycr_cell = box_pred_rel[:,cell_i, cell_j, 0:2].permute(1,0)
+    xcr_cell, ycr_cell = box_pred_rel[N,cell_i, cell_j, 0:2].permute(1,0)
     xcr_img = xcr_cell * CELL_SIZE + cell_j * CELL_SIZE
     ycr_img = ycr_cell * CELL_SIZE + cell_i * CELL_SIZE
     
     ### Fill tensor with all S*S possible bounding boxes
     # Top left absolute coordinates
-    wr_img, hr_img = box_pred_rel[:,cell_i, cell_j, 2:4].permute(1,0)
+    wr_img, hr_img = box_pred_rel[N,cell_i, cell_j, 2:4].permute(1,0)
     xmin = (xcr_img - wr_img/2) * SIZEHW
     ymin = (ycr_img - hr_img/2) * SIZEHW
     

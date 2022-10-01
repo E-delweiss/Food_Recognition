@@ -107,7 +107,7 @@ for epoch in range(EPOCHS):
             utils.pretty_print(batch, len(training_dataset.dataset), current_loss, losses, train_classes_acc)
 
             ############### Compute validation metrics each 100 batch ###########################################
-            bbox_true, bbox_preds, labels, label_preds = validation_loop(model_MNIST, validation_dataset, S, device)
+            _, bbox_true, bbox_preds, labels, label_preds = validation_loop(model_MNIST, validation_dataset, S, device)
             
             ### Validation MSE score
             mse_score = MSE(bbox_true, bbox_preds)

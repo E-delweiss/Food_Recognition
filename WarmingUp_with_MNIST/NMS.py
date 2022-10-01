@@ -28,8 +28,11 @@ def non_max_suppression(box_pred, label_pred, iou_threshold):
     """
     TODO
     """
-    box = torch.clone(box_pred) #(N,S,S,5)
-    labels = torch.clone(label_pred) #(N,S,S,10)
+    # box = torch.clone(box_pred) #(N,S,S,5)
+    # labels = torch.clone(label_pred) #(N,S,S,10)
+
+    box = box_pred #(N,S,S,5)
+    labels = label_pred #(N,S,S,10)
     
     BATCH_SIZE = len(box)
     S = box.shape[1]
@@ -45,7 +48,8 @@ def non_max_suppression(box_pred, label_pred, iou_threshold):
     m = find_indices_max(box[:,:,:,4])
 
     # 2) Getting boxes with the highest conf number for each image
-    box_max_confidence = box[N, m[:,0], m[:,1]] #(N,5)
+    # box_max_confidence = box[N, m[:,0], m[:,1]] #(N,5)
+    box_max_confidence = IoU.relative2absolute_pred(box, m[:,0], m[:,1]) #(N,5)
 
     # 3) Removing boxes with the highest pc numbers
     box[N, m[:,0], m[:,1]] = torch.Tensor([0])
@@ -66,5 +70,6 @@ def non_max_suppression(box_pred, label_pred, iou_threshold):
             box[:,cell_i, cell_j].masked_fill(mask, 0)
 
     # 5) TODO
-    box[N, m[:,0], m[:,1]] = box_max_confidence
+    # print("DEBUG : ", box_max_confidence.shape, box_max_confidence, sep='\n')
+    box[N, m[:,0], m[:,1], :4] = box_max_confidence[:,:4]
     return box, m

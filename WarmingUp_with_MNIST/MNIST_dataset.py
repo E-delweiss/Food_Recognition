@@ -121,7 +121,7 @@ def get_validation_dataset(BATCH_SIZE = None):
     return dataloader
 
 def test():
-    dataloader = get_training_dataset()
+    dataloader = get_validation_dataset()
     imgs, boxes, labels = next(iter(dataloader))
 
     print("Image size : ", imgs.shape)
