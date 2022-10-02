@@ -27,6 +27,7 @@ def draw_bounding_boxes_on_image_array(image:np.ndarray, box_true, box_pred, col
     plt.rc('figure', facecolor='F0F0F0')# Matplotlib fonts
     MATPLOTLIB_FONT_DIR = os.path.join(os.path.dirname(plt.__file__), "mpl-data/fonts/ttf")
     ################################################################################
+
     plt.yticks([])
     plt.xticks([])
 
@@ -35,8 +36,6 @@ def draw_bounding_boxes_on_image_array(image:np.ndarray, box_true, box_pred, col
     rgbimg.paste(image_pil)
     draw_bounding_boxes_on_image(rgbimg, box_true, box_pred, color, thickness, display_str_list)
     plt.imshow(np.array(rgbimg))
-
-    return np.array(rgbimg)
 
 
 

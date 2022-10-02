@@ -40,16 +40,20 @@ def draw_boxes(img, label_true, label_pred, box_true, box_pred,
     n_box_true = box_true[indexes]
     n_box_pred = box_pred[indexes]
 
-    ### Turn to absolute coords
+    ### Turn to absolute coords and get indices of box positions after NMS
     n_box_true_abs = IoU.relative2absolute_true(n_box_true).numpy()
-    tensor_box_pred, temp_indices = NMS.non_max_suppression(n_box_pred, n_label_pred, 0.6)
-    n_box_pred = tensor_box_pred[N, temp_indices[:,0], temp_indices[:,1]].numpy()
-
+    n_box_pred_abs, temp_indices = NMS.non_max_suppression(n_box_pred, n_label_pred, 0.6)
+    n_box_pred_abs = n_box_pred_abs[N, temp_indices[:,0], temp_indices[:,1]].numpy()
+    
+    ### Get label predictions with respect to prediction boxes
     n_label_pred_argmax = n_label_pred_argmax[N, temp_indices[:,0], temp_indices[:,1]]
+
+    ### Get IoU between pred and true boxes
+    n_iou = IoU.intersection_over_union(n_box_true_abs, n_box_pred_abs)
 
     # Set plot configs
     all_plots = plt.figure(figsize=(20, 4))
-    plt.title(title)
+    plt.title(title, fontweight='bold')
     plt.yticks([])
     plt.xticks([])
 
@@ -58,7 +62,7 @@ def draw_boxes(img, label_true, label_pred, box_true, box_pred,
         subplots = all_plots.add_subplot(1, nb_sample, k+1)
 
         # Dispay label name (0,1,2,...,9)
-        plt.xlabel(str(n_label_pred_argmax[k]))
+        plt.xlabel(f"Digit : {n_label_pred_argmax[k]}", fontweight='bold')
         
         # Display in red if pred is false
         if n_label_pred_argmax[k] != n_label_true_argmax[k]:
@@ -66,22 +70,22 @@ def draw_boxes(img, label_true, label_pred, box_true, box_pred,
         else : 
             subplots.xaxis.label.set_color('green')
         
+        # Draw true and pred bounding boxes
         img_to_draw = draw_boxes_utils.draw_bounding_boxes_on_image_array(
             image = n_imgs[k], 
             box_true = n_box_true_abs[k], 
-            box_pred = n_box_pred[k],
+            box_pred = n_box_pred_abs[k],
             color = ["white", "red"], 
             display_str_list = ["true", "pred"]
             )
 
-    ### TODO extract IoU from relative2absolute
-    # if len(iou) > i :
-    #     color = "black"
-    # if (n_iou[i] < iou_threshold):
-    #   color = "red"
-    # ax.text(0.2, -0.3, "iou: %s" %(n_iou[i]), color=color, transform=ax.transAxes)
-    # plt.imshow(np.array(img_to_draw))
-
+        # Display iou in red if iou < threshold
+        if (n_iou[k] < iou_threshold):
+            color = "red"
+        else :
+            color = "green"
+        subplots.text(0.10, -0.4, f"iou: {n_iou[k].item():.3f}", color=color, transform=subplots.transAxes, fontweight='bold')
+            
     plt.show()
  
    
