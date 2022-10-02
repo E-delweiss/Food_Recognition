@@ -6,6 +6,7 @@ def relative2absolute_pred(box_pred_rel, cell_i, cell_j)->tuple:
     """
     box_pred_rel shape (N,5) ???
     [x, y, w , h]
+    TODO
     """
     # assert len(box_true.shape)==4 and len(box_pred.shape)==4, "Bbox should be of size (N,S,S,5)."
 
@@ -16,7 +17,7 @@ def relative2absolute_pred(box_pred_rel, cell_i, cell_j)->tuple:
     N = range(BATCH_SIZE)
     
     ### Absolute center coordinates (xcyc+cell_size)*ji
-    xcr_cell, ycr_cell = box_pred_rel[N,cell_i, cell_j, 0:2].permute(1,0)
+    xcr_cell, ycr_cell = box_pred_rel[N, cell_i, cell_j, 0:2].permute(1,0)
     xcr_img = xcr_cell * CELL_SIZE + cell_j * CELL_SIZE
     ycr_img = ycr_cell * CELL_SIZE + cell_i * CELL_SIZE
     
@@ -30,58 +31,7 @@ def relative2absolute_pred(box_pred_rel, cell_i, cell_j)->tuple:
     xmax = xmin + wr_img*SIZEHW
     ymax = ymin + hr_img*SIZEHW
 
-    box_absolute = torch.stack((xmin, ymin, xmax, ymax), dim=-1)
-    return box_absolute
-
-
-
-
-def relative2absolute_pred_old(box_pred_rel)->tuple:
-    """
-    Only for predicted bounding boxes. 
-    It turns all relative-to-cell coords into absolute coords without
-    considering objects.
-    Later with NMS, those bounding boxes will be filter.
-
-    Args:
-        box_pred_rel : torch.Tensor of shape (N, S, S, 5)
-            Bounding box coordinates to convert. xy are relative-to-cell 
-            and wh are relative to image size.
-    Return:
-        box_absolute : torch.Tensor of shape (N,S*S,4)
-            Contains the 4 coordinates xmin, ymin, xmax, ymax of all S*S 
-            bounding boxes of each image.
-    """
-    # assert len(box_true.shape)==4 and len(box_pred.shape)==4, "Bbox should be of size (N,S,S,5)."
-
-    SIZEHW = 75
-    S = 6
-    CELL_SIZE = 1/S
-    BATCH_SIZE = len(box_pred_rel)
-    
-    xmin = torch.zeros((BATCH_SIZE, S*S))
-    ymin = torch.zeros((BATCH_SIZE, S*S))
-    xmax = torch.zeros((BATCH_SIZE, S*S))
-    ymax = torch.zeros((BATCH_SIZE, S*S))
-
-    it = 0
-    for cell_i in range(S):
-        for cell_j in range(S):
-            ### Absolute center coordinates (xcyc+cell_size)*ji
-            xcr_cell, ycr_cell = box_pred_rel[:,cell_i, cell_j, 0:2].permute(1,0)
-            xcr_img = xcr_cell * CELL_SIZE + cell_j * CELL_SIZE
-            ycr_img = ycr_cell * CELL_SIZE + cell_i * CELL_SIZE
-            
-            ### Fill tensor with all S*S possible bounding boxes
-            # Top left absolute coordinates
-            wr_img, hr_img = box_pred_rel[:,cell_i, cell_j, 0:2].permute(1,0)
-            xmin[:, it] = (xcr_img - wr_img/2) * SIZEHW
-            ymin[:, it] = (ycr_img - hr_img/2) * SIZEHW
-            
-            # Bottom right absolute coordinates
-            xmax[:, it] = xmin[:, it] + wr_img*SIZEHW
-            ymax[:, it] = ymin[:, it] + hr_img*SIZEHW
-            it += 1
+    xmin, ymin, xmax, ymax = xmin.floor(), ymin.floor(), xmax.floor(), ymax.floor()
 
     box_absolute = torch.stack((xmin, ymin, xmax, ymax), dim=-1)
     return box_absolute
@@ -124,26 +74,29 @@ def relative2absolute_true(box_true_rel)->tuple:
     xmax = xmin + wr_img*SIZEHW 
     ymax = ymin + hr_img*SIZEHW
 
-    box_absolute = torch.stack((xmin, ymin, xmax, ymax), dim=-1)
+    xmin, ymin, xmax, ymax = xmin.floor(), ymin.floor(), xmax.floor(), ymax.floor()
+
+    box_absolute = torch.stack((xmin, ymin, xmax, ymax), dim=-1, )
     return box_absolute
 
 
 def intersection_over_union(box_1:torch.Tensor, box_2:torch.Tensor)->float:
     """
     Compute IoU between 2 boxes.
-    Boxes should be [xmin, ymin, xmax, ymax] with absolute coordinates.
+    Boxes should be [xmin, ymin, xmax, ymax, _] with absolute coordinates.
 
     Args:
-        box_1 (torch.Tensor of shape (N,4))
-        box_2 (torch.Tensor of shape (N,4))
+        box_1 (torch.Tensor of shape (N,4) or (N,5))
+        box_2 (torch.Tensor of shape (N,4) or (N,5))
 
     Return:
-        iou : float
+        iou (torch.Tensor of shape (N,1))
     """
     assert len(box_1.shape) == 2 and len(box_2.shape) == 2, "Error shape."
+    box_1, box_2 = torch.Tensor(box_1), torch.Tensor(box_2)
 
-    xmin_1, ymin_1, xmax_1, ymax_1 = box_1.permute(1,0)
-    xmin_2, ymin_2, xmax_2, ymax_2 = box_2.permute(1,0)
+    xmin_1, ymin_1, xmax_1, ymax_1 = box_1[:,:4].permute(1,0)
+    xmin_2, ymin_2, xmax_2, ymax_2 = box_2[:,:4].permute(1,0)
 
     smoothing_factor = 1e-10
     zero = torch.Tensor([0])
@@ -164,15 +117,4 @@ def intersection_over_union(box_1:torch.Tensor, box_2:torch.Tensor)->float:
     union_area = (box_true_area + box_pred_area) - overlap_area
     iou = (overlap_area + smoothing_factor) / (union_area + smoothing_factor)
 
-    return iou   
-
-
-
-def test():
-    S = 6
-    box_true = torch.randint(0, 2, (16, S, S, 5))
-    # box_pred = torch.rand(16, S, S, 5)
-    # iou = intersection_over_union(box_true, box_pred)
-
-if __name__ == '__main__':
-    test()
+    return iou

@@ -145,19 +145,3 @@ class YoloLoss(torch.nn.Module):
 
         assert torch.isnan(loss)==False, "Error : loss turns to NaN."   
         return losses, loss
-
-
-def test():
-    criterion = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=6, device=torch.device('cpu'))
-    prediction_box = torch.rand(32, 6, 6, 5)
-    target_box = torch.rand(32, 6, 6, 5)
-    prediction_label = torch.rand(32, 6, 6, 10)
-    target_label = torch.rand(32, 10)
-
-    losses, loss = criterion(prediction_box, target_box, prediction_label, target_label)
-    print("Losses dict : ", losses.keys())
-    print("Loss : ", loss)
-
-
-if __name__ == "__main__":
-    test()

@@ -100,17 +100,9 @@ class YoloMNIST(torch.nn.Module):
         return box_coord, classifier
 
 
-
-def test():
+if __name__ == "__main__":
     model = YoloMNIST(sizeHW=75, S=6, C=10, B=1)
 
     BATCH_SIZE = 64
     img_test = torch.rand(BATCH_SIZE, 1, 75, 75)
-    box_pred, label_pred = model(img_test)
-    print("Box prediction size : ", box_pred.shape)
-    print("Label prediction size : ", label_pred.shape)
-    print("\n")
     summary(model, input_size = img_test.shape)
-
-if __name__ == "__main__":
-    test()

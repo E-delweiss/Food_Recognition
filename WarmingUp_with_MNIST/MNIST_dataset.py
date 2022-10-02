@@ -119,19 +119,3 @@ def get_validation_dataset(BATCH_SIZE = None):
         BATCH_SIZE = len(dataset)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
     return dataloader
-
-def test():
-    dataloader = get_validation_dataset()
-    imgs, boxes, labels = next(iter(dataloader))
-
-    print("Image size : ", imgs.shape)
-    print("Image type : ", type(imgs))
-    print("Boxes size : ", boxes.shape)
-    print("Boxes type : ", type(boxes))
-    print("Label size : ", labels.shape)
-    print("Label type : ", type(labels))
-
-    print("One hot label : ", labels[np.random.randint(0,64)])
-
-if __name__ == '__main__':
-    test()
