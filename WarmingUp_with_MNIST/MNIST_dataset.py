@@ -12,6 +12,7 @@ class my_mnist_dataset(torch.utils.data.Dataset):
         else:
             train = True
         
+        self.B = 1
         self.C = 10
         self.S = S
         self.dataset = torchvision.datasets.MNIST(root=root, train=train, download=download)
@@ -58,18 +59,18 @@ class my_mnist_dataset(torch.utils.data.Dataset):
         xmin, ymin, w_bbox, h_bbox = box
         
         ### Relative box infos
-        rw = w_bbox / 75
-        rh = h_bbox / 75
-        rx_min = xmin / 75
-        ry_min = ymin / 75
+        wr_img = w_bbox / 75
+        hr_img = h_bbox / 75
+        xr_min = xmin / 75
+        yr_min = ymin / 75
 
         ### x and y box center coords
-        rxc = (rx_min + rw/2)
-        ryc = (ry_min + rh/2)
+        xcr_img = (xr_min + wr_img/2)
+        ycr_img = (yr_min + hr_img/2)
 
         ### Object grid location
-        i = (rxc / self.cell_size).ceil() - 1.0
-        j = (ryc / self.cell_size).ceil() - 1.0
+        i = (xcr_img / self.cell_size).ceil() - 1.0
+        j = (ycr_img / self.cell_size).ceil() - 1.0
         i, j = int(i), int(j)
 
         ### x & y of the cell left-top corner
@@ -77,14 +78,14 @@ class my_mnist_dataset(torch.utils.data.Dataset):
         y0 = j * self.cell_size
         
         ### x & y of the box on the cell, normalized from 0.0 to 1.0.
-        x_norm = (rxc - x0) / self.cell_size
-        y_norm = (ryc - y0) / self.cell_size
+        xcr_cell = (xcr_img - x0) / self.cell_size
+        ycr_cell = (ycr_img - y0) / self.cell_size
 
         ### 4 coords + 1 conf + 10 classes
-        one_hot_label = F.one_hot(torch.as_tensor(label, dtype=torch.int64), 10)
+        one_hot_label = F.one_hot(torch.as_tensor(label, dtype=torch.int64), self.C)
 
-        box_target = torch.zeros(self.S, self.S, 4+1)
-        box_target[j, i, :5] = torch.Tensor([x_norm, y_norm, rw, rh, 1.])
+        box_target = torch.zeros(self.S, self.S, self.B+4)
+        box_target[j, i, :5] = torch.Tensor([xcr_cell, ycr_cell, wr, hr, 1.])
 
         return box_target, one_hot_label
 
