@@ -24,11 +24,11 @@ class YoloMNIST(torch.nn.Module):
         self.seq = torch.nn.Sequential()        
         self.seq.add_module(f"conv_1", CNNBlock(1, 32, stride=2, kernel_size=7, padding=2))
         self.seq.add_module(f"maxpool_1", torch.nn.MaxPool2d(2))
-        self.seq.add_module(f"conv_3", CNNBlock(32, 128, stride=1, kernel_size=3, padding=0))
+        self.seq.add_module(f"conv_2", CNNBlock(32, 128, stride=1, kernel_size=3, padding=0))
         self.seq.add_module(f"maxpool_2", torch.nn.MaxPool2d(2))
-        self.seq.add_module(f"conv_5", CNNBlock(128, 64, stride=1, kernel_size=1, padding=0))
+        self.seq.add_module(f"conv_3", CNNBlock(128, 64, stride=1, kernel_size=1, padding=0))
         self.seq.add_module(f"conv_4", CNNBlock(64, 128, stride=1, kernel_size=3, padding=0))
-        self.seq.add_module(f"conv_6", CNNBlock(128, 128, stride=1, kernel_size=3, padding=1))
+        self.seq.add_module(f"conv_5", CNNBlock(128, 128, stride=1, kernel_size=3, padding=1))
         
         self.fcs = self._create_fcs()
 
