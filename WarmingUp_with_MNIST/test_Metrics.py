@@ -2,7 +2,7 @@ import unittest
 import torch
 import numpy as np
 
-from Metrics import class_acc, MSE, MSE_confidenceScore
+from metrics import class_acc, MSE, MSE_confidenceScore
 
 class TestYololoss(unittest.TestCase):
     """
