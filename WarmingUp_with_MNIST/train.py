@@ -7,11 +7,11 @@ import torch
 
 # from utils import create_logging, device, pretty_print, update_lr, save_model, tqdm_fct
 import utils
-from Yolo_loss import YoloLoss
+from yolo_loss import YoloLoss
 from MNIST_dataset import get_training_dataset, get_validation_dataset
-from Darknet_like import YoloMNIST
-from Metrics import MSE, MSE_confidenceScore, class_acc
-from Validation import validation_loop
+from darknet_like import YoloMNIST
+from metrics import MSE, MSE_confidenceScore, class_acc
+from validation import validation_loop
 
 learning_rate = 0.001
 BATCH_SIZE = 64
