@@ -1,7 +1,7 @@
 import unittest
 import torch
 
-from Yolo_loss import YoloLoss
+from yolo_loss import YoloLoss
 
 class TestYololoss(unittest.TestCase):
     """
