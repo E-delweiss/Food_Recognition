@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import os
 
-from Darknet_like import YoloMNIST
-from Validation import validation_loop
+from darknet_like import YoloMNIST
+from validation import validation_loop
 from MNIST_dataset import get_validation_dataset
 import IoU
 import NMS
