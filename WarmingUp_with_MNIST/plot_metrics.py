@@ -7,9 +7,9 @@ import torch
 from sklearn.metrics import confusion_matrix
 import seaborn as sn
 
-from Darknet_like import YoloMNIST
+from darknet_like import YoloMNIST
 from MNIST_dataset import get_validation_dataset
-from Validation import validation_loop
+from validation import validation_loop
 from sklearn.metrics import confusion_matrix
 
 
