@@ -111,7 +111,7 @@ From the Yolo paper, I recall the global formula of the Yolo loss. Again, I reco
 What should this class do more than returning the loss ? So that loss fit well in my pipeline, I needed few things :
 * Treat tensor with shape (N,S,S,5)
 * Treat the N images as matrix operations. That way, I do not need to loop over the batch which improves the overall performances
-* Treat the presence or absence of an object with a mask
+* Treat the presence or absence of an object as a mask
 * Keep track of each loss (xy coordinates, wh sizes, confidence *with* object, confidence *without* object and classes)
 
 At the end, this leads to the following snippet of code :
@@ -147,6 +147,24 @@ def forward(self, pred_box:torch.Tensor, true_box:torch.Tensor, pred_class:torch
 
     loss = torch.sum(loss) / BATCH_SIZE
     return losses, loss
+```
 
+# Training
+The [training module](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/train.py) executes a classic training loop with an inner [validation loop](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/validation.py) which computes accuracies and MSEs each 100 batch. It prints a [log](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/results/logging_10epochs_relativeCoords_29092022_19h41.log) and then save the model and the losses.
+
+* `Adam` optimizer is used
+* It trains over 7 epochs with `lr = 1e-3` then the last 3 with `lr = 1e-4`
+* `BATCH_SIZE = 64`
 
 ```
+...
+29/09/2022 19:36:23 ::INFO:: ***** Validation class acc : 93.33%
+29/09/2022 19:41:56 ::INFO:: Epoch 10/10
+29/09/2022 19:41:56 ::INFO:: ***** Training loss : 0.00437
+29/09/2022 19:41:56 ::INFO:: ***** MSE validation box loss : 0.02212
+29/09/2022 19:41:56 ::INFO:: ***** MSE validation confidence score : 0.14191
+29/09/2022 19:41:56 ::INFO:: ***** Validation class acc : 97.23%
+29/09/2022 19:41:56 ::INFO:: End training.
+```
+
+# Draw boxes
