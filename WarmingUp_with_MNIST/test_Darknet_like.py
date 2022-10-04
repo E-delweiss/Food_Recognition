@@ -1,7 +1,7 @@
 import unittest
 import torch
 
-from Darknet_like import YoloMNIST
+from darknet_like import YoloMNIST
 
 class TestDarknetlike(unittest.TestCase):
     """
