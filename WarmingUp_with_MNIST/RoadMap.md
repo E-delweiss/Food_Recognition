@@ -29,7 +29,7 @@ To create my dataset I proceed through those steps (see [MNIST_dataset.py](https
 
 At the end, a SxS grid is obtained for each image. See below, for `S=6` and the digit `0` : its bounding box size is 28x28 (0.3733x0.3733 relatively to the image) and its center is in the cell `(2,1)`, preciselly, at the coordinates `(0.60, 0.32)` *respectively to this cell*.  
 
-![alt text](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/results/img_utils/example_SxSgrid_digit0.png)
+![alt text](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/img_utils/example_SxSgrid_digit0.png)
 
 
 ```python
@@ -60,7 +60,8 @@ def _encode(self, box, label):
 # Darknet-like model
 I first started to create the same model from the Yolo paper. 
 
-![alt text](https://github.com/ThOpaque/Food_Recognition/tree/main/WarmingUp_with_MNIST/img_utils/yolo_architecture.png)
+![alt text](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/img_utils/yolo_architecture.png)
+
 
 Of course, to achieve my purpuse on MNIST, I do not need a such complex model. So, I created a [Darknet-like](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/Darknet_like.py) one, by keeping the same global topology :
 - Using CNN Blocks which contains a convolutional layer, a batch normalization layer and a LeakyReLU activation
@@ -105,4 +106,47 @@ class YoloMNIST(torch.nn.Module):
 # Yolo Loss
 From the Yolo paper, I recall the global formula of the Yolo loss. Again, I recommand you to look at the references I listed above.
 
-![alt text](https://github.com/ThOpaque/Food_Recognition/tree/main/WarmingUp_with_MNIST/img_utils/yolo_loss.png)
+![alt text](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/img_utils/yolo_loss.png)
+
+What should this class do more than returning the loss ? So that loss fit well in my pipeline, I needed few things :
+* Treat tensor with shape (N,S,S,5)
+* Treat the N images as matrix operations. That way, I do not need to loop over the batch which improves the overall performances
+* Treat the presence or absence of an object with a mask
+* Keep track of each loss (xy coordinates, wh sizes, confidence *with* object, confidence *without* object and classes)
+
+At the end, this leads to the following snippet of code :
+
+```python
+def forward(self, pred_box:torch.Tensor, true_box:torch.Tensor, pred_class:torch.Tensor, true_class:torch.Tensor):
+    ...
+    ### Compute the losses for all images in the batch
+    for i in range(self.S):
+        for j in range(self.S):
+            ...
+            ### objects to detect
+            pred_c = pred_box[:,i,j,4]
+            true_c = true_box[:,i,j,4]
+            isObject = true_c.eq(0)
+
+            ### sum the losses over the grid
+            losses['loss_xy'] += self._coordloss(xy_hat, xy, isObject)
+            losses['loss_wh'] += self._sizeloss(wh_hat, wh, isObject)
+            losses['loss_conf_obj'] += self._confidenceloss(pred_c, true_c, isObject)
+            losses['loss_conf_noobj'] += self._confidenceloss(pred_c, true_c, torch.logical_not(isObject))
+            losses['loss_class'] += self._classloss(pred_class[:,i,j], true_class, isObject)
+
+    ### Yolo_v1 loss over the batch, shape : (BATCH_SIZE)
+    for key, value in losses.items():
+        losses[key] = torch.sum(value)/BATCH_SIZE
+
+    loss = self.LAMBD_COORD * losses['loss_xy'] \
+            + self.LAMBD_COORD * losses['loss_wh'] \
+            + losses['loss_conf_obj'] \
+            + self.LAMBD_NOOBJ * losses['loss_conf_noobj'] \
+            + losses['loss_class']
+
+    loss = torch.sum(loss) / BATCH_SIZE
+    return losses, loss
+
+
+```
