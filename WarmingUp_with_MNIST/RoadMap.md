@@ -168,16 +168,66 @@ The [training module](https://github.com/ThOpaque/Food_Recognition/blob/main/War
 ```
 
 # Draw bounding boxes
-Drawing the boudning boxes is the final step of the Yolo algorithm. It's not the easiest one since it requires to get rid of all the predictions that are not relevent. One recalls the model retrieves one bounding box per grid cell, which leads to a total of `S*S = 36` bounding boxes. So, one needs to take into account the best bounding box that should surround the digit (I say the *best bounding box* since there is only **one** object per image. We'll see in [Compagny Meal Trays Detection](https://github.com/ThOpaque/Food_Recognition/tree/main/YoloV1_Compagny_MealTrays) that it's a bit more complicated).
+Drawing the boudning boxes is the final step of the Yolo algorithm. It's not the easiest one since it requires to get rid of all the predictions that are not relevent. One recalls the model retrieves one bounding box per grid cell, which leads to a total of `S*S=36` bounding boxes. So, one needs to take into account the best bounding box that may surround the digit (I say the *best bounding box* since there is only **one** object per image. With multiple objects per image, like in [Compagny Meal Trays Detection](https://github.com/ThOpaque/Food_Recognition/tree/main/YoloV1_Compagny_MealTrays) it's a bit more complicated).
 
 So, to draw bounding boxes I needed to : 
 * Convert relative bounding box infos into absolute coordinates
 * Compute the IoU
-* Apply a NMS-like that retrieves the best bounding box candidate (I say *NMS-like* since the "real NMS" applies on image with more than one object is a bit more complex)
+* Apply a NMS-like that retrieves the best bounding box candidate (I say *NMS-like* since a "real NMS" is applied on image with more than one object which is a bit more complex)
+* Draw bounding boxes
 
 
 ### Relative to absolute
+In my pipeline I define [two modules](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/IoU.py) to turns relative infos into absolute coordinates. The first one handle the predicted bounding boxes and the second the groundtruth bounding boxes.
+
+Since the position of the object is not known during prediction, the `relative2absolute_pred` module needs the current cell `(i,j)` position. It is called in the [`NMS` module](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/NMS.py) which produce the `6*6=36` bounding boxes.
+
+For groundtruth coordinates, it is easier. I just need to retrieve the non-zero positions (since only the cell containing an object has informations in the `(N,S,S,5)` tensor) and use them to turn relatives infos into absolute coordinates.
 
 ### Intersection over Union
+This function is needed for two purpuses : 
+
+* For validation by computing the gap between groundtruth and predicted boxes
+* For Non-Max-Suppression also, but in this case since there is only one object to detect, it is not usefull
 
 ### Non-Max-Suppression
+The non-max-suppression algorithm should get rid of boxes that have spotted an object but that have not a decent IoU to get chosen regarding the "best one" (which is the box with the highest confidence number). If done correctly, it should let only the boxes with the highest confidence number for each object in the image.
+
+Note also that this confidence number is function of the class prediction probability `pc = pc * P(Ci)` to get the confidence number of a specific object.
+
+Again, since it's a one object detection, one just need to get the predicted box with the maximum confidence number. 
+
+### Drawing bounding boxes
+Here, I'll explain my drawing pipeline. It starts from the [`draw_boxes` module](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/draw_boxes.py).
+
+This module select `n` random validation images and plot them with groundtruth and predicted bounding boxes. It indicates for each plot the class prediction and the IoU. It calls the [draw_boxes_utils module](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/draw_boxes_utils.py) to :
+* Create a new `PIL` image and paste the validation image on it
+* Draw the groundtruth and predicted bounding boxes with corresponding coordinates and colors
+
+
+```python
+def draw_bounding_boxes_on_image_array(
+    image:np.ndarray, box_true, box_pred, color:list=[], thickness:int=1, display_str_list:list=[]
+    ):
+    ...
+    image_pil = PIL.Image.fromarray(image)
+    rgbimg = PIL.Image.new("RGBA", image_pil.size)
+    rgbimg.paste(image_pil)
+    draw_bounding_boxes_on_image(rgbimg, box_true, box_pred, color, thickness, display_str_list)
+    plt.imshow(np.array(rgbimg))
+```
+
+```python
+def draw_ONE_bounding_box_on_image(
+    image, xmin:float, ymin:float, xmax:float, ymax:float, color:list=[], thickness:int=1, display_str:list=[]
+    ):
+    ...
+    draw = PIL.ImageDraw.Draw(image)
+    left, right, top, bottom = xmin, xmax, ymin, ymax
+    draw.line([
+        (left, top), (left, bottom), 
+        (right, bottom), (right, top), 
+        (left, top)], width=thickness, fill=color)
+```
+
+![alt text](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/results/MNIST_localization_10exemples.png)
