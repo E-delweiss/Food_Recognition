@@ -4,9 +4,13 @@ import IoU
 
 def find_indices_max(box):
     """
-    TODO
-    input tens : torch.Tensor of shape (N,S,S,1)
-    output batch_indices : torch.Tensor of shape (N,2)
+    Retrieve columns and rows of max values.
+
+    Arguments : 
+        box : torch.Tensor of shape (N,S,S,1)
+    
+    Returns :
+        batch_indices : torch.Tensor of shape (N,2)
     """
     N = box.shape[0]
     S = box.shape[1]  
@@ -26,7 +30,16 @@ def find_indices_max(box):
 
 def non_max_suppression(box_pred, label_pred, iou_threshold):
     """
-    TODO
+    Use confidence number and class probabilities such as pc = pc * P(C)
+    to keep only predicted boxes with the highest confidence number.
+    Convert boxes into absolute coordinates and compute IoU.
+
+    Arguments :
+        box_pred : torch.Tensor of shape (N,S,S,5)
+            Predicted boxes
+        label_pred : torch.Tensor of shape (N,S,S,10)
+            Predicted labels
+        iou_threshold : float TODO 
     """
     # box = torch.clone(box_pred) #(N,S,S,5)
     # labels = torch.clone(label_pred) #(N,S,S,10)

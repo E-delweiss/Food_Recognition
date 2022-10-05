@@ -12,14 +12,37 @@ import draw_boxes_utils
 
 
 
-def draw_boxes(img, label_true, label_pred, box_true, box_pred, 
-                                            iou_threshold=0.6,
-                                            nb_sample=10, 
-                                            title="MNIST groundtruth vs predictions"):
+def draw_boxes(
+    img:torch.Tensor, label_true:torch.Tensor, label_pred:torch.Tensor, 
+    box_true:torch.Tensor, box_pred:torch.Tensor, iou_threshold:float=0.6, 
+    nb_sample:int=10, title:str=""
+    ):
     """
-    TBM
-    /!\ box_pred i.e. box_pred_NMS
+    Display 'n' images and draw groundtruth and predicted bounding boxes on it.
+    Show predicted class and IoU value between the two boxes.
+
+    Args:
+        img (torch.Tensor of shape (N,1,75,75))
+            Images from validation dataset.
+        label_true (torch.Tensor of shape (N,10))
+            Groundtruth labels from validation dataset.
+        label_pred (torch.Tensor of shape (N,S,S,10))
+            Predicted labels from validation dataset.
+        box_true (torch.Tensor of shape (N,S,S,5))
+            Groundtruth bounding boxes from validation dataset.
+        box_pred (torch.Tensor of shape (N,S,S,5))
+            Predicted bounding boxes from validation dataset.
+        iou_threshold (float, optional)
+            Defaults to 0.6.
+        nb_sample (int, optional)
+            Nb of sample to display. Defaults to 10.
+        title (str, optional)
+            Title of the plot. Defaults to "".
+
+    Returns:
+        None
     """
+
     BATCH_SIZE = len(img)
     indexes = np.random.choice(BATCH_SIZE, size=nb_sample)
     N = range(nb_sample)
@@ -105,4 +128,4 @@ if __name__ == "__main__":
     validation_dataset = get_validation_dataset(64)
     img, box_true, box_pred, label_true, label_pred = validation_loop(model_MNIST, validation_dataset)
 
-    draw_boxes(img, label_true, label_pred, box_true, box_pred)
+    draw_boxes(img, label_true, label_pred, box_true, box_pred, title="MNIST groundtruth vs predictions")

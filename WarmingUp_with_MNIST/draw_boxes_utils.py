@@ -3,19 +3,26 @@ import os
 import PIL
 import matplotlib.pyplot as plt
 
-def draw_bounding_boxes_on_image_array(image:np.ndarray, box_true, box_pred, color:list=[], 
-                                                                             thickness:int=1, display_str_list:list=[]):
-    """Draws bounding boxes on image (numpy array).
-        TODO : docstring correction
+def draw_bounding_boxes_on_image_array(
+    image:np.ndarray, box_true:np.ndarray, box_pred:np.ndarray, color:list=[],thickness:int=1
+    ):
+    """
+    Draws bounding boxes on PIL image.
+
     Args:
-        image: a numpy array object.
-        ####boxes: a 2 dimensional numpy array of [N, 4]: (ymin, xmin, ymax, xmax).
-                     The coordinates are in normalized format between [0, 1].######
-        color: color to draw bounding box. Default is red.
-        thickness: line thickness. Default value is 4.
-        display_str_list_list: a list of strings for each bounding box.
-    Raises:
-        ValueError: if boxes is not a [N, 4] array
+        image (np.ndarray of shape (N,1,75,75))
+            Validation images reshaped and un-normalized. 
+        box_true (np.ndarray of shape (N,4))
+            Groundtruth boxes with absolute coordinates.
+        box_pred (np.ndarray)
+            Predicted boxes with absolute coordinates.
+        color (list, optional)
+            Color of bounding boxes. Defaults to [].
+        thickness (int, optional)
+            Thickness of lines. Defaults to 1.
+
+    Returns:
+        None.
     """
     ############### Matplotlib config
     plt.rc('image', cmap='gray')
@@ -34,54 +41,62 @@ def draw_bounding_boxes_on_image_array(image:np.ndarray, box_true, box_pred, col
     image_pil = PIL.Image.fromarray(image)
     rgbimg = PIL.Image.new("RGBA", image_pil.size)
     rgbimg.paste(image_pil)
-    draw_bounding_boxes_on_image(rgbimg, box_true, box_pred, color, thickness, display_str_list)
+    draw_bounding_boxes_on_image(rgbimg, box_true, box_pred, color, thickness)
     plt.imshow(np.array(rgbimg))
 
 
 
-def draw_bounding_boxes_on_image(image, box_true, box_pred, color_list:list=[], 
-                                                                 thickness:int=1, display_str_list:list=[]):
-    """Draws bounding boxes on image.
-        TODO : doctring correction
+def draw_bounding_boxes_on_image(
+    image:PIL.Image, box_true:np.ndarray, box_pred:np.ndarray, color_list:list=[], thickness:int=1
+    ):
+    """
+    Draws bounding boxes on image. Calls the module draw_ONE_bounding_box_on_image twice to plot 
+    both groundtruth and predicted bounding boxes.
+
     Args:
-        image: PIL.Image.
-        boxes: numpy array of shape (N,4)
-            Contains (ymin, xmin, ymax, xmax). The coordinates are absolute.
-        color: list, default is empty
-            Color to draw bounding box.
-        thickness: int, default value is 4
-            Line thickness.
-        display_str_list: tuple
-            A list of strings for each bounding box.
-                                                     
-    Raises:
-        ValueError: if boxes is not a [N, 4] array
+        image (PIL.Image)
+            PIL Image on which the 75x75 image has been pasted.
+        box_true (np.ndarray of shape (N,4))
+            Groundtruth boxes with absolute coordinates.
+        box_pred (np.ndarray)
+            Predicted boxes with absolute coordinates.
+        color (list, optional)
+            Color of bounding boxes. Defaults to [].
+        thickness (int, optional)
+            Thickness of lines. Defaults to 1.
+
+    Returns:
+    None.
     """
     draw_ONE_bounding_box_on_image(image, box_true[0], box_true[1], box_true[2], box_true[3], color=color_list[0], thickness=thickness)
     draw_ONE_bounding_box_on_image(image, box_pred[0], box_pred[1], box_pred[2], box_pred[3], color=color_list[1], thickness=thickness)
 
                                                             
 
-def draw_ONE_bounding_box_on_image(image, xmin:float, ymin:float, xmax:float, ymax:float, 
-                                                             color:list=[], thickness:int=1, display_str:list=[]):
-    """Adds a bounding box to an image.
-    Bounding box coordinates can be specified in either absolute (pixel) or
-    normalized coordinates by setting the use_normalized_coordinates argument.
+def draw_ONE_bounding_box_on_image(
+    image, xmin:float, ymin:float, xmax:float, ymax:float, color:list=[], thickness:int=1
+    ):
+    """
+    Draw lines on PIL Image.
     
-        TODO : doctring correction
-
     Args:
-        image: a PIL.Image object.
-        ymin: ymin of bounding box.
-        xmin: xmin of bounding box.
-        ymax: ymax of bounding box.
-        xmax: xmax of bounding box.
-        color: color to draw bounding box. Default is red.
-        thickness: line thickness. Default value is 4.
-        display_str_list: string to display in box
-        use_normalized_coordinates: If True (default), treat coordinates
-            ymin, xmin, ymax, xmax as relative to the image.    Otherwise treat
-            coordinates as absolute.
+        image (PIL.Image)
+            PIL Image on which the 75x75 image has been pasted.
+        xmin (float)
+            Top left x value of bounding box.
+        ymin (float)
+            Top left y value of bounding box.
+        xmax (float)
+            Bottom right x value of bounding box.
+        tmax (float)
+            Bottom right y value of bounding box.
+        color (list, optional)
+            Color of bounding boxes. Defaults to [].
+        thickness (int, optional)
+            Thickness of lines. Defaults to 1.
+
+    Returns:
+        None
     """
     draw = PIL.ImageDraw.Draw(image)
     left, right, top, bottom = xmin, xmax, ymin, ymax
