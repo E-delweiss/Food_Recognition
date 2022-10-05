@@ -41,9 +41,9 @@ def draw_boxes(img, label_true, label_pred, box_true, box_pred,
     n_box_pred = box_pred[indexes]
 
     ### Turn to absolute coords and get indices of box positions after NMS
-    n_box_true_abs = IoU.relative2absolute_true(n_box_true).numpy()
+    n_box_true_abs = IoU.relative2absolute_true(n_box_true)
     n_box_pred_abs, temp_indices = NMS.non_max_suppression(n_box_pred, n_label_pred, 0.6)
-    n_box_pred_abs = n_box_pred_abs[N, temp_indices[:,0], temp_indices[:,1]].numpy()
+    n_box_pred_abs = n_box_pred_abs[N, temp_indices[:,0], temp_indices[:,1]]
     
     ### Get label predictions with respect to prediction boxes
     n_label_pred_argmax = n_label_pred_argmax[N, temp_indices[:,0], temp_indices[:,1]]
@@ -51,7 +51,11 @@ def draw_boxes(img, label_true, label_pred, box_true, box_pred,
     ### Get IoU between pred and true boxes
     n_iou = IoU.intersection_over_union(n_box_true_abs, n_box_pred_abs)
 
-    # Set plot configs
+    ### draw_boxes_utils uses arrays only
+    n_box_true_abs = n_box_true_abs.numpy()
+    n_box_pred_abs = n_box_pred_abs.numpy()
+
+    ### Set plot configs
     all_plots = plt.figure(figsize=(20, 4))
     plt.title(title, fontweight='bold')
     plt.yticks([])

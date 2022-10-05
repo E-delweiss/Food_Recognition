@@ -15,7 +15,16 @@ def validation_loop(model, validation_dataset, S=6, device=torch.device("cpu")):
             Running device. Defaults to cpu
 
     Returns:
-        TBM
+        img (torch.Tensor of shape (N,1,75,75))
+            Images from validation dataset
+        bbox_true (torch.Tensor of shape (N,S,S,5))
+            Groundtruth bounding boxes
+        bbox_pred (torch.Tensor of shape (N,S,S,5))
+            Predicted bounding boxes
+        labels (torch.Tensor of shape (N,S,S,10))
+            Groundtruth labels
+        labels_pred (torch.Tensor of shape (N,S,S,10))
+            Predicted labels
     """
     model.eval()
     print("|")

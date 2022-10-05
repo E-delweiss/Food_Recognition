@@ -2,14 +2,25 @@ import torch
 
 from utils import device
 
-def relative2absolute_pred(box_pred_rel, cell_i, cell_j)->tuple:
+def relative2absolute_pred(box_pred_rel, cell_i, cell_j)->torch.Tensor:
     """
-    box_pred_rel shape (N,5) ???
-    [x, y, w , h]
-    TODO
-    """
-    # assert len(box_true.shape)==4 and len(box_pred.shape)==4, "Bbox should be of size (N,S,S,5)."
+    Turns relative box infos into absolute coordinates 
+    xmin, ymin, xmax, ymax.
+    Used by the NMS module.
 
+    Args:
+        box_pred_rel (torch.Tensor of shape (N,S,S,5))
+            Predicted bounding boxes, outputs of the model
+        cell_i (int)
+            Current cell i position
+        cell_j (int)
+            Current cell j position
+
+    Returns:
+        box_absolute (torch.Tensor of shape (N,4))
+            Contains the 4 predicted coordinates xmin, ymin, 
+            xmax, ymax for each image.
+    """
     SIZEHW = 75
     S = 6
     CELL_SIZE = 1/S
@@ -51,8 +62,6 @@ def relative2absolute_true(box_true_rel)->tuple:
         box_absolute : torch.Tensor of shape (N,4)
             Contains the 4 coordinates xmin, ymin, xmax, ymax for each image.
     """
-    # assert len(box_true.shape)==4 and len(box_pred.shape)==4, "Bbox should be of size (N,S,S,5)."
-
     SIZEHW = 75
     S = 6
     CELL_SIZE = 1/S
@@ -92,9 +101,6 @@ def intersection_over_union(box_1:torch.Tensor, box_2:torch.Tensor)->float:
     Return:
         iou (torch.Tensor of shape (N,1))
     """
-    assert len(box_1.shape) == 2 and len(box_2.shape) == 2, "Error shape."
-    box_1, box_2 = torch.Tensor(box_1), torch.Tensor(box_2)
-
     xmin_1, ymin_1, xmax_1, ymax_1 = box_1[:,:4].permute(1,0)
     xmin_2, ymin_2, xmax_2, ymax_2 = box_2[:,:4].permute(1,0)
 
@@ -116,5 +122,4 @@ def intersection_over_union(box_1:torch.Tensor, box_2:torch.Tensor)->float:
         torch.maximum((ymax_overlap - ymin_overlap), zero)
     union_area = (box_true_area + box_pred_area) - overlap_area
     iou = (overlap_area + smoothing_factor) / (union_area + smoothing_factor)
-
     return iou
