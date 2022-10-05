@@ -31,5 +31,5 @@ Trainable params: 21,359,612
 ```
 
 
-### Project 2 : Food Recognition on companie meal trays
+### Project 2 : Food Recognition on Company Meal Trays
 (In process...)
