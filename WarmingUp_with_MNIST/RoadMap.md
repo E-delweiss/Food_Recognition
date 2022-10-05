@@ -153,7 +153,7 @@ def forward(self, pred_box:torch.Tensor, true_box:torch.Tensor, pred_class:torch
 The [training module](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/train.py) executes a classic training loop with an inner [validation loop](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/validation.py) which computes accuracies and MSEs each 100 batch. It prints a [log](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/results/logging_10epochs_relativeCoords_29092022_19h41.log) and then save the model and the losses.
 
 * `Adam` optimizer is used
-* It trains over 7 epochs with `lr = 1e-3` then the last 3 with `lr = 1e-4`
+* It has been train with `lr = 1e-3` for the first 7 epochs then `lr = 1e-4` for the last 3 
 * `BATCH_SIZE = 64`
 
 ```
@@ -167,4 +167,17 @@ The [training module](https://github.com/ThOpaque/Food_Recognition/blob/main/War
 29/09/2022 19:41:56 ::INFO:: End training.
 ```
 
-# Draw boxes
+# Draw bounding boxes
+Drawing the boudning boxes is the final step of the Yolo algorithm. It's not the easiest one since it requires to get rid of all the predictions that are not relevent. One recalls the model retrieves one bounding box per grid cell, which leads to a total of `S*S = 36` bounding boxes. So, one needs to take into account the best bounding box that should surround the digit (I say the *best bounding box* since there is only **one** object per image. We'll see in [Compagny Meal Trays Detection](https://github.com/ThOpaque/Food_Recognition/tree/main/YoloV1_Compagny_MealTrays) that it's a bit more complicated).
+
+So, to draw bounding boxes I needed to : 
+* Convert relative bounding box infos into absolute coordinates
+* Compute the IoU
+* Apply a NMS-like that retrieves the best bounding box candidate (I say *NMS-like* since the "real NMS" applies on image with more than one object is a bit more complex)
+
+
+### Relative to absolute
+
+### Intersection over Union
+
+### Non-Max-Suppression
