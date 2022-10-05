@@ -4,9 +4,6 @@ import torch
 from yolo_loss import YoloLoss
 
 class TestYololoss(unittest.TestCase):
-    """
-    TODO
-    """
     def __init__(self, TestYololoss) -> None:
         super().__init__(TestYololoss)
         self.size = 75

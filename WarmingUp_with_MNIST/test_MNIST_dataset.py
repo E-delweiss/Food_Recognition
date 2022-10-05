@@ -3,9 +3,6 @@ import numpy as np
 from MNIST_dataset import my_mnist_dataset
 
 class TestMNISTDataset(unittest.TestCase):
-    """
-    TODO
-    """
     def __init__(self, TestMNISTDataset) -> None:
         super().__init__(TestMNISTDataset)
         self.size = 75

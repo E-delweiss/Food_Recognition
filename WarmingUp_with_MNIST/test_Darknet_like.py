@@ -4,9 +4,6 @@ import torch
 from darknet_like import YoloMNIST
 
 class TestDarknetlike(unittest.TestCase):
-    """
-    TODO
-    """
     def __init__(self, TestDarknetlike) -> None:
         super().__init__(TestDarknetlike)
         self.size = 75

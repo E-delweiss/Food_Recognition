@@ -5,9 +5,6 @@ import numpy as np
 from IoU import relative2absolute_true, relative2absolute_pred, intersection_over_union
 
 class TestYololoss(unittest.TestCase):
-    """
-    TODO
-    """
     def __init__(self, TestYololoss) -> None:
         super().__init__(TestYololoss)
         size = 75

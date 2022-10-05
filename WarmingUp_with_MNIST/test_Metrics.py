@@ -5,9 +5,6 @@ import numpy as np
 from metrics import class_acc, MSE, MSE_confidenceScore
 
 class TestYololoss(unittest.TestCase):
-    """
-    TODO
-    """
     def __init__(self, TestYololoss) -> None:
         super().__init__(TestYololoss)
         size = 75
