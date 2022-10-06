@@ -3,6 +3,5 @@
 .ipynb_checkpoints
 *.pt
 
-plato_dataset/
 __pycache__/
 data/
