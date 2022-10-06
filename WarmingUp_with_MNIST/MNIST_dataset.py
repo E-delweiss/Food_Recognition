@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import torchvision
 
 
-class my_mnist_dataset(torch.utils.data.Dataset):
+class MNISTDataset(torch.utils.data.Dataset):
     def __init__(self, root:str, split:str="train", download:bool=False, S=6, sizeHW=75):
         if split == "test":
             train = False
@@ -81,11 +81,12 @@ class my_mnist_dataset(torch.utils.data.Dataset):
         xcr_cell = (xcr_img - x0) / self.cell_size
         ycr_cell = (ycr_img - y0) / self.cell_size
 
-        ### 4 coords + 1 conf + 10 classes
+        ### Label one-hot encoding
         one_hot_label = F.one_hot(torch.as_tensor(label, dtype=torch.int64), self.C)
 
+        ### 4 coords + 1 conf + 10 classes
         box_target = torch.zeros(self.S, self.S, self.B+4)
-        box_target[j, i, :5] = torch.Tensor([xcr_cell, ycr_cell, wr, hr, 1.])
+        box_target[j, i, :5] = torch.Tensor([xcr_cell, ycr_cell, wr_img, hr_img, 1.])
 
         return box_target, one_hot_label
 
@@ -107,7 +108,7 @@ def get_training_dataset(BATCH_SIZE=64):
     """
     Loads and maps the training split of the dataset using the custom dataset class. 
     """
-    dataset = my_mnist_dataset(root="data", split="train", download=True)
+    dataset = MNISTDataset(root="data", split="train", download=True)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     return dataloader
 
@@ -115,7 +116,7 @@ def get_validation_dataset(BATCH_SIZE = None):
     """
     Loads and maps the validation split of the datasetusing the custom dataset class. 
     """
-    dataset = my_mnist_dataset(root="data", split="test", download=True)
+    dataset = MNISTDataset(root="data", split="test", download=True)
     if BATCH_SIZE is None:
         BATCH_SIZE = len(dataset)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)

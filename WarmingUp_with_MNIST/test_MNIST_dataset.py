@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from MNIST_dataset import my_mnist_dataset
+from MNIST_dataset import MNISTDataset
 
 class TestMNISTDataset(unittest.TestCase):
     def __init__(self, TestMNISTDataset) -> None:
@@ -11,7 +11,7 @@ class TestMNISTDataset(unittest.TestCase):
         self.C = 10
 
     def test_my_mnist_dataset(self):
-        output = my_mnist_dataset(root="data", split="train", download=True)
+        output = MNISTDataset(root="data", split="train", download=True)
         idx = np.random.randint(len(output))
         output = output[idx]
         self.assertIs(type(output), tuple)
