@@ -34,7 +34,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
         self.FLIP_V = False
         self.CROP = False
 
-    def build_annotations(self, data_txt):
+    def _build_annotations(self, data_txt):
         """
         Example : for key = '20220308112654_000042_059_0000000001_B______xx_C (1636)' 
         Output = [
@@ -85,39 +85,39 @@ class MealtraysDataset(torch.utils.data.Dataset):
 
         return img, box_target
 
-    def convert_to_PIL(self, img_path):
+    def _convert_to_PIL(self, img_path):
         new_size = (self.SIZE, self.SIZE)
         img = PIL.Image.open(img_path).convert('RGB').resize(new_size, PIL.Image.Resampling.BICUBIC)
         return img
 
-    def transform(self, img_PIL):
+    def _transform(self, img_PIL):
         return torchvision.transforms.ToTensor()(img_PIL)
 
-    def flipH(self, img_PIL):
+    def _flipH(self, img_PIL):
         if rd.random() < 0.5:
             return img_PIL
         img_PIL = torchvision.transforms.RandomHorizontalFlip(p=1.)(img_PIL)
         self.FLIP_H = True
         return img_PIL
 
-    def flipV(self, img_PIL):
+    def _flipV(self, img_PIL):
         if rd.random() < 0.5:
             return img_PIL
         img_PIL = torchvision.transforms.RandomVerticalFlip(p=1.)(img_PIL)
         self.FLIP_V = True
         return img_PIL
 
-    def crop(self, img_PIL):
+    def _crop(self, img_PIL):
         ### TODO
         return img_PIL
 
-    def augmentation(self, img_PIL):
+    def _augmentation(self, img_PIL):
         img_PIL = self.flipH(img_PIL)
         img_PIL = self.flipV(img_PIL)
         img_PIL = self.crop(img_PIL)
         return img_PIL
 
-    def encode(self, img_path):
+    def _encode(self, img_path):
         """
         Encode box informations (coordinates, size and label) as a 
         (S,S,C+B+4+1) tensor.
@@ -169,9 +169,23 @@ class MealtraysDataset(torch.utils.data.Dataset):
         return box_target
 
 
+def get_training_dataset(BATCH_SIZE=64):
+    """
+    TODO : doesnt work
+    Loads and maps the training split of the dataset using the custom dataset class. 
+    """
+    dataset = MealtraysDataset(root="data", split="train", download=True)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+    return dataloader
 
-if __name__ == '__main__':
-    print(os.getcwd())
-    dataset = MealtraysDataset(root="plato_dataset/obj_train_data")
-    print(dataset[4][1])
+def get_validation_dataset(BATCH_SIZE = None):
+    """
+    TODO : doesnt work
+    Loads and maps the validation split of the datasetusing the custom dataset class. 
+    """
+    dataset = MealtraysDataset(root="data", split="test", download=True)
+    if BATCH_SIZE is None:
+        BATCH_SIZE = len(dataset)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
+    return dataloader
 
