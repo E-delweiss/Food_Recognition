@@ -5,5 +5,5 @@
 
 __pycache__/
 data/
-../sandbox.ipynb
-../get_annotation.ipynb
+WarmingUp_with_MNIST/sandbox.ipynb
+YoloV1_Compagny_MealTrays/get_annotation.ipynb
