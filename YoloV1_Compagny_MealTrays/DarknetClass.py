@@ -96,7 +96,7 @@ class YoloV1(nn.Module):
     def forward(self, input):
         x = self.darknet(input)
         x = self.fcs(x)
-        x = x.view(x.size(0), self.S, self.S, self.B * (self.C+4+1))
+        x = x.view(x.size(0), self.S, self.S, self.B*(4+1) + self.C)
         return x
 
 
