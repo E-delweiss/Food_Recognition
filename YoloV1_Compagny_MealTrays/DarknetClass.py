@@ -100,6 +100,6 @@ class YoloV1(nn.Module):
         return x
 
 
-
-darknet = YoloV1(in_channels=1, split_size=7, num_boxes=1, num_classes=10)
-summary(darknet, (2, 1, 448, 448))
+if __name_ == "__main__":
+    darknet = YoloV1(in_channels=3, S=7, B=2, C=8)
+    summary(darknet, (64, 3, 448, 448))
