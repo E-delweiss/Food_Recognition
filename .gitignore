@@ -2,7 +2,7 @@
 .DS_Store
 .ipynb_checkpoints
 *.pt
-*.ipynb
+*/*.ipynb
 
 __pycache__/
 data/
