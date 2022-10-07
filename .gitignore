@@ -5,5 +5,5 @@
 
 __pycache__/
 data/
-sandbox.ipynb
-get_annotation.ipynb
+./sandbox.ipynb
+./get_annotation.ipynb
