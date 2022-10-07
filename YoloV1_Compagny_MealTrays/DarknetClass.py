@@ -17,8 +17,13 @@ class CNNBlock(torch.nn.Module):
         return self.l_relu(x)
 
 class YoloV1(nn.Module):
-    def __init__(self, in_channels=1, **kwargs):
+    def __init__(self, in_channels, S, B, C, **kwargs):
         super(YoloV1, self).__init__()
+        self.S = S
+        self.B = B
+        self.C = C
+        self.SIZE = 448
+
         self.in_channels = in_channels
         self.darknet_params = [
             (7, 64, 2, 3), 
@@ -51,7 +56,7 @@ class YoloV1(nn.Module):
     def _create_darknet(self):
         k=0
         mp=0
-        sizeHW = 448
+
         prev_channel = self.in_channels
         darknet = torch.nn.Sequential()
         for params in self.darknet_params:
@@ -60,7 +65,7 @@ class YoloV1(nn.Module):
                 darknet.add_module(f"CNNBlock_{k}",CNNBlock(in_channels=prev_channel, out_channels=channel, kernel_size=kernel, stride=stride, padding=padding))
                 prev_channel = channel
                 k+=1
-                sizeHW = self._size_output(sizeHW, kernel, stride, padding=padding)
+                sizeHW = self._size_output(self.SIZE, kernel, stride, padding=padding)
             
             elif type(params) is list:
                 for it in range(params[-1]):
@@ -69,34 +74,30 @@ class YoloV1(nn.Module):
                         darknet.add_module(f"CNNBlock_{k}",CNNBlock(in_channels=prev_channel, out_channels=channel, kernel_size=kernel, stride=stride, padding=padding))
                         prev_channel = channel
                         k+=1
-                        sizeHW = self._size_output(sizeHW, kernel, stride, padding=padding)
+                        sizeHW = self._size_output(self.SIZE, kernel, stride, padding=padding)
             
             elif params == 'M':
                 darknet.add_module(f"MaxPool_{k}", torch.nn.MaxPool2d(kernel_size=2, stride=2))
                 mp += 1
-                sizeHW = sizeHW / 2
+                sizeHW = self.SIZE / 2
 
         return darknet
 
 
-    def _create_fcs(self, split_size, num_boxes, num_classes): #S, B, C
-        S, B, C = split_size, num_boxes, num_classes
+    def _create_fcs(self):
         output = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(1024*S*S, 4096),
+            torch.nn.Linear(1024*self.S*self.S, 4096),
             torch.nn.LeakyReLU(0.1),
-            torch.nn.Linear(4096, S*S*(C+B*5))
+            torch.nn.Linear(4096, self.S*self.S * self.B*(self.C+4+1))
         )
         return output
 
     def forward(self, input):
         x = self.darknet(input)
         x = self.fcs(x)
-        x = x.view(x.size(0), 7, 7, 1*5+10)
-        pc = x[:,:,:,0]
-        bbx_coord = x[:,:,:,1:5]
-        classifier = x[:,:,:,5:]
-        return pc, bbx_coord, classifier
+        x = x.view(x.size(0), self.S, self.S, self.B * (self.C+4+1))
+        return x
 
 
 
