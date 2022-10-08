@@ -100,9 +100,9 @@ class MealtraysDataset(torch.utils.data.Dataset):
         if self.isAugment:
             img_PIL = self._augmentation(img_PIL)
         img = self._transform(img_PIL)
-        box_target = self._encode(img_path)
+        target = self._encode(img_path)
 
-        return img, box_target
+        return img, target
 
     def _convert_to_PIL(self, img_path):
         new_size = (self.SIZE, self.SIZE)
@@ -146,17 +146,17 @@ class MealtraysDataset(torch.utils.data.Dataset):
                 Absolute path of image.jpg
 
         Returns:
-            box_target: torch.Tensor of shape (S,S,14)
+            target: torch.Tensor of shape (S,S,14)
                 Tensor of zeros representing the SxS grid. Zeros everywhere
                 except in the (j,i) positions where there is an object.
         """
         ### Retrieve image name (without '.jpg') from path 
         img_name = img_path[img_path.rfind('/')+1 : img_path.rfind('.jpg')]
         
-        box_target = torch.zeros(self.S, self.S, self.C + 4+1)
-        for box in self.annotations.get(img_name):
+        target = torch.zeros(self.S, self.S, self.C + 4+1)
+        for target_infos in self.annotations.get(img_name):
             ### Relative box infos
-            label, xcr_img, ycr_img, wr_img, hr_img = box
+            label, xcr_img, ycr_img, wr_img, hr_img = target_infos
 
             ### Handle flip augmentation
             if self.FLIP_H:
@@ -183,9 +183,9 @@ class MealtraysDataset(torch.utils.data.Dataset):
             one_hot_label = F.one_hot(torch.as_tensor(label, dtype=torch.int64), self.C)
 
             ### 4 coords + 1 conf + 8 classes
-            box_target[j, i, :4+1] = torch.Tensor([xcr_cell, ycr_cell, wr_img, hr_img, 1.])
-            box_target[j, i, 4+1:] = one_hot_label
-        return box_target
+            target[j, i, :4+1] = torch.Tensor([xcr_cell, ycr_cell, wr_img, hr_img, 1.])
+            target[j, i, 4+1:] = one_hot_label
+        return target
 
 
 def get_training_dataset(BATCH_SIZE=16):
