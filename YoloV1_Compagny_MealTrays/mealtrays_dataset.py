@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import torchvision
 
 class MealtraysDataset(torch.utils.data.Dataset):
-    def __init__(self, root:str, split:str="train", download:bool=False, S=7, B=2, C=8):
+    def __init__(self, root:str, split:str="train", isAugment:bool=True, S=7, B=2, C=8):
         """
         label_names = {0:'Assiette', 1:'Entree', 2:'Pain', 3:'Boisson', 4:'Yaourt', 5:'Dessert', 6:'Fruit', 7:'Fromage'}
         """
@@ -24,12 +24,27 @@ class MealtraysDataset(torch.utils.data.Dataset):
         
         ### Get data
         self.root = root
-        self.data_txt = glob.glob(root + '/*.txt')
+        data_txt = glob.glob(root + '/obj_train_data/*.txt')
+        assert len(data_txt) != 0, "\nError : the path may be wrong."
+        for data in data_txt:
+            assert os.path.isfile(data), "\nError : the file {data} does not exist."
 
-        ### Build annotations for an image as a dict
-        self.annotations = self.build_annotations(self.data_txt)
+        ### Get train/validation
+        if split == 'train':
+            split_pct = 0.8
+            length_data = round(len(data_txt) * split_pct)
+            data_txt = data_txt[:length_data]
+        else :
+            split_pct = 0.2
+            length_data = round(len(data_txt) * split_pct)
+            data_txt = data_txt[-length_data:]
+
+        ### Build annotations for an image as a dict and 
+        ### get only data_txt that has been labelised
+        self.annotations, self.data_txt_labelised = self._build_annotations(data_txt)
 
         ### Data augmentation. TODO : crop
+        self.isAugment = isAugment
         self.FLIP_H = False
         self.FLIP_V = False
         self.CROP = False
@@ -46,6 +61,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
             ]
         """
         annotations = {}
+        data_txt_labelised = []
         ### Loop on each file .txt
         for file in data_txt:
             with open(file, 'r') as f:
@@ -64,24 +80,27 @@ class MealtraysDataset(torch.utils.data.Dataset):
             
             ### Construct the dict
             if obj_list:
-                start = file.rfind('/')+1
-                end = file.rfind('.txt')
-                key = file[start : end]
+                data_txt_labelised.append(file)
+                start, end = file.rfind('/')+1, file.rfind('.txt')
+                key = file[start : end] #key = img name
                 annotations[key] = obj_list
-        return annotations
+        
+        return annotations, data_txt_labelised
 
     def __len__(self):
-        return len(self.data_txt)
+        return len(self.data_txt_labelised)
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
         
-        img_path = self.data_txt[idx][:-4] + ".jpg"
-        img_PIL = self.convert_to_PIL(img_path)
-        img_PIL = self.augmentation(img_PIL)
-        img = self.transform(img_PIL)
-        box_target = self.encode(img_path)
+        img_path = self.data_txt_labelised[idx].replace(".txt", ".jpg")
+        
+        img_PIL = self._convert_to_PIL(img_path)
+        if self.isAugment:
+            img_PIL = self._augmentation(img_PIL)
+        img = self._transform(img_PIL)
+        box_target = self._encode(img_path)
 
         return img, box_target
 
@@ -112,9 +131,9 @@ class MealtraysDataset(torch.utils.data.Dataset):
         return img_PIL
 
     def _augmentation(self, img_PIL):
-        img_PIL = self.flipH(img_PIL)
-        img_PIL = self.flipV(img_PIL)
-        img_PIL = self.crop(img_PIL)
+        img_PIL = self._flipH(img_PIL)
+        img_PIL = self._flipV(img_PIL)
+        img_PIL = self._crop(img_PIL)
         return img_PIL
 
     def _encode(self, img_path):
@@ -169,23 +188,26 @@ class MealtraysDataset(torch.utils.data.Dataset):
         return box_target
 
 
-def get_training_dataset(BATCH_SIZE=64):
+def get_training_dataset(BATCH_SIZE=16):
     """
-    TODO : doesnt work
     Loads and maps the training split of the dataset using the custom dataset class. 
     """
-    dataset = MealtraysDataset(root="data", split="train", download=True)
+    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train")
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     return dataloader
 
 def get_validation_dataset(BATCH_SIZE = None):
     """
-    TODO : doesnt work
     Loads and maps the validation split of the datasetusing the custom dataset class. 
     """
-    dataset = MealtraysDataset(root="data", split="test", download=True)
+    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="test", isAugment=False)
     if BATCH_SIZE is None:
         BATCH_SIZE = len(dataset)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
     return dataloader
 
+if __name__ == "__main__":
+    dataloader = get_training_dataset()
+    for k in dataloader:
+        break
+    print(k[0].shape)
