@@ -1,89 +1,98 @@
 import torch
 
 
-def class_acc(box_true:torch.Tensor, labels_true:torch.Tensor, labels_pred:torch.Tensor)->float:
+def class_acc(target:torch.Tensor, prediction:torch.Tensor, B=2)->float:
     """
     Compute class accuracy using cells WITH object.
 
     Args: 
-        box_true : torch.Tensor of shape (N, S, S, 5)
-            Groundtruth box tensor
-        labels_true : torch.Tensor of shape (N, 10)
-            Groundtruth one hot encoded labels
-        labels_pred : torch.Tensor of shape (N, S, S, 10)
-            Predicted labels
+        target : torch.Tensor of shape (N,S,S,4+1+C) -> (N,7,7,13)
+            Groundtruth tensor
+        prediction : torch.Tensor of shape (N,S,S,B*(4+1)+C) -> (N,7,7,18)
+            Predicted tensor
 
     Returns:
         acc : float
             Class accuracy between 0 and 1.
     """
-
     ### Current batch size
-    BATCH_SIZE = len(box_true)
+    BATCH_SIZE = len(target)
 
-    ### Retrieve indices with object (TBM for box > 1)
-    cells_with_obj = box_true.nonzero()[::5]
+    ### Retrieve indices with object
+    cells_with_obj = target.nonzero()[::target.shape[-1]]
     N, cells_i, cells_j, _ = cells_with_obj.permute(1,0)
 
-    ### Applying softmax to get probability
-    softmax_pred_classes = torch.softmax(labels_pred[N, cells_i, cells_j], dim=1)
+    ### Applying softmax to get probability and argmax to get class label
+    softmax_pred_classes = torch.softmax(prediction[N, cells_i, cells_j, B*(4+1):], dim=1)
+    labels_pred = torch.argmax(softmax_pred_classes, dim=1)
+
+    labels_true = torch.argmax(target[N, cells_i, cells_j, (4+1):], dim=-1)
 
     ### Mean of the right predictions where there should be an object
-    acc = (1/BATCH_SIZE) * torch.sum(torch.argmax(labels_true, dim=1) == torch.argmax(softmax_pred_classes, dim=1))
+    acc = (1/BATCH_SIZE) * torch.sum(labels_true == labels_pred)
     
     return acc.item()
 
 
-def MSE(box_true:torch.Tensor, box_pred:torch.Tensor)->float:
+def MSE(target:torch.Tensor, prediction:torch.Tensor, B=2)->float:
     """
     Mean Square Error along bbox coordinates and sizes in the cells containing an object
 
-    Args:
-        box_true : torch.Tensor of shape (N, S, S, 5)
-            Groundtruth box tensor
-        box_pred : torch.Tensor of shape (N, S, S, 5)
-            Predicted box tensor
+    Args: 
+        target : torch.Tensor of shape (N,S,S,4+1+C) -> (N,7,7,13)
+            Groundtruth tensor
+        prediction : torch.Tensor of shape (N,S,S,B*(4+1)+C) -> (N,7,7,18)
+            Predicted tensor
     
     Returns:
         MSE_score : float
             MSE value between 0 and 1
     """
-    BATCH_SIZE = len(box_true)
+    BATCH_SIZE = len(target)
 
-    cells_with_obj = box_true.nonzero()[::5]
+    cells_with_obj = target.nonzero()[::target.shape[-1]]
     N, cells_i, cells_j, _ = cells_with_obj.permute(1,0)
 
-    ### (N,S,S,5) -> (N,4)
-    box_true = box_true[N, cells_i, cells_j, 0:4]
-    box_pred = box_pred[N, cells_i, cells_j, 0:4]
+    ### (N,7,7,13) -> (N,4)
+    ### (N,7,7,18) -> (N,4)
+    target = target[N, cells_i, cells_j, 0:4]
 
-    MSE_score = torch.pow(box_true - box_pred,2)
+    MSE_score = 0
+    for b in range(B):
+        box_k = b*5
+        prediction_box_k = prediction[N, cells_i, cells_j, 0+box_k :4+box_k]
+        MSE_score += torch.pow(target - prediction_box_k,2)
+    
     MSE_score = (1/BATCH_SIZE) * torch.sum(MSE_score)
 
     return MSE_score.item()
 
 
-def MSE_confidenceScore(bbox_true:torch.Tensor, bbox_pred:torch.Tensor, S=6, device:torch.device=torch.device('cpu'))->float:
+def MSE_confidenceScore(target:torch.Tensor, prediction:torch.Tensor, S:int=7, B:int=2)->float:
     """
     _summary_
 
     Args:
-        bbox_true (torch.Tensor of shape (N,S,S,5))
-            Groundtruth box tensor.
-        bbox_pred (torch.Tensor of shape (N,S,S,5))
-            Predicted box tensor.
-        device (torch.device, optional): 
-            Defaults to CPU.
+        target : torch.Tensor of shape (N,S,S,4+1+C) -> (N,7,7,13)
+            Groundtruth tensor
+        prediction : torch.Tensor of shape (N,S,S,B*(4+1)+C) -> (N,7,7,18)
+            Predicted tensor
+        S : int
+            Grid size
+        B : int
+            Predicted box number
 
     Returns:
-        mse_confidence_score (float)
+        mse_confidence_score : float
     """
     
-    mse_confidence_score = torch.zeros(len(bbox_true)).to(device)
+    mse_confidence_score = 0
     for i in range(S):
         for j in range(S):
-            # iou = intersection_over_union(bbox_true[:,i,j], bbox_pred[:,i,j]).to(device)
-            mse_confidence_score += torch.pow(bbox_true[:,i,j,-1] - bbox_pred[:,i,j,-1], 2) #* iou,  2)
-            
-    mse_confidence_score = (1/(len(bbox_true))) * torch.sum(mse_confidence_score).item()
+            for b in range(B):
+                box_k = b*5
+                # iou = intersection_over_union(target[:,i,j], prediction[:,i,j]).to(device)
+                mse_confidence_score += torch.pow(target[:,i,j,4] - prediction[:,i,j,4+box_k], 2) #* iou,  2)
+
+    mse_confidence_score = (1/(len(target))) * torch.sum(mse_confidence_score).item()
     return mse_confidence_score

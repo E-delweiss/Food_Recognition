@@ -83,23 +83,24 @@ class YoloLoss(torch.nn.Module):
         squared_error = torch.sum(squared_error, dim=1)
         return torch.masked_fill(squared_error, isObject, 0) 
 
-    def forward(self, pred_box:torch.Tensor, true_box:torch.Tensor):
+    def forward(self, target:torch.Tensor, prediction:torch.Tensor):
         """
         Grid fowrard pass.
 
         Args:
-            pred_box : torch.Tensor of shape (N, S, S, B*5 + C)
-                Batch predicted outputs containing 2 box infos (xcr_rcell, ycr_rcell, wr, hr, c)
-                and a one-hot encoded class for each grid cell.
-            true_box : torch.Tensor of shape (N, S, S, 5 + C)
+            target : torch.Tensor of shape (N, S, S, 5 + C)
                 Batch groundtrouth outputs containing xcr_rcell, ycr_rcell, wr, hr,
                 confident number c and one-hot encoded class for each grid cell.
+                
+            prediction : torch.Tensor of shape (N, S, S, B*5 + C)
+                Batch predicted outputs containing 2 box infos (xcr_rcell, ycr_rcell, wr, hr, c)
+                and a one-hot encoded class for each grid cell.
 
         Return:
             loss : float
                 The batch loss value of the grid
         """
-        BATCH_SIZE = len(pred_box)
+        BATCH_SIZE = len(prediction)
 
         ### Initialization of the losses
         losses_list = ['loss_xy', 'loss_wh', 'loss_conf_obj', 'loss_conf_noobj', 'loss_class']
@@ -111,14 +112,14 @@ class YoloLoss(torch.nn.Module):
                 for b in range(self.B):
                     box_k = 5 * b
                     ### bbox coordinates
-                    xy_hat = pred_box[:,i,j,box_k :(2+box_k)]
-                    xy = true_box[:,i,j,:2]
-                    wh_hat = pred_box[:,i,j,2+box_k :(4+box_k)]
-                    wh = true_box[:,i,j,2:4]
+                    xy_hat = prediction[:,i,j,box_k :(2+box_k)]
+                    xy = target[:,i,j,:2]
+                    wh_hat = prediction[:,i,j,2+box_k :(4+box_k)]
+                    wh = target[:,i,j,2:4]
                     
                     ### confidence numbers
-                    pred_c = pred_box[:,i,j,4+box_k]
-                    true_c = true_box[:,i,j,4]
+                    pred_c = prediction[:,i,j,4+box_k]
+                    true_c = target[:,i,j,4]
 
                     ### objects to detect
                     isObject = true_c.eq(0)
@@ -130,8 +131,8 @@ class YoloLoss(torch.nn.Module):
                     losses['loss_conf_noobj'] += self._confidenceloss(pred_c, true_c, torch.logical_not(isObject))
 
                 ### class labels
-                pred_class = pred_box[:,i,j,10:]
-                true_class = true_box[:,i,j,5:]
+                pred_class = prediction[:,i,j,10:]
+                true_class = target[:,i,j,5:]
                 losses['loss_class'] += self._classloss(pred_class, true_class, isObject)
      
         ### Yolo_v1 loss over the batch, shape : (BATCH_SIZE)
