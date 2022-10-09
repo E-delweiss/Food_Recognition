@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import torchvision
 
 class MealtraysDataset(torch.utils.data.Dataset):
-    def __init__(self, root:str, split:str="train", isAugment:bool=True, S=7, B=2, C=8):
+    def __init__(self, root:str, split:str="train", isNormalize:bool=True, isAugment:bool=True, S=7, B=2, C=8):
         """
         label_names = {0:'Assiette', 1:'Entree', 2:'Pain', 3:'Boisson', 4:'Yaourt', 5:'Dessert', 6:'Fruit', 7:'Fromage'}
         """
@@ -49,6 +49,9 @@ class MealtraysDataset(torch.utils.data.Dataset):
         self.FLIP_V = False
         self.CROP = False
 
+        ### Data normalization. See utils.py module
+        self.isNormalize = isNormalize
+
     def _build_annotations(self, data_txt):
         """
         Example : for key = '20220308112654_000042_059_0000000001_B______xx_C (1636)' 
@@ -87,30 +90,18 @@ class MealtraysDataset(torch.utils.data.Dataset):
         
         return annotations, data_txt_labelised
 
-    def __len__(self):
-        return len(self.data_txt_labelised)
-
-    def __getitem__(self, idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
-        
-        img_path = self.data_txt_labelised[idx].replace(".txt", ".jpg")
-        
-        img_PIL = self._convert_to_PIL(img_path)
-        if self.isAugment:
-            img_PIL = self._augmentation(img_PIL)
-        img = self._transform(img_PIL)
-        target = self._encode(img_path)
-
-        return img, target
-
     def _convert_to_PIL(self, img_path):
         new_size = (self.SIZE, self.SIZE)
         img = PIL.Image.open(img_path).convert('RGB').resize(new_size, PIL.Image.Resampling.BICUBIC)
         return img
 
     def _transform(self, img_PIL):
-        return torchvision.transforms.ToTensor()(img_PIL)
+        img_tensor = torchvision.transforms.ToTensor()(img_PIL)
+        if self.isNormalize:
+            torchvision.transforms.Normalize(
+                mean=(0.4111, 0.4001, 0.3787), std=(0.3461, 0.3435, 0.3383)
+                )(img_tensor)
+        return img_tensor
 
     def _flipH(self, img_PIL):
         if rd.random() < 0.5:
@@ -187,27 +178,38 @@ class MealtraysDataset(torch.utils.data.Dataset):
             target[j, i, 4+1:] = one_hot_label
         return target
 
+    def __len__(self):
+        return len(self.data_txt_labelised)
+
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+        
+        img_path = self.data_txt_labelised[idx].replace(".txt", ".jpg")
+        
+        img_PIL = self._convert_to_PIL(img_path)
+        if self.isAugment:
+            img_PIL = self._augmentation(img_PIL)
+        img = self._transform(img_PIL)
+        target = self._encode(img_path)
+
+        return img, target
+
 
 def get_training_dataset(BATCH_SIZE=16):
     """
     Loads and maps the training split of the dataset using the custom dataset class. 
     """
-    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train")
+    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train", isNormalize=True)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     return dataloader
 
-def get_validation_dataset(BATCH_SIZE = None):
+def get_validation_dataset(BATCH_SIZE=None):
     """
     Loads and maps the validation split of the datasetusing the custom dataset class. 
     """
-    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="test", isAugment=False)
+    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="test", isNormalize=True, isAugment=False)
     if BATCH_SIZE is None:
         BATCH_SIZE = len(dataset)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
     return dataloader
-
-if __name__ == "__main__":
-    dataloader = get_training_dataset()
-    for k in dataloader:
-        break
-    print(k[0].shape)

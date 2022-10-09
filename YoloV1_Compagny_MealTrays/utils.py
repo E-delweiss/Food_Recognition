@@ -1,6 +1,10 @@
 import logging
-import torch
+import glob
+
 from tqdm import tqdm
+import PIL
+import torch
+import torchvision
 
 def create_logging():
     log_format = (
@@ -109,13 +113,33 @@ def tqdm_fct(training_dataset):
                 ncols=100)
 
 
+def mean_std_normalization()->tuple:
+    """
+    TODO
+
+    Returns:
+        mean : torch.Tensor
+            TODO
+        std : torch.Tensor
+            TODO
+    """
+    data_jpg = glob.glob('YoloV1_Compagny_MealTrays/mealtrays_dataset/obj_train_data/*.jpg')
+    data_PIL = [PIL.Image.open(img_path).convert('RGB') for img_path in data_jpg]
+    data_tensor = [torchvision.transforms.ToTensor()(img_PIL) for img_PIL in data_PIL]
+
+    channels_sum, channels_squared_sum = 0, 0
+    for img in data_tensor:
+        channels_sum += torch.mean(img, dim=[1,2])
+        channels_squared_sum += torch.mean(img**2, dim=[1,2])
+    
+    mean = channels_sum/len(data_tensor)
+    std = torch.sqrt((channels_squared_sum/len(data_tensor) - mean**2))
+    
+    return mean, std
+
 if __name__ == "__main__":
-    create_logging()
-    device = device()
-    losses_list = ['loss_xy', 'loss_wh', 'loss_conf_obj', 'loss_conf_noobj', 'loss_class']
-    losses = {key :0.5 for key in losses_list}
-    pretty_print(7, 100, 0.87, losses, 65)
-    a=7
-    save_model(a, "toto_path", True)
+    mean, std = mean_std_normalization()
+    print(mean)
+    print(std)
 
 
