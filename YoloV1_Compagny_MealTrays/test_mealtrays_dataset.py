@@ -50,18 +50,17 @@ class TestMealtraysDataset(unittest.TestCase):
         img_idx = torchvision.transforms.ToPILImage()(img_idx)
 
         cells_with_obj = tensor_grid.nonzero()[::tensor_grid.shape[-1]]
-        print("DEBUG : ", cells_with_obj)
         cells_i, cells_j, _ = cells_with_obj.permute(1,0)
         box_infos = tensor_grid[cells_i, cells_j, :]
 
-        fig, ax = plt.subplots()
+        ax = plt.figure()
         ax.imshow(img_idx)
         ax.set_xticks = []
         ax.set_yticks = []
 
+        k = 0
         for box in box_infos:
             label_name = torch.argmax(box[(4+1):], dim=0)
-
             ### Get relative positions
             xcr_cell = box[0]
             ycr_cell = box[1]
@@ -69,17 +68,16 @@ class TestMealtraysDataset(unittest.TestCase):
             hr_img = box[3]
             
             ### Create absolute positions     
-            xcr_img =  xcr_cell * self.CELL_SIZE + cells_j * self.CELL_SIZE
-            ycr_img =  ycr_cell * self.CELL_SIZE + cells_i * self.CELL_SIZE   
+            xcr_img =  xcr_cell * self.CELL_SIZE + cells_j[k] * self.CELL_SIZE
+            ycr_img =  ycr_cell * self.CELL_SIZE + cells_i[k] * self.CELL_SIZE   
+            k += 1
 
             xmin = (xcr_img - wr_img/2) * self.SIZE
             ymin = (ycr_img - hr_img/2) * self.SIZE
-            xmin,ymin = xmin.numpy(), ymin.numpy()
 
             ### Create absolute width and height
             w = wr_img * self.SIZE
             h = hr_img * self.SIZE
-            w,h = w.numpy(), h.numpy()
 
             color = color_dict.get(label_name)
             rect = patches.Rectangle((xmin, ymin), w, h, facecolor='none', edgecolor=color)
