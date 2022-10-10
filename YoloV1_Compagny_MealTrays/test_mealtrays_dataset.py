@@ -36,12 +36,12 @@ class TestMealtraysDataset(unittest.TestCase):
         self.assertEqual(output[1].shape[2], self.B*(4+1) + self.C)
 
     def test_plot_dataset(self):
-        output = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train", isNormalize=False, isAugment=False)        
+        output = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train", isNormalize=False, isAugment=True)        
         idx = np.random.randint(len(output))
         img_idx, tensor_grid = output[idx]
 
         color_dict = {'Assiette':'b', 'Entree':'g', 'Pain':'r', 'Boisson':'c', 
-        'Yaourt':'w', 'Dessert':'k', 'Fruit':'m', 'Fromage':'y'}
+        'Yaourt':'darkred', 'Dessert':'k', 'Fruit':'m', 'Fromage':'y'}
         label_dict = {0:'Assiette', 1:'Entree', 2:'Pain', 3:'Boisson', 
         4:'Yaourt', 5:'Dessert', 6:'Fruit', 7:'Fromage'}
 
@@ -49,18 +49,21 @@ class TestMealtraysDataset(unittest.TestCase):
         # img_idx = img_idx * 255.0
         img_idx = torchvision.transforms.ToPILImage()(img_idx)
 
-        cells_with_obj = tensor_grid.nonzero()[::tensor_grid.shape[-1]]
-        cells_i, cells_j, _ = cells_with_obj.permute(1,0)
+        cells_i, cells_j, _ = tensor_grid.nonzero().permute(1,0)
+        cells_with_obj = torch.stack((cells_i, cells_j), dim=1)
+        cells_i, cells_j = torch.unique(cells_with_obj,dim=0).permute(1,0)
+
         box_infos = tensor_grid[cells_i, cells_j, :]
 
-        ax = plt.figure()
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
         ax.imshow(img_idx)
         ax.set_xticks = []
         ax.set_yticks = []
 
         k = 0
         for box in box_infos:
-            label_name = torch.argmax(box[(4+1):], dim=0)
+            label = torch.argmax(box[(4+1):], dim=0).item()
             ### Get relative positions
             xcr_cell = box[0]
             ycr_cell = box[1]
@@ -79,14 +82,15 @@ class TestMealtraysDataset(unittest.TestCase):
             w = wr_img * self.SIZE
             h = hr_img * self.SIZE
 
-            color = color_dict.get(label_name)
+            color = color_dict.get(label_dict.get(label))
             rect = patches.Rectangle((xmin, ymin), w, h, facecolor='none', edgecolor=color)
             ax.add_patch(rect)
-
             offset_x = 2
-            offset_y = 15
-            ax.text(xmin+offset_x, ymin+offset_y, label_dict.get(label_name), fontsize=8, color=color, family='monospace', weight='bold')
-
+            offset_y = 10
+            rect_txt = patches.Rectangle((xmin, ymin), w, 15, facecolor=color, edgecolor=color)
+            ax.add_patch(rect_txt)
+            ax.text(xmin+offset_x, ymin+offset_y, label_dict.get(label), fontsize=8, color='w', family='monospace', weight='bold')
+            
         plt.show()
 
 
