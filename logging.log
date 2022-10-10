@@ -1,0 +1,66 @@
+09/10/2022 15:49:32 ::INFO:: Execute on cpu
+09/10/2022 15:49:32 ::INFO:: Learning rate = 0.001
+09/10/2022 15:49:32 ::INFO:: Batch size = 16
+09/10/2022 15:49:33 ::INFO:: Using optimizer : Adam (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    capturable: False
+    eps: 1e-08
+    foreach: None
+    lr: 0.001
+    maximize: False
+    weight_decay: 0.0005
+)
+09/10/2022 15:49:33 ::INFO:: Start training
+09/10/2022 16:15:41 ::INFO:: Epoch 1/10
+09/10/2022 16:15:41 ::INFO:: ***** Training loss : 114.86032
+09/10/2022 16:15:41 ::INFO:: ***** MSE validation box loss : 9999.00000
+09/10/2022 16:15:41 ::INFO:: ***** MSE validation confidence score : 9999.00000
+09/10/2022 16:15:41 ::INFO:: ***** Validation class acc : 999900.00%
+09/10/2022 16:24:53 ::INFO:: Epoch 2/10
+09/10/2022 16:24:53 ::INFO:: ***** Training loss : 62.61726
+09/10/2022 16:24:53 ::INFO:: ***** MSE validation box loss : 9999.00000
+09/10/2022 16:24:53 ::INFO:: ***** MSE validation confidence score : 9999.00000
+09/10/2022 16:24:53 ::INFO:: ***** Validation class acc : 999900.00%
+09/10/2022 16:34:06 ::INFO:: Epoch 3/10
+09/10/2022 16:34:06 ::INFO:: ***** Training loss : 68.52378
+09/10/2022 16:34:06 ::INFO:: ***** MSE validation box loss : 9999.00000
+09/10/2022 16:34:06 ::INFO:: ***** MSE validation confidence score : 9999.00000
+09/10/2022 16:34:06 ::INFO:: ***** Validation class acc : 999900.00%
+09/10/2022 16:43:34 ::INFO:: Epoch 4/10
+09/10/2022 16:43:34 ::INFO:: ***** Training loss : 26.96300
+09/10/2022 16:43:34 ::INFO:: ***** MSE validation box loss : 9999.00000
+09/10/2022 16:43:34 ::INFO:: ***** MSE validation confidence score : 9999.00000
+09/10/2022 16:43:34 ::INFO:: ***** Validation class acc : 999900.00%
+09/10/2022 16:53:00 ::INFO:: Epoch 5/10
+09/10/2022 16:53:00 ::INFO:: ***** Training loss : 15.84810
+09/10/2022 16:53:00 ::INFO:: ***** MSE validation box loss : 9999.00000
+09/10/2022 16:53:00 ::INFO:: ***** MSE validation confidence score : 9999.00000
+09/10/2022 16:53:00 ::INFO:: ***** Validation class acc : 999900.00%
+09/10/2022 17:02:45 ::INFO:: Epoch 6/10
+09/10/2022 17:02:45 ::INFO:: ***** Training loss : 7.52431
+09/10/2022 17:02:45 ::INFO:: ***** MSE validation box loss : 9999.00000
+09/10/2022 17:02:45 ::INFO:: ***** MSE validation confidence score : 9999.00000
+09/10/2022 17:02:45 ::INFO:: ***** Validation class acc : 999900.00%
+09/10/2022 17:12:33 ::INFO:: Epoch 7/10
+09/10/2022 17:12:33 ::INFO:: ***** Training loss : 4.62460
+09/10/2022 17:12:33 ::INFO:: ***** MSE validation box loss : 9999.00000
+09/10/2022 17:12:33 ::INFO:: ***** MSE validation confidence score : 9999.00000
+09/10/2022 17:12:33 ::INFO:: ***** Validation class acc : 999900.00%
+09/10/2022 17:22:18 ::INFO:: Epoch 8/10
+09/10/2022 17:22:18 ::INFO:: ***** Training loss : 7.74436
+09/10/2022 17:22:18 ::INFO:: ***** MSE validation box loss : 9999.00000
+09/10/2022 17:22:18 ::INFO:: ***** MSE validation confidence score : 9999.00000
+09/10/2022 17:22:18 ::INFO:: ***** Validation class acc : 999900.00%
+09/10/2022 17:31:30 ::INFO:: Epoch 9/10
+09/10/2022 17:31:30 ::INFO:: ***** Training loss : 9.38125
+09/10/2022 17:31:30 ::INFO:: ***** MSE validation box loss : 9999.00000
+09/10/2022 17:31:30 ::INFO:: ***** MSE validation confidence score : 9999.00000
+09/10/2022 17:31:30 ::INFO:: ***** Validation class acc : 999900.00%
+09/10/2022 17:40:43 ::INFO:: Epoch 10/10
+09/10/2022 17:40:43 ::INFO:: ***** Training loss : 4.58232
+09/10/2022 17:40:43 ::INFO:: ***** MSE validation box loss : 9999.00000
+09/10/2022 17:40:43 ::INFO:: ***** MSE validation confidence score : 9999.00000
+09/10/2022 17:40:43 ::INFO:: ***** Validation class acc : 999900.00%
+09/10/2022 17:40:43 ::INFO:: End training.
