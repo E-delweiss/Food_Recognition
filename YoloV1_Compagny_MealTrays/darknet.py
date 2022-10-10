@@ -98,7 +98,6 @@ class YoloV1(nn.Module):
     def forward(self, input):
         x = self.darknet(input)
         x = self.fcs(x)
-        print("DEBUG : ", x.shape)
         x = x.view(x.size(0), self.S, self.S, self.B*(4+1) + self.C) #(N,S,S,18)
         return x
 
