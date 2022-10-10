@@ -9,13 +9,12 @@ import torch.nn.functional as F
 import torchvision
 
 class MealtraysDataset(torch.utils.data.Dataset):
-    def __init__(self, root:str, split:str="train", isNormalize:bool=True, isAugment:bool=True, S=7, B=2, C=8):
+    def __init__(self, root:str, split:str="train", isNormalize:bool=True, isAugment:bool=True, S=7, C=8):
         """
         label_names = {0:'Assiette', 1:'Entree', 2:'Pain', 3:'Boisson', 4:'Yaourt', 5:'Dessert', 6:'Fruit', 7:'Fromage'}
         """
         ### Yolo output params S:grid ; B:boxes ; C:classes
         self.S = S
-        self.B = B
         self.C = C
 
         ### Sizes

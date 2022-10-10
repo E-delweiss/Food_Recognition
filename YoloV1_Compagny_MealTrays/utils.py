@@ -44,7 +44,7 @@ def device()->torch.device:
     return device
 
 
-def pretty_print(batch:int, len_training_ds:int, current_loss:float, losses:dict, train_classes_acc:float):
+def pretty_print(batch:int, len_training_ds:int, current_loss:float, losses:dict, train_classes_acc:float, batch_size:int):
     """
     Print all training infos for the current batch.
 
@@ -60,8 +60,10 @@ def pretty_print(batch:int, len_training_ds:int, current_loss:float, losses:dict
             ['loss_xy', 'loss_wh', 'loss_conf_obj', 'loss_conf_noobj', 'loss_class'].
         train_classes_acc (float)
             Training class accuracy.
+        batch_size (int)
+            Nb of image in each batch (the last one may be smaller)
     """
-    BATCH_SIZE = 64
+    BATCH_SIZE = batch_size
     if batch+1 <= len_training_ds//BATCH_SIZE:
         current_training_sample = (batch+1)*BATCH_SIZE
     else:
@@ -78,7 +80,7 @@ def pretty_print(batch:int, len_training_ds:int, current_loss:float, losses:dict
     print(f"** Training class accuracy : {train_classes_acc*100:.2f}%")
 
 
-def update_lr(current_epoch:int, optimizer:torch.optim):
+def update_lr(current_epoch:int, optimizer:torch.optim, epoch_threshold:int):
     """
     Schedule the learning rate
 
@@ -87,8 +89,10 @@ def update_lr(current_epoch:int, optimizer:torch.optim):
             Current training loop epoch.
         optimizer (torch.optim)
             Gradient descent optimizer.
+        epoch_threshold (int)
+            Epoch from which the learning rate will decrease
     """
-    if current_epoch > 7:
+    if current_epoch > epoch_threshold:
         optimizer.defaults['lr'] = 0.0001
 
 
@@ -104,7 +108,6 @@ def save_model(model, path, save):
     print("*"*5, "Model saved to {}.".format(path))
 
 
-
 def tqdm_fct(training_dataset):
     return tqdm(enumerate(training_dataset),
                 total=len(training_dataset),
@@ -115,13 +118,11 @@ def tqdm_fct(training_dataset):
 
 def mean_std_normalization()->tuple:
     """
-    TODO
+    Get the mean and std of the dataset RGB channels.
 
     Returns:
         mean : torch.Tensor
-            TODO
         std : torch.Tensor
-            TODO
     """
     data_jpg = glob.glob('YoloV1_Compagny_MealTrays/mealtrays_dataset/obj_train_data/*.jpg')
     data_PIL = [PIL.Image.open(img_path).convert('RGB') for img_path in data_jpg]
@@ -141,5 +142,3 @@ if __name__ == "__main__":
     mean, std = mean_std_normalization()
     print(mean)
     print(std)
-
-

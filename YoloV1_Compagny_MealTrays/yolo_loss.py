@@ -72,29 +72,28 @@ class YoloLoss(torch.nn.Module):
     def _classloss(self, pred_class, true_class, isObject):
         """
         Args :
-            pred_class : torch.Tensor of shape (N, 10)
-            true_class : torch.Tensor of shape (N, 10)
+            pred_class : torch.Tensor of shape (N, C)
+            true_class : torch.Tensor of shape (N, C)
             isObject : torch.Bool of shape (N,1)
         Returns :
             squared_error : torch.Tensor of shape (N)
         """
-
         squared_error = torch.pow(true_class - pred_class, 2)
         squared_error = torch.sum(squared_error, dim=1)
         return torch.masked_fill(squared_error, isObject, 0) 
 
-    def forward(self, target:torch.Tensor, prediction:torch.Tensor):
+    def forward(self, prediction:torch.Tensor, target:torch.Tensor):
         """
         Grid fowrard pass.
 
         Args:
-            target : torch.Tensor of shape (N, S, S, 5 + C)
-                Batch groundtrouth outputs containing xcr_rcell, ycr_rcell, wr, hr,
-                confident number c and one-hot encoded class for each grid cell.
-                
             prediction : torch.Tensor of shape (N, S, S, B*5 + C)
                 Batch predicted outputs containing 2 box infos (xcr_rcell, ycr_rcell, wr, hr, c)
                 and a one-hot encoded class for each grid cell.
+
+            target : torch.Tensor of shape (N, S, S, 5 + C)
+                Batch groundtrouth outputs containing xcr_rcell, ycr_rcell, wr, hr,
+                confident number c and one-hot encoded class for each grid cell.
 
         Return:
             loss : float
