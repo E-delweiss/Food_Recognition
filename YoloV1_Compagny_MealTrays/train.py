@@ -13,9 +13,9 @@ from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
 learning_rate = 0.001
-BATCH_SIZE = 32
-SAVE_MODEL = False
-SAVE_LOSS = False
+BATCH_SIZE = 8
+SAVE_MODEL = True
+SAVE_LOSS = True
 utils.create_logging()
 device = utils.device()
 logging.info(f"Learning rate = {learning_rate}")
@@ -29,7 +29,9 @@ logging.info(f"Using optimizer : {optimizer}")
 
 training_dataloader = get_training_dataset(BATCH_SIZE)
 validation_dataloader = get_validation_dataset()
-DO_VALIDATION = True
+DO_VALIDATION = False
+
+# img, target = next(iter(training_dataloader))
 
 ################################################################################
 
@@ -70,6 +72,7 @@ for epoch in range(EPOCHS):
     #########################################################################
 
     for batch, (img, target) in utils.tqdm_fct(training_dataloader):
+    # for batch in range(1):
         model.train()
         loss = 0
         begin_batch_time = timer()
@@ -97,7 +100,7 @@ for epoch in range(EPOCHS):
         current_loss = loss.item()
         epochs_loss += current_loss
 
-        if batch == 0 or (batch+1)%5 == 0 or batch == len(training_dataloader.dataset)//BATCH_SIZE:
+        if batch == 0 or (batch+1)%1 == 0 or batch == len(training_dataloader.dataset)//BATCH_SIZE:
             # Recording the total loss
             batch_total_train_loss_list.append(current_loss)
             # Recording each losses 
@@ -109,16 +112,17 @@ for epoch in range(EPOCHS):
 
             ############### Compute validation metrics each 5 batch ###########################################
             if DO_VALIDATION:
-                _, bbox_true, bbox_preds, labels, label_preds = validation_loop(model, validation_dataloader, S, device)
+                model.eval()
+                _, target_val, prediction_val = validation_loop(model, validation_dataloader, S, device)
                 
                 ### Validation MSE score
-                mse_score = MSE(bbox_true, bbox_preds)
+                mse_score = MSE(target_val, prediction_val)
 
                 ### Validation accuracy
-                acc = class_acc(bbox_true, labels, label_preds)
+                acc = class_acc(target_val, prediction_val)
 
                 ### Validation confidence_score
-                mse_confidence_score = MSE_confidenceScore(bbox_true, bbox_preds)
+                mse_confidence_score = MSE_confidenceScore(target_val, prediction_val)
 
                 batch_val_MSE_box_list.append(mse_score)
                 batch_val_confscore_list.append(mse_confidence_score)

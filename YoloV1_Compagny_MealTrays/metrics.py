@@ -24,7 +24,7 @@ def class_acc(target:torch.Tensor, prediction:torch.Tensor, B=2)->float:
 
     ### Applying softmax to get label probabilities only in cells with object
     softmax_pred_classes = torch.softmax(prediction[N, cells_i, cells_j, B*(4+1):], dim=1)
-    labels_pred = torch.argmax(softmax_pred_classes, dim=1)
+    labels_pred = torch.argmax(softmax_pred_classes, dim=-1)
 
     ### Get true labels
     labels_true = torch.argmax(target[N, cells_i, cells_j, (4+1):], dim=-1)
