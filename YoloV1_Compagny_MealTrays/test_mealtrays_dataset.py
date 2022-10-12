@@ -2,6 +2,7 @@ import unittest
 import numpy as np
 
 import torch
+import torchvision
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
@@ -36,17 +37,23 @@ class TestMealtraysDataset(unittest.TestCase):
         self.assertEqual(output[1].shape[2], self.B*(4+1) + self.C)
 
     def test_plot_dataset(self):
-        output = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train", isNormalize=False, isAugment=True)        
-        idx = np.random.randint(len(output))
-        img_idx, tensor_grid = output[idx]
+        dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train", isNormalize=True, isAugment=True)        
+        idx = np.random.randint(len(dataset))
+        img_idx, tensor_grid = dataset[idx]
 
         color_dict = {'Assiette':'b', 'Entree':'g', 'Pain':'r', 'Boisson':'c', 
         'Yaourt':'darkred', 'Dessert':'k', 'Fruit':'m', 'Fromage':'y'}
         label_dict = {0:'Assiette', 1:'Entree', 2:'Pain', 3:'Boisson', 
         4:'Yaourt', 5:'Dessert', 6:'Fruit', 7:'Fromage'}
 
-        import torchvision
-        # img_idx = img_idx * 255.0
+        # cailculate mean and std
+        mean, std = img_idx.mean([1,2]), img_idx.std([1,2])
+        
+        # print mean and std
+        print("\nMean and Std of normalized image:")
+        print("Mean of the image:", mean)
+        print("Std of the image:", std)
+
         img_idx = torchvision.transforms.ToPILImage()(img_idx)
 
         cells_i, cells_j, _ = tensor_grid.nonzero().permute(1,0)
