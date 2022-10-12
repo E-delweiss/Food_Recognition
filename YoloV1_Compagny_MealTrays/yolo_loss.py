@@ -1,4 +1,5 @@
 import torch
+import IoU
 
 class YoloLoss(torch.nn.Module):
     def __init__(self, lambd_coord:int, lambd_noobj:float, device:torch.device, S:int=7, B:int=2):
@@ -108,29 +109,40 @@ class YoloLoss(torch.nn.Module):
         ### Compute the losses for all images in the batch
         for i in range(self.S):
             for j in range(self.S):
+                iou_box = []
+                target_box_abs = IoU.relative2absolute_true(target[:,i,j,:5]) # -> (N,4)
                 for b in range(self.B):
-                    box_k = 5 * b
-                    ### bbox coordinates
-                    xy_hat = prediction[:,i,j,box_k :(2+box_k)]
-                    xy = target[:,i,j,:2]
-                    wh_hat = prediction[:,i,j,2+box_k :(4+box_k)]
-                    wh = target[:,i,j,2:4]
-                    
-                    ### confidence numbers
-                    pred_c = prediction[:,i,j,4+box_k]
-                    true_c = target[:,i,j,4]
+                    box_k = 5*b
+                    prediction_box_abs = IoU.relative2absolute_pred(prediction[:,i,j, box_k : 5+box_k]) # -> (N,4)
+                    iou = IoU.intersection_over_union(target_box_abs, prediction_box_abs) # -> (N,1)
+                    iou_box.append(iou) # -> [iou_box1:(N), iou_box:(N)]                    
+                
+                ### TODO comment
+                iou_mask = torch.gt(iou_box[0], iou_box[1])
+                iou_mask = iou_mask.to(torch.int64) #if 0 -> keep box1, if 1 -> keep box2
+                box_k = 5*iou_mask
+                
+                ### bbox coordinates relating to the box with the largest IoU 
+                xy_hat = prediction[:,i,j, box_k : 2+box_k]
+                xy = target[:,i,j,:2]
+                wh_hat = prediction[:,i,j, 2+box_k : 4+box_k]
+                wh = target[:,i,j,2:4]
+                
+                ### confidence numbers
+                pred_c = prediction[:,i,j, 4+box_k]
+                true_c = target[:,i,j,4]
 
-                    ### objects to detect
-                    isObject = true_c.eq(0)
+                ### objects to detect
+                isObject = true_c.eq(0)
 
-                    ### sum the losses over the grid
-                    losses['loss_xy'] += self._coordloss(xy_hat, xy, isObject)
-                    losses['loss_wh'] += self._sizeloss(wh_hat, wh, isObject)
-                    losses['loss_conf_obj'] += self._confidenceloss(pred_c, true_c, isObject)
-                    losses['loss_conf_noobj'] += self._confidenceloss(pred_c, true_c, torch.logical_not(isObject))
+                ### sum the losses over the grid
+                losses['loss_xy'] += self._coordloss(xy_hat, xy, isObject)
+                losses['loss_wh'] += self._sizeloss(wh_hat, wh, isObject)
+                losses['loss_conf_obj'] += self._confidenceloss(pred_c, true_c, isObject)
+                losses['loss_conf_noobj'] += self._confidenceloss(pred_c, true_c, torch.logical_not(isObject))
 
                 ### class labels
-                pred_class = prediction[:,i,j,10:]
+                pred_class = prediction[:,i,j, 5*self.B:]
                 true_class = target[:,i,j,5:]
                 losses['loss_class'] += self._classloss(pred_class, true_class, isObject)
      
