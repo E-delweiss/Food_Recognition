@@ -119,6 +119,11 @@ def tqdm_fct(training_dataset):
 def mean_std_normalization()->tuple:
     """
     Get the mean and std of the dataset RGB channels.
+    Note:
+        mean/std of the whole dataset :
+            mean=(0.4111, 0.4001, 0.3787), std=(0.3461, 0.3435, 0.3383)
+        mean/std of the dataset labellised only (12/10/22) :
+            mean=(0.4168, 0.4055, 0.3838), std=(0.3475, 0.3442, 0.3386)
 
     Returns:
         mean : torch.Tensor
@@ -137,6 +142,31 @@ def mean_std_normalization()->tuple:
     std = torch.sqrt((channels_squared_sum/len(data_tensor) - mean**2))
     
     return mean, std
+
+
+def get_cells_with_object(tensor)->tuple:
+    """
+    TODO
+
+    Args:
+        tensor (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    assert type(tensor) is torch.Tensor, "Error: wrong type. Sould be torch.tensor"
+    assert len(tensor.shape) == 4, "Error: tensor side should be (N,S,S,_). Ex: torch.Size([32, 7, 7, 5])"
+
+    ### Get all indices with non zero values
+    N, cells_i, cells_j, _ = tensor.nonzero().permute(1,0)
+
+    ### Stacking in a new tensor
+    cells_with_obj = torch.stack((N, cells_i, cells_j), dim=0)
+
+    ### Get rid of same values
+    N, cells_i, cells_j = torch.unique(cells_with_obj,dim=1)
+
+    return N, cells_i, cells_j
 
 if __name__ == "__main__":
     mean, std = mean_std_normalization()
