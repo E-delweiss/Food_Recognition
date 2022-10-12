@@ -42,7 +42,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
         ### get only data_txt that has been labelised
         self.annotations, self.data_txt_labelised = self._build_annotations(data_txt)
 
-        ### Data augmentation. TODO : crop
+        ### Data augmentation.
         self.isAugment = isAugment
         self.FLIP_H = False
         self.FLIP_V = False
@@ -50,6 +50,9 @@ class MealtraysDataset(torch.utils.data.Dataset):
 
         ### Data normalization. See utils.py module
         self.isNormalize = isNormalize
+
+        ### Only to generate mean/std
+        # self._mean_std_fct()
 
     def _build_annotations(self, data_txt):
         """
@@ -84,7 +87,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
             if obj_list:
                 data_txt_labelised.append(file)
                 start, end = file.rfind('/')+1, file.rfind('.txt')
-                key = file[start : end] #key = img name
+                key = file[start : end] # -> key is imgname
                 annotations[key] = obj_list
         
         return annotations, data_txt_labelised
@@ -94,11 +97,31 @@ class MealtraysDataset(torch.utils.data.Dataset):
         img = PIL.Image.open(img_path).convert('RGB').resize(new_size, PIL.Image.Resampling.BICUBIC)
         return img
 
+    def _mean_std_fct(self):
+        """
+        Only to generate mean/std
+        """
+        data_PIL = [PIL.Image.open(img_path.replace(".txt", ".jpg")).convert('RGB') for img_path in self.data_txt_labelised]
+        data_tensor = [torchvision.transforms.ToTensor()(img_PIL) for img_PIL in data_PIL]
+
+        channels_sum, channels_squared_sum = 0, 0
+        for img in data_tensor:
+            channels_sum += torch.mean(img, dim=[1,2])
+            channels_squared_sum += torch.mean(img**2, dim=[1,2])
+        
+        mean = channels_sum/len(data_tensor)
+        std = torch.sqrt((channels_squared_sum/len(data_tensor) - mean**2))
+        
+        print("MEAN AND STD OF LABELLISED DATASET : ")
+        print(mean, std)
+
+        return mean, std
+
     def _transform(self, img_PIL):
         img_tensor = torchvision.transforms.ToTensor()(img_PIL)
         if self.isNormalize:
-            torchvision.transforms.Normalize(
-                mean=(0.4111, 0.4001, 0.3787), std=(0.3461, 0.3435, 0.3383)
+            img_tensor = torchvision.transforms.Normalize(
+                mean=(0.4168, 0.4055, 0.3838), std=(0.3475, 0.3442, 0.3386)
                 )(img_tensor)
         return img_tensor
 
@@ -119,13 +142,23 @@ class MealtraysDataset(torch.utils.data.Dataset):
         return img_PIL
 
     def _crop(self, img_PIL):
-        if rd.random() < 0.5:
+        ### crop deactivated
+        if rd.random() < 9999:
             self.CROP = False
             return img_PIL
-        crop_size = (400,400)
-        crop_infos = torchvision.transforms.RandomCrop.get_params(img_PIL, crop_size)
-        img_PIL = torchvision.transforms.functional.crop(img_PIL, *crop_infos)
+        
         self.CROP = True 
+
+        crop_size = (400,400)
+        img_size = (self.SIZE, self.SIZE)
+        crop_infos = list(torchvision.transforms.RandomCrop.get_params(img_PIL, crop_size))
+        img_PIL = torchvision.transforms.functional.crop(img_PIL, *crop_infos)
+        img_PIL = torchvision.transforms.Resize(img_size)(img_PIL)
+        
+        offset_xy = img_size[0] - crop_size[0]
+        crop_infos[0] = crop_infos[0] + offset_xy
+        crop_infos[1] = crop_infos[1] + offset_xy
+
         return img_PIL, crop_infos
 
     def _augmentation(self, img_PIL):
