@@ -13,7 +13,7 @@ from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
 learning_rate = 0.001
-BATCH_SIZE = 8
+BATCH_SIZE = 16
 SAVE_MODEL = True
 SAVE_LOSS = True
 utils.create_logging()
@@ -21,7 +21,7 @@ device = utils.device()
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
 
-model = YoloV1(in_channels=3, S=7, C=8, B=2)
+model = YoloV1(448, S=7, C=8, B=2)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=0.0005)
 loss_yolo = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=7, device=device)
