@@ -111,10 +111,10 @@ class YoloLoss(torch.nn.Module):
         for cell_i in range(self.S):
             for cell_j in range(self.S):
                 iou_box = []
-                target_box_abs = IoU.relative2absolute(target[:,:,:,:5], cell_i, cell_j) # -> (N,4) ### trying smth by using relative2absolute_pred as converter for target
+                target_box_abs = IoU.relative2absolute(target[:,:,:,:5], N, cell_i, cell_j) # -> (N,4) ### trying smth by using relative2absolute_pred as converter for target
                 for b in range(self.B):
                     box_k = 5*b
-                    prediction_box_abs = IoU.relative2absolute(prediction[:,:,:, box_k : 5+box_k], cell_i, cell_j) # -> (N,4)
+                    prediction_box_abs = IoU.relative2absolute(prediction[:,:,:, box_k : 5+box_k], N, cell_i, cell_j) # -> (N,4)
                     iou = IoU.intersection_over_union(target_box_abs, prediction_box_abs) # -> (N,1)
                     iou_box.append(iou) # -> [iou_box1:(N), iou_box:(N)]                    
                 
