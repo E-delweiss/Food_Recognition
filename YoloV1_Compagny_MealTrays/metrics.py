@@ -18,9 +18,6 @@ def class_acc(target:torch.Tensor, prediction:torch.Tensor, B:int=2)->float:
         acc : float
             Class accuracy between 0 and 1.
     """
-    ### Current batch size
-    BATCH_SIZE = len(target)
-
     ### Retrieve indices with object
     N, cells_i, cells_j = utils.get_cells_with_object(target)
 
@@ -32,7 +29,7 @@ def class_acc(target:torch.Tensor, prediction:torch.Tensor, B:int=2)->float:
     labels_true = torch.argmax(target[N, cells_i, cells_j, 5:], dim=-1)
     
     ### Mean of the right predictions where there should be an object
-    acc = (1/BATCH_SIZE) * torch.sum(labels_true == labels_pred)
+    acc = (1/len(N)) * torch.sum(labels_true == labels_pred)
     return acc.item()
 
 
@@ -50,9 +47,6 @@ def MSE(target:torch.Tensor, prediction:torch.Tensor, S=7, B=2)->float:
         MSE_score : float
             MSE value
     """
-    ### Current batch size
-    BATCH_SIZE = len(target)
-
     ### Retrieve indices with object
     N, cells_i, cells_j = utils.get_cells_with_object(target)
     
@@ -82,7 +76,7 @@ def MSE(target:torch.Tensor, prediction:torch.Tensor, S=7, B=2)->float:
     MSE_score = torch.pow(xywh - xywh_hat,2)
     
     ### Mean of the box info MSEs
-    MSE_score = (1/BATCH_SIZE) * torch.sum(MSE_score)
+    MSE_score = (1/len(N)) * torch.sum(MSE_score)
     return MSE_score.item() 
     
 
@@ -103,9 +97,6 @@ def MSE_confidenceScore(target:torch.Tensor, prediction:torch.Tensor, S:int=7, B
     Returns:
         mse_confidence_score : float
     """
-    ### Current batch size
-    BATCH_SIZE = len(target)
-
     ### Retrieve indices with object
     N, cells_i, cells_j = utils.get_cells_with_object(target)
     
@@ -130,5 +121,5 @@ def MSE_confidenceScore(target:torch.Tensor, prediction:torch.Tensor, S:int=7, B
     mse_confidence_score = torch.pow(target_confident_score - prediction_confident_score, 2) #* iou,  2)
 
     ### Mean of the confidence scores
-    mse_confidence_score = (1/BATCH_SIZE) * torch.sum(mse_confidence_score)
+    mse_confidence_score = (1/len(N)) * torch.sum(mse_confidence_score)
     return mse_confidence_score.item()
