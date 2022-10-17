@@ -93,6 +93,8 @@ class YoloMNIST(torch.nn.Module):
                 6x6 grid cells.
         """     
         x = self.seq(input)
+        print("\nDEBUG : ", x.shape)
+
         x = self.fcs(x)
         x = x.view(x.size(0), self.S, self.S, self.B * 5 + self.C)
         box_coord = x[:,:,:,0:5]
