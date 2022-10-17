@@ -1,23 +1,36 @@
 import logging
 import glob
+from datetime import datetime
 
 from tqdm import tqdm
 import PIL
 import torch
 import torchvision
 
-def create_logging():
+def create_logging(prefix:str):
+    """
+    TODO
+
+    Args:
+        prefix (str): _description_
+    """
+    assert type(prefix) is str, TypeError
+
     log_format = (
     '%(asctime)s ::%(levelname)s:: %(message)s')
+
+    tm = datetime.now()
+    tm = tm.strftime("%d%m%Y_%Hh%M")
+    logging_name = 'logging_'+prefix+'_'+tm+'.log'
 
     logging.basicConfig(
         level=logging.INFO,
         format=log_format, datefmt='%d/%m/%Y %H:%M:%S',
         filemode="w",
-        filename=('logging.log'),
+        filename=(logging_name),
     )
 
-def device()->torch.device:
+def device(verbose=0)->torch.device:
     """
     Set the device to 'cpu', 'cuda' or 'mps'.
 
@@ -37,9 +50,10 @@ def device()->torch.device:
         device=torch.device('cpu')
     
     logging.info("Execute on {}".format(device))
-    print("\n------------------------------------")
-    print(f"Execute script on - {device} -")
-    print("------------------------------------\n")
+    if verbose:
+        print("\n------------------------------------")
+        print(f"Execute script on - {device} -")
+        print("------------------------------------\n")
 
     return device
 
@@ -96,19 +110,33 @@ def update_lr(current_epoch:int, optimizer:torch.optim, epoch_threshold:int):
         optimizer.defaults['lr'] = 0.0001
 
 
-def save_model(model, path, save):
-    from datetime import datetime
-    if not save:
-        return
-    tm = datetime.now()
-    tm = tm.strftime("%d%m%Y_%Hh%M")
-    path = path+'_'+tm+'.pt'
-    torch.save(model.state_dict(), path)
-    print("\n")
-    print("*"*5, "Model saved to {}.".format(path))
+def save_model(model, path:str, save:bool):
+    """
+    TODO
 
+    Args:
+        model (_type_): _description_
+        path (str): _description_
+        save (bool): _description_
+    """
+    if save:
+        tm = datetime.now()
+        tm = tm.strftime("%d%m%Y_%Hh%M")
+        path = path+'_'+tm+'.pt'
+        torch.save(model.state_dict(), path)
+        print("\n")
+        print("*"*5, "Model saved to {}.".format(path))
+        logging.info("\nModel saved to {}.".format(path))
+    else:
+        return
 
 def tqdm_fct(training_dataset):
+    """
+    TODO
+
+    Args:
+        training_dataset (_type_): _description_
+    """
     return tqdm(enumerate(training_dataset),
                 total=len(training_dataset),
                 initial=1,
@@ -144,12 +172,12 @@ def mean_std_normalization()->tuple:
     return mean, std
 
 
-def get_cells_with_object(tensor)->tuple:
+def get_cells_with_object(tensor:torch.Tensor)->tuple:
     """
     TODO
 
     Args:
-        tensor (_type_): _description_
+        tensor (torch.Tensor): _description_
 
     Returns:
         _type_: _description_
