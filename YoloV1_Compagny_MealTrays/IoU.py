@@ -2,7 +2,7 @@ import torch
 
 from utils import device, get_cells_with_object
 
-def relative2absolute(box, cell_i, cell_j)->torch.Tensor:
+def relative2absolute(box, N, cell_i, cell_j)->torch.Tensor:
     """
     Turns relative box infos into absolute coordinates 
     xmin, ymin, xmax, ymax.
@@ -30,9 +30,7 @@ def relative2absolute(box, cell_i, cell_j)->torch.Tensor:
     SIZEHW = 448
     S = 7
     CELL_SIZE = 1/S
-    BATCH_SIZE = len(box)
-    N = range(BATCH_SIZE)
-    
+
     ### Absolute center coordinates (xcyc+cell_size)*ji
     xcr_cell, ycr_cell = box[N, cell_i, cell_j, 0:2].permute(1,0)
     xcr_img = xcr_cell * CELL_SIZE + cell_j * CELL_SIZE
@@ -40,7 +38,7 @@ def relative2absolute(box, cell_i, cell_j)->torch.Tensor:
     
     ### Fill tensor with all S*S possible bounding boxes
     # Top left absolute coordinates
-    wr_img, hr_img = box[N,cell_i, cell_j, 2:4].permute(1,0)
+    wr_img, hr_img = box[N, cell_i, cell_j, 2:4].permute(1,0)
     xmin = (xcr_img - wr_img/2) * SIZEHW
     ymin = (ycr_img - hr_img/2) * SIZEHW
     
