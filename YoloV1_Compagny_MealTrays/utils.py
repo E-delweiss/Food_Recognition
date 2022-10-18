@@ -21,7 +21,7 @@ def create_logging(prefix:str):
 
     tm = datetime.now()
     tm = tm.strftime("%d%m%Y_%Hh%M")
-    logging_name = 'logging_'+prefix+'_'+tm+'.log'
+    logging_name = 'YoloV1_Compagny_MealTrays/logging_'+prefix+'_'+tm+'.log'
 
     logging.basicConfig(
         level=logging.INFO,
