@@ -102,7 +102,7 @@ def MSE_confidenceScore(target:torch.Tensor, prediction:torch.Tensor, S:int=7, B
     
     ### Compute the losses for all images in the batch
     iou_box = []
-    target_box_abs = IoU.relative2absolute(target[:,:,:,:5], N, cells_i, cells_j) # -> (N,4) ### trying smth by using relative2absolute_pred as converter for target
+    target_box_abs = IoU.relative2absolute(target[:,:,:,:5], N, cells_i, cells_j) # -> (N,4)
     for b in range(B):
         box_k = 5*b
         prediction_box_abs = IoU.relative2absolute(prediction[:,:,:, box_k : 5+box_k], N, cells_i, cells_j) # -> (N,4)
