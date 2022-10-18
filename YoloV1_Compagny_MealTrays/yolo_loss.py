@@ -133,12 +133,12 @@ class YoloLoss(torch.nn.Module):
                 xy_hat = torch.stack((x_hat, y_hat), dim=-1)
                 wh_hat = torch.stack((w_hat, h_hat), dim=-1)
                 
-                xy = target[:,cell_i, cell_j, :2]
-                wh = target[:,cell_i, cell_j, 2:4]
+                xy = target[N, cell_i, cell_j, :2]
+                wh = target[N, cell_i, cell_j, 2:4]
                 
                 ### confidence numbers
-                pred_c = prediction[:,cell_i, cell_j, 4+box_k]
-                true_c = target[:,cell_i, cell_j, 4]
+                pred_c = prediction[N, cell_i, cell_j, 4+box_k]
+                true_c = target[N, cell_i, cell_j, 4]
 
                 ### objects to detect
                 isObject = true_c.eq(0)
@@ -150,8 +150,8 @@ class YoloLoss(torch.nn.Module):
                 losses['loss_conf_noobj'] += self._confidenceloss(pred_c, true_c, torch.logical_not(isObject))
 
                 ### class labels
-                pred_class = prediction[:,cell_i, cell_j, 5*self.B:]
-                true_class = target[:,cell_i, cell_j, 5:]
+                pred_class = prediction[N, cell_i, cell_j, 5*self.B:]
+                true_class = target[N, cell_i, cell_j, 5:]
                 losses['loss_class'] += self._classloss(pred_class, true_class, isObject)
      
         ### Yolo_v1 loss over the batch, shape : (BATCH_SIZE)
