@@ -17,7 +17,7 @@ class CNNBlock(torch.nn.Module):
         return self.l_relu(x)
 
 class YoloV1(nn.Module):
-    def __init__(self, in_channels, S, B=1, C=8, **kwargs):
+    def __init__(self, in_channels, S, B, C, **kwargs):
         super(YoloV1, self).__init__()
         self.S = S
         self.B = B
@@ -26,7 +26,7 @@ class YoloV1(nn.Module):
 
         self.in_channels = in_channels
         self.darknet_params = [
-            (7, 64, 2, 1), 
+            (7, 64, 2, 3), 
             'M',  # 1
             (3, 192, 1, 1), 
             'M',  # 2
@@ -103,5 +103,5 @@ class YoloV1(nn.Module):
 
 
 if __name__ == "__main__":
-    darknet = YoloV1(in_channels=3, S=7, B=1, C=8)
+    darknet = YoloV1(in_channels=3, S=7, B=2, C=8)
     summary(darknet, (64, 3, 448, 448))
