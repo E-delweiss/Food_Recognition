@@ -6,7 +6,7 @@ import torchvision
 
 
 class MNISTDataset(torch.utils.data.Dataset):
-    def __init__(self, root:str, split:str="train", download:bool=False, S=7, sizeHW=75):
+    def __init__(self, root:str, split:str="train", download:bool=False, S=6, sizeHW=75):
         if split == "test":
             train = False
         else:
@@ -34,12 +34,12 @@ class MNISTDataset(torch.utils.data.Dataset):
 
     def _pasting75(self, image):
         ### xmin, ymin of digit
-        xmin = torch.randint(0, 419, (1,))
-        ymin = torch.randint(0, 419, (1,))
+        xmin = torch.randint(0, 48, (1,))
+        ymin = torch.randint(0, 48, (1,))
         
         image = torchvision.transforms.ToTensor()(image)
         image = torch.reshape(image, (28,28,1,))
-        image = torch.from_numpy(self._numpy_pad_to_bounding_box(image, ymin, xmin, 448, 448))
+        image = torch.from_numpy(self._numpy_pad_to_bounding_box(image, ymin, xmin, 75, 75))
         image = image.permute(2, 0, 1) #(C,H,W)
         image = image.to(torch.float)
         
@@ -59,10 +59,10 @@ class MNISTDataset(torch.utils.data.Dataset):
         xmin, ymin, w_bbox, h_bbox = box
         
         ### Relative box infos
-        wr_img = w_bbox / 448
-        hr_img = h_bbox / 448
-        xr_min = xmin / 448
-        yr_min = ymin / 448
+        wr_img = w_bbox / 75
+        hr_img = h_bbox / 75
+        xr_min = xmin / 75
+        yr_min = ymin / 75
 
         ### x and y box center coords
         xcr_img = (xr_min + wr_img/2)

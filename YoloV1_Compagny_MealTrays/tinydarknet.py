@@ -17,9 +17,10 @@ class CNNBlock(torch.nn.Module):
         return self.l_relu(x)
 
 class TinyYolo(nn.Module):
-    def __init__(self, in_channels, S, C, **kwargs):
+    def __init__(self, in_channels, S, B, C, **kwargs):
         super(TinyYolo, self).__init__()
         self.S = S
+        self.B = B
         self.C = C
         self.SIZE = 224
 
@@ -38,7 +39,6 @@ class TinyYolo(nn.Module):
             'M',  # 4
             [(1, 64, 1, 0), (3, 512, 1, 1), 2], 
             (1, 128, 1, 0), 
-            (3, 128, 1, 0),
             'M',  # 5
             ]
         self.darknet = self._create_darknet()
@@ -87,16 +87,16 @@ class TinyYolo(nn.Module):
             torch.nn.Flatten(),
             torch.nn.Linear(128*self.S*self.S, 4096),
             torch.nn.LeakyReLU(0.1),
-            torch.nn.Linear(4096, self.S*self.S * ((4+1) + self.C))
+            torch.nn.Linear(4096, self.S*self.S * (self.B*(4+1) + self.C))
         )
         return output
 
     def forward(self, input):
         x = self.darknet(input)
         x = self.fcs(x)
-        x = x.view(x.size(0), self.S, self.S, (4+1) + self.C) #(N,S,S,18)
+        x = x.view(x.size(0), self.S, self.S, self.B*(4+1) + self.C) #(N,S,S,18)
         return x
 
 if __name__ == "__main__":
-    darknet = TinyYolo(in_channels=3, S=6, C=8)
+    darknet = TinyYolo(in_channels=3, S=7, B=2, C=8)
     summary(darknet, (64, 3, 224, 224))

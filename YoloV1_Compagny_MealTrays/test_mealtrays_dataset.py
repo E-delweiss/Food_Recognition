@@ -11,8 +11,8 @@ from mealtrays_dataset import MealtraysDataset
 class TestMealtraysDataset(unittest.TestCase):
     def __init__(self, TestMealtraysDataset) -> None:
         super().__init__(TestMealtraysDataset)
-        self.SIZE = 224
-        self.S = 6
+        self.SIZE = 448
+        self.S = 7
         self.B = 1
         self.C = 8
         self.CELL_SIZE = 1/self.S
