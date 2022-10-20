@@ -10,7 +10,7 @@ def create_logging():
         level=logging.INFO,
         format=log_format, datefmt='%d/%m/%Y %H:%M:%S',
         filemode="w",
-        filename=('logging.log'),
+        filename=('WarmingUp_with_MNIST/logging.log'),
     )
 
 def device()->torch.device:
@@ -57,7 +57,7 @@ def pretty_print(batch:int, len_training_ds:int, current_loss:float, losses:dict
         train_classes_acc (float)
             Training class accuracy.
     """
-    BATCH_SIZE = 64
+    BATCH_SIZE = 32
     if batch+1 <= len_training_ds//BATCH_SIZE:
         current_training_sample = (batch+1)*BATCH_SIZE
     else:

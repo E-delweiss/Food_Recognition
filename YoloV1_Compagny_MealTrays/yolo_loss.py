@@ -2,12 +2,11 @@ import torch
 import IoU
 
 class YoloLoss(torch.nn.Module):
-    def __init__(self, lambd_coord:int, lambd_noobj:float, device:torch.device, S:int=7, B:int=2):
+    def __init__(self, lambd_coord:int, lambd_noobj:float, device:torch.device, S:int=6):
         super(YoloLoss, self).__init__()
         self.LAMBD_COORD = lambd_coord
         self.LAMBD_NOOBJ = lambd_noobj
         self.S = S
-        self.B = B
         self.device = device
 
     def _coordloss(self, pred_coord_rcell, true_coord_rcell, isObject):
@@ -108,37 +107,16 @@ class YoloLoss(torch.nn.Module):
         losses = {key : torch.zeros(BATCH_SIZE).to(self.device) for key in losses_list}
         
         ### Compute the losses for all images in the batch
-        for cell_i in range(self.S):
-            for cell_j in range(self.S):
-                iou_box = []
-                target_box_abs = IoU.relative2absolute(target[:,:,:,:5], N, cell_i, cell_j) # -> (N,4) ### trying smth by using relative2absolute_pred as converter for target
-                for b in range(self.B):
-                    box_k = 5*b
-                    prediction_box_abs = IoU.relative2absolute(prediction[:,:,:, box_k : 5+box_k], N, cell_i, cell_j) # -> (N,4)
-                    iou = IoU.intersection_over_union(target_box_abs, prediction_box_abs) # -> (N,1)
-                    iou_box.append(iou) # -> [iou_box1:(N), iou_box:(N)]                    
-                
-                ### TODO comment
-                iou_mask = torch.gt(iou_box[0], iou_box[1])
-                iou_mask = iou_mask.to(torch.int64)
-                idx = 5*iou_mask #if 0 -> box1 infos, if 5 -> box2 infos
-
-                ### bbox coordinates relating to the box with the largest IoU
-                ### note : python doesn't like smth like a[N,i,j, arr1:arr2]
-                x_hat = prediction[N, cell_i, cell_j, idx]                
-                y_hat = prediction[N, cell_i, cell_j, idx+1]                
-                w_hat = prediction[N, cell_i, cell_j, idx+2]
-                h_hat = prediction[N, cell_i, cell_j, idx+3]
-                
-                xy_hat = torch.stack((x_hat, y_hat), dim=-1)
-                wh_hat = torch.stack((w_hat, h_hat), dim=-1)
-                
-                xy = target[N, cell_i, cell_j, :2]
-                wh = target[N, cell_i, cell_j, 2:4]
+        for i in range(self.S):
+            for j in range(self.S):                  
+                xy_hat = prediction[:,i,j,:2]
+                xy = target[:,i,j,:2]
+                wh_hat = prediction[:,i,j,2:4]
+                wh = target[:,i,j,2:4]
                 
                 ### confidence numbers
-                pred_c = prediction[N, cell_i, cell_j, 4+box_k]
-                true_c = target[N, cell_i, cell_j, 4]
+                pred_c = prediction[N, i, j, 4]
+                true_c = target[N, i, j, 4]
 
                 ### objects to detect
                 isObject = true_c.eq(0)
@@ -150,8 +128,8 @@ class YoloLoss(torch.nn.Module):
                 losses['loss_conf_noobj'] += self._confidenceloss(pred_c, true_c, torch.logical_not(isObject))
 
                 ### class labels
-                pred_class = prediction[N, cell_i, cell_j, 5*self.B:]
-                true_class = target[N, cell_i, cell_j, 5:]
+                pred_class = prediction[N, i, j, 5:]
+                true_class = target[N, i, j, 5:]
                 losses['loss_class'] += self._classloss(pred_class, true_class, isObject)
      
         ### Yolo_v1 loss over the batch, shape : (BATCH_SIZE)

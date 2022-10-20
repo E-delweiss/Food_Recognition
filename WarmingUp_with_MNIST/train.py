@@ -9,7 +9,8 @@ import torch
 import utils
 from yolo_loss import YoloLoss
 from MNIST_dataset import get_training_dataset, get_validation_dataset
-from darknet_like import YoloMNIST
+# from darknet_like import YoloMNIST
+from darknet import YoloV1 as YoloMNIST
 from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
@@ -21,14 +22,14 @@ device = utils.device()
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
 
-model_MNIST = YoloMNIST(sizeHW=75, S=6, C=10, B=1)
+model_MNIST = YoloMNIST(in_channels=1, S=7, C=10, B=1)
 model_MNIST = model_MNIST.to(device)
 optimizer = torch.optim.Adam(params=model_MNIST.parameters(), lr=learning_rate, weight_decay=0.0005)
 loss_yolo = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=6, device=device)
 logging.info(f"Using optimizer : {optimizer}")
 
-training_dataset = get_training_dataset()
-validation_dataset = get_validation_dataset()
+training_dataset = get_training_dataset(32)
+validation_dataset = get_validation_dataset(32)
 
 ################################################################################
 
@@ -96,7 +97,7 @@ for epoch in range(EPOCHS):
         current_loss = loss.item()
         epochs_loss += current_loss
 
-        if batch == 0 or (batch+1)%100 == 0 or batch == len(training_dataset.dataset)//BATCH_SIZE:
+        if batch == 0 or (batch+1)%1 == 0 or batch == len(training_dataset.dataset)//BATCH_SIZE:
             # Recording the total loss
             batch_total_train_loss_list.append(current_loss)
             # Recording each losses 
