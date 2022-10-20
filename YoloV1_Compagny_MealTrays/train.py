@@ -8,9 +8,9 @@ import torch
 import utils
 from yolo_loss import YoloLoss
 from mealtrays_dataset import get_training_dataset, get_validation_dataset
-# from darknet_like import YoloV1
-# from darknet import YoloV1
-from tinydarknet import TinyYolo as YoloV1
+# from darknet_pseudo import YoloV1
+from darknet import YoloV1
+# from tinydarknet import TinyYolo as YoloV1
 from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
@@ -18,16 +18,16 @@ learning_rate = 0.001
 BATCH_SIZE = 32
 SAVE_MODEL = True
 SAVE_LOSS = True
-utils.create_logging(prefix="tinydarknet")
+utils.create_logging(prefix="pseudodarknet")
 device = utils.device(verbose=1)
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
 
-model = YoloV1(in_channels=3, S=7, C=8, B=2)
+model = YoloV1(in_channels=3, S=7, C=8)
 # model = YoloV1(448, S=7, C=8, B=2)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=0.0005)
-loss_yolo = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=7, device=device)
+loss_yolo = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=6, device=device)
 logging.info(f"Using optimizer : {optimizer}")
 
 training_dataloader = get_training_dataset(BATCH_SIZE)
@@ -81,7 +81,7 @@ for epoch in range(EPOCHS):
         loss = 0
         begin_batch_time = timer()
         img, target = img.to(device), target.to(device)
-        
+
         ### clear gradients
         optimizer.zero_grad()
         
@@ -104,7 +104,7 @@ for epoch in range(EPOCHS):
         current_loss = loss.item()
         epochs_loss += current_loss
 
-        if batch == 0 or (batch+1)%8 == 0 or batch == len(training_dataloader.dataset)//BATCH_SIZE:
+        if batch == 0 or (batch+1)%5 == 0 or batch == len(training_dataloader.dataset)//BATCH_SIZE:
             # Recording the total loss
             batch_total_train_loss_list.append(current_loss)
             # Recording each losses 
