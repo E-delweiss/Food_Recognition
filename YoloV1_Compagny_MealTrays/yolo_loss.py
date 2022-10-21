@@ -22,6 +22,9 @@ class YoloLoss(torch.nn.Module):
         xcr_hat, ycr_hat = pred_coord_rcell.permute(1,0)
         xcr, ycr = true_coord_rcell.permute(1,0)
 
+        xcr_hat = xcr_hat.clamp(min=0) #?
+        ycr_hat = ycr_hat.clamp(min=0) #?
+
         xcr_hat = torch.masked_fill(xcr_hat, isObject, 0)
         ycr_hat = torch.masked_fill(ycr_hat, isObject, 0)
         xcr = torch.masked_fill(xcr, isObject, 0)

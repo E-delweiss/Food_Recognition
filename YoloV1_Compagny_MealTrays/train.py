@@ -8,13 +8,14 @@ import torch
 import utils
 from yolo_loss import YoloLoss
 from mealtrays_dataset import get_training_dataset, get_validation_dataset
-# from darknet_like import YoloV1
+from darknet_like import YoloV1
 # from darknet import YoloV1
-from tinydarknet import TinyYolo as YoloV1
+# from tinydarknet import TinyYolo as YoloV1
+# from darknet_like2 import YoloV1
 from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
-learning_rate = 0.001
+learning_rate = 0.0005
 BATCH_SIZE = 32
 SAVE_MODEL = True
 SAVE_LOSS = True
@@ -23,8 +24,8 @@ device = utils.device(verbose=1)
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
 
-model = YoloV1(in_channels=3, S=7, C=8, B=2)
-# model = YoloV1(448, S=7, C=8, B=2)
+# model = YoloV1(in_channels=3, S=7, C=8, B=2)
+model = YoloV1(448, S=7, C=8, B=2)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=0.0005)
 loss_yolo = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=7, device=device)

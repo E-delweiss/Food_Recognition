@@ -4,6 +4,7 @@ from torchinfo import summary
 
 import darknet
 import darknet_like
+import darknet_like2
 
 
 class TestDarknet(unittest.TestCase):
@@ -32,7 +33,16 @@ class TestDarknet(unittest.TestCase):
         output = model(img_test)
         
         self.assertEqual(output.shape, torch.Size([BATCH_SIZE, self.S, self.S, self.B*(4+1)+self.C]))
-        summary(model, input_size = img_test.shape)
+        # summary(model, input_size = img_test.shape)
+
+    def test_darknet_like2(self):
+        BATCH_SIZE = 64
+        model = darknet_like2.YoloV1(in_channels=3, S=self.S, C=self.C, B=self.B)
+        img_test = torch.rand(BATCH_SIZE, self.channel_img, self.size, self.size)
+        output = model(img_test)
+        
+        self.assertEqual(output.shape, torch.Size([BATCH_SIZE, self.S, self.S, self.B*(4+1)+self.C]))
+        # summary(model, input_size = img_test.shape)
 
 if __name__ == "__main__":
     unittest.main()

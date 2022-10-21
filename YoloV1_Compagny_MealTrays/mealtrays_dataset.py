@@ -7,6 +7,7 @@ import PIL
 import torch
 import torch.nn.functional as F
 import torchvision
+import albumentations as A
 
 class MealtraysDataset(torch.utils.data.Dataset):
     def __init__(self, root:str, split:str="train", isNormalize:bool=True, isAugment:bool=True, S=7, C=8):
@@ -143,18 +144,20 @@ class MealtraysDataset(torch.utils.data.Dataset):
 
     def _crop(self, img_PIL):
         ### crop deactivated
-        if rd.random() < 9999:
+        if rd.random() < 0.01:
             self.CROP = False
+            new_size = (self.SIZE, self.SIZE)
+            img_PIL = img_PIL.resize(new_size, PIL.Image.Resampling.BICUBIC)
             return img_PIL
         
         self.CROP = True 
 
-        crop_size = (400,400)
-        img_size = (self.SIZE, self.SIZE)
+        crop_size = (self.SIZE, self.SIZE)
+        img_size = (550, 550) #(self.SIZE, self.SIZE)
         crop_infos = list(torchvision.transforms.RandomCrop.get_params(img_PIL, crop_size))
         img_PIL = torchvision.transforms.functional.crop(img_PIL, *crop_infos)
-        img_PIL = torchvision.transforms.Resize(img_size)(img_PIL)
-        
+        print("\nDEBUG : ", crop_infos)
+
         offset_xy = img_size[0] - crop_size[0]
         crop_infos[0] = crop_infos[0] + offset_xy
         crop_infos[1] = crop_infos[1] + offset_xy
@@ -192,14 +195,16 @@ class MealtraysDataset(torch.utils.data.Dataset):
             ### Handle flip augmentation
             if self.FLIP_H:
                 xcr_img = 1-xcr_img
+
             if self.FLIP_V:
                 ycr_img = 1-ycr_img
+
             if self.CROP:
                 x_crop = crop_infos[1]/self.SIZE
                 y_crop = crop_infos[0]/self.SIZE
                 wh_crop = crop_infos[2]
-                xcr_img = xcr_img - x_crop
-                ycr_img = ycr_img - y_crop
+                xcr_img = xcr_img*PIL.Image.open(img_path).size[0]/self.SIZE - x_crop
+                ycr_img = ycr_img*PIL.Image.open(img_path).size[1]/self.SIZE - y_crop
                 xcr_img = np.clip(xcr_img, 0, wh_crop)
 
             ### Object grid location

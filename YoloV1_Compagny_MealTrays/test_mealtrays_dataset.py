@@ -37,7 +37,7 @@ class TestMealtraysDataset(unittest.TestCase):
         self.assertEqual(output[1].shape[2], self.B*(4+1) + self.C)
 
     def test_plot_dataset(self):
-        dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train", isNormalize=True, isAugment=True)        
+        dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train", isNormalize=False, isAugment=True)        
         idx = np.random.randint(len(dataset))
         img_idx, tensor_grid = dataset[idx]
 
