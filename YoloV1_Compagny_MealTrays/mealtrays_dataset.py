@@ -94,10 +94,10 @@ class MealtraysDataset(torch.utils.data.Dataset):
         return annotations, data_txt_labelised
 
     def _convert_to_PIL(self, img_path):
-        if self._augmentation:
+        new_size = (self.SIZE, self.SIZE)
+        if self.isAugment:
             new_size = (self.SIZE_TEMP, self.SIZE_TEMP)
-        else:
-            new_size = (self.SIZE, self.SIZE)
+
         img = PIL.Image.open(img_path).convert('RGB').resize(new_size, PIL.Image.Resampling.BICUBIC)
         return img
 
@@ -147,9 +147,9 @@ class MealtraysDataset(torch.utils.data.Dataset):
 
     def _crop(self, img_PIL):
         self.CROP = True 
-        if rd.random() < 0.5:
+        if rd.random() < 0.0001:
             self.CROP = False
-            new_size = (self.SIZE_TEMP, self.SIZE_TEMP)
+            new_size = (self.SIZE, self.SIZE)
             img_PIL = img_PIL.resize(new_size, PIL.Image.Resampling.BICUBIC)
             return img_PIL
         
@@ -194,19 +194,17 @@ class MealtraysDataset(torch.utils.data.Dataset):
                 ycr_img = 1-ycr_img
 
             ### Handle random crop (500,500) -> (448,448)
-            posXcrop_rimg = 0
-            posYcrop_rimg = 0
             if self.CROP:
                 posXcrop_rimg = crop_infos[1]/self.SIZE
                 posYcrop_rimg = crop_infos[0]/self.SIZE
             
-            ### Compute absolute coord in 500x500 img
-            xc = xcr_img * self.SIZE_TEMP
-            yc = ycr_img * self.SIZE_TEMP
-
-            ### Compute relative coord to 448x448 img and handle cropping
-            xcr_img = xc/self.SIZE - posXcrop_rimg
-            ycr_img = yc/self.SIZE - posYcrop_rimg
+                ### Compute absolute coord in 500x500 img
+                xc = xcr_img * self.SIZE_TEMP
+                yc = ycr_img * self.SIZE_TEMP
+            
+                ### Compute relative coord to 448x448 img and handle cropping
+                xcr_img = xc/self.SIZE - posXcrop_rimg
+                ycr_img = yc/self.SIZE - posYcrop_rimg
 
             ### Object grid location
             i = np.ceil(xcr_img / self.CELL_SIZE) - 1.0
@@ -255,7 +253,7 @@ def get_training_dataset(BATCH_SIZE=16):
     """
     Loads and maps the training split of the dataset using the custom dataset class. 
     """
-    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train", isNormalize=True)
+    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train", isNormalize=True, isAugment=True)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     return dataloader
 
