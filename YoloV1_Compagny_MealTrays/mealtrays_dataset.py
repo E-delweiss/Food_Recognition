@@ -7,7 +7,6 @@ import PIL
 import torch
 import torch.nn.functional as F
 import torchvision
-import albumentations as A
 
 class MealtraysDataset(torch.utils.data.Dataset):
     def __init__(self, root:str, split:str="train", isNormalize:bool=True, isAugment:bool=True, S=7, C=8):
@@ -19,9 +18,10 @@ class MealtraysDataset(torch.utils.data.Dataset):
         self.C = C
 
         ### Sizes
+        self.SIZE_TEMP = 500
         self.SIZE = 448
         self.CELL_SIZE = 1/self.S
-        
+
         ### Get data
         self.root = root
         data_txt = glob.glob(root + '/obj_train_data/*.txt')
@@ -94,7 +94,10 @@ class MealtraysDataset(torch.utils.data.Dataset):
         return annotations, data_txt_labelised
 
     def _convert_to_PIL(self, img_path):
-        new_size = (self.SIZE, self.SIZE)
+        if self._augmentation:
+            new_size = (self.SIZE_TEMP, self.SIZE_TEMP)
+        else:
+            new_size = (self.SIZE, self.SIZE)
         img = PIL.Image.open(img_path).convert('RGB').resize(new_size, PIL.Image.Resampling.BICUBIC)
         return img
 
@@ -127,41 +130,32 @@ class MealtraysDataset(torch.utils.data.Dataset):
         return img_tensor
 
     def _flipH(self, img_PIL):
+        self.FLIP_H = True
         if rd.random() < 0.5:
             self.FLIP_H = False
             return img_PIL
         img_PIL = torchvision.transforms.RandomHorizontalFlip(p=1.)(img_PIL)
-        self.FLIP_H = True
         return img_PIL
 
     def _flipV(self, img_PIL):
+        self.FLIP_V = True
         if rd.random() < 0.5:
             self.FLIP_V = False
             return img_PIL
         img_PIL = torchvision.transforms.RandomVerticalFlip(p=1.)(img_PIL)
-        self.FLIP_V = True
         return img_PIL
 
     def _crop(self, img_PIL):
-        ### crop deactivated
-        if rd.random() < 0.01:
+        self.CROP = True 
+        if rd.random() < 0.5:
             self.CROP = False
-            new_size = (self.SIZE, self.SIZE)
+            new_size = (self.SIZE_TEMP, self.SIZE_TEMP)
             img_PIL = img_PIL.resize(new_size, PIL.Image.Resampling.BICUBIC)
             return img_PIL
         
-        self.CROP = True 
-
         crop_size = (self.SIZE, self.SIZE)
-        img_size = (550, 550) #(self.SIZE, self.SIZE)
         crop_infos = list(torchvision.transforms.RandomCrop.get_params(img_PIL, crop_size))
         img_PIL = torchvision.transforms.functional.crop(img_PIL, *crop_infos)
-        print("\nDEBUG : ", crop_infos)
-
-        offset_xy = img_size[0] - crop_size[0]
-        crop_infos[0] = crop_infos[0] + offset_xy
-        crop_infos[1] = crop_infos[1] + offset_xy
-
         return img_PIL, crop_infos
 
     def _augmentation(self, img_PIL):
@@ -199,13 +193,20 @@ class MealtraysDataset(torch.utils.data.Dataset):
             if self.FLIP_V:
                 ycr_img = 1-ycr_img
 
+            ### Handle random crop (500,500) -> (448,448)
+            posXcrop_rimg = 0
+            posYcrop_rimg = 0
             if self.CROP:
-                x_crop = crop_infos[1]/self.SIZE
-                y_crop = crop_infos[0]/self.SIZE
-                wh_crop = crop_infos[2]
-                xcr_img = xcr_img*PIL.Image.open(img_path).size[0]/self.SIZE - x_crop
-                ycr_img = ycr_img*PIL.Image.open(img_path).size[1]/self.SIZE - y_crop
-                xcr_img = np.clip(xcr_img, 0, wh_crop)
+                posXcrop_rimg = crop_infos[1]/self.SIZE
+                posYcrop_rimg = crop_infos[0]/self.SIZE
+            
+            ### Compute absolute coord in 500x500 img
+            xc = xcr_img * self.SIZE_TEMP
+            yc = ycr_img * self.SIZE_TEMP
+
+            ### Compute relative coord to 448x448 img and handle cropping
+            xcr_img = xc/self.SIZE - posXcrop_rimg
+            ycr_img = yc/self.SIZE - posYcrop_rimg
 
             ### Object grid location
             i = np.ceil(xcr_img / self.CELL_SIZE) - 1.0
@@ -215,7 +216,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
             ### x & y of the cell left-top corner
             x0 = i * self.CELL_SIZE
             y0 = j * self.CELL_SIZE
-            
+
             ### x & y of the box on the cell, normalized from 0.0 to 1.0.
             xcr_cell = (xcr_img - x0) / self.CELL_SIZE
             ycr_cell = (ycr_img - y0) / self.CELL_SIZE
@@ -234,16 +235,16 @@ class MealtraysDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
-        
+
         crop_infos = ()
         img_path = self.data_txt_labelised[idx].replace(".txt", ".jpg")
-        
+
         img_PIL = self._convert_to_PIL(img_path)
         if self.isAugment:
             img_PIL = self._augmentation(img_PIL)
             if self.CROP:
                 img_PIL, crop_infos = img_PIL
-        
+
         img = self._transform(img_PIL)
         target = self._encode(img_path, crop_infos)
 
