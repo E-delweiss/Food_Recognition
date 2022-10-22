@@ -206,6 +206,10 @@ class MealtraysDataset(torch.utils.data.Dataset):
                 xcr_img = xc/self.SIZE - posXcrop_rimg
                 ycr_img = yc/self.SIZE - posYcrop_rimg
 
+                ### Restrict the cropping btw 0 & 1
+                xcr_img = np.clip(xcr_img, 0, 1)
+                ycr_img = np.clip(ycr_img, 0, 1)
+
             ### Object grid location
             i = np.ceil(xcr_img / self.CELL_SIZE) - 1.0
             j = np.ceil(ycr_img / self.CELL_SIZE) - 1.0

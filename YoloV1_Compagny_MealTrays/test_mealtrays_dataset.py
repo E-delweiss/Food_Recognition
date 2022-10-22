@@ -17,34 +17,33 @@ class TestMealtraysDataset(unittest.TestCase):
         self.C = 8
         self.CELL_SIZE = 1/self.S
 
-    def test_my_mealtrays_dataset(self):
-        output = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train")        
-        idx = np.random.randint(len(output))
-        output = output[idx]
+        dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", 
+            split="train", isNormalize=False, isAugment=True)        
+        idx = np.random.randint(len(dataset))
+        self.output = dataset[idx]
 
+    def test_my_mealtrays_dataset(self):
         ### Test on output type/size
-        self.assertIs(type(output), tuple)
-        self.assertEqual(len(output), 2)
+        self.assertIs(type(self.output), tuple)
+        self.assertEqual(len(self.output), 2)
 
         ### Test on output image shape
-        self.assertEqual(len(output[0].shape), 3)
-        self.assertEqual(output[0].shape[1], output[0].shape[2])
+        self.assertEqual(len(self.output[0].shape), 3)
+        self.assertEqual(self.output[0].shape[1], self.output[0].shape[2])
         
         ### Test on output target shape
-        self.assertEqual(len(output[1].shape), 3)
-        self.assertEqual(output[1].shape[0], self.S)
-        self.assertEqual(output[1].shape[0], output[1].shape[1])
-        self.assertEqual(output[1].shape[2], self.B*(4+1) + self.C)
+        self.assertEqual(len(self.output[1].shape), 3)
+        self.assertEqual(self.output[1].shape[0], self.S)
+        self.assertEqual(self.output[1].shape[0], self.output[1].shape[1])
+        self.assertEqual(self.output[1].shape[2], self.B*(4+1) + self.C)
 
     def test_plot_dataset(self):
-        dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train", isNormalize=False, isAugment=True)        
-        idx = np.random.randint(len(dataset))
-        img_idx, tensor_grid = dataset[idx]
-
         color_dict = {'Assiette':'b', 'Entree':'g', 'Pain':'r', 'Boisson':'c', 
-        'Yaourt':'darkred', 'Dessert':'k', 'Fruit':'m', 'Fromage':'y'}
+            'Yaourt':'darkred', 'Dessert':'k', 'Fruit':'m', 'Fromage':'y'}
         label_dict = {0:'Assiette', 1:'Entree', 2:'Pain', 3:'Boisson', 
-        4:'Yaourt', 5:'Dessert', 6:'Fruit', 7:'Fromage'}
+            4:'Yaourt', 5:'Dessert', 6:'Fruit', 7:'Fromage'}
+
+        img_idx, target = self.output
 
         # cailculate mean and std
         mean, std = img_idx.mean([1,2]), img_idx.std([1,2])
@@ -56,11 +55,13 @@ class TestMealtraysDataset(unittest.TestCase):
 
         img_idx = torchvision.transforms.ToPILImage()(img_idx)
 
-        cells_i, cells_j, _ = tensor_grid.nonzero().permute(1,0)
+        print("\nDEBUG : ", img_idx.size)
+
+        cells_i, cells_j, _ = target.nonzero().permute(1,0)
         cells_with_obj = torch.stack((cells_i, cells_j), dim=1)
         cells_i, cells_j = torch.unique(cells_with_obj,dim=0).permute(1,0)
 
-        box_infos = tensor_grid[cells_i, cells_j, :]
+        box_infos = target[cells_i, cells_j, :]
 
         fig = plt.figure()
         ax = fig.add_subplot(111)
