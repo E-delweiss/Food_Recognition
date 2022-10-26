@@ -1,0 +1,1071 @@
+24/10/2022 21:53:02 ::INFO:: Model is resnet101.
+24/10/2022 21:53:02 ::INFO:: Execute on cpu
+24/10/2022 21:53:02 ::INFO:: Learning rate = 0.0001
+24/10/2022 21:53:02 ::INFO:: Batch size = 32
+24/10/2022 21:53:03 ::INFO:: Using optimizer : Adam (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    capturable: False
+    eps: 1e-08
+    foreach: None
+    lr: 0.0001
+    maximize: False
+    weight_decay: 0.0005
+)
+24/10/2022 21:53:03 ::INFO:: Start training
+24/10/2022 21:53:03 ::INFO:: [START] : 2022-10-24 20:53:03
+24/10/2022 21:53:03 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 21:56:46 ::INFO:: Epoch 1/150
+24/10/2022 21:56:46 ::INFO:: ***** Training loss : 0.77025
+24/10/2022 21:56:46 ::INFO:: ***** MSE validation box loss : 1.75928
+24/10/2022 21:56:46 ::INFO:: ***** MSE validation confidence score : 0.84027
+24/10/2022 21:56:46 ::INFO:: ***** Validation class acc : 31.79%
+
+24/10/2022 21:56:46 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:00:03 ::INFO:: Epoch 2/150
+24/10/2022 22:00:03 ::INFO:: ***** Training loss : 0.47751
+24/10/2022 22:00:03 ::INFO:: ***** MSE validation box loss : 0.42075
+24/10/2022 22:00:03 ::INFO:: ***** MSE validation confidence score : 0.89616
+24/10/2022 22:00:03 ::INFO:: ***** Validation class acc : 39.23%
+
+24/10/2022 22:00:03 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:03:28 ::INFO:: Epoch 3/150
+24/10/2022 22:03:28 ::INFO:: ***** Training loss : 0.37135
+24/10/2022 22:03:28 ::INFO:: ***** MSE validation box loss : 0.34197
+24/10/2022 22:03:28 ::INFO:: ***** MSE validation confidence score : 0.81596
+24/10/2022 22:03:28 ::INFO:: ***** Validation class acc : 42.05%
+
+24/10/2022 22:03:28 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:06:55 ::INFO:: Epoch 4/150
+24/10/2022 22:06:55 ::INFO:: ***** Training loss : 0.32933
+24/10/2022 22:06:55 ::INFO:: ***** MSE validation box loss : 0.32382
+24/10/2022 22:06:55 ::INFO:: ***** MSE validation confidence score : 0.79998
+24/10/2022 22:06:55 ::INFO:: ***** Validation class acc : 37.69%
+
+24/10/2022 22:06:55 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:10:18 ::INFO:: Epoch 5/150
+24/10/2022 22:10:18 ::INFO:: ***** Training loss : 0.31042
+24/10/2022 22:10:18 ::INFO:: ***** MSE validation box loss : 0.31438
+24/10/2022 22:10:18 ::INFO:: ***** MSE validation confidence score : 0.78400
+24/10/2022 22:10:18 ::INFO:: ***** Validation class acc : 39.74%
+
+24/10/2022 22:10:18 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:13:39 ::INFO:: Epoch 6/150
+24/10/2022 22:13:39 ::INFO:: ***** Training loss : 0.30253
+24/10/2022 22:13:39 ::INFO:: ***** MSE validation box loss : 0.33094
+24/10/2022 22:13:39 ::INFO:: ***** MSE validation confidence score : 0.83750
+24/10/2022 22:13:39 ::INFO:: ***** Validation class acc : 44.36%
+
+24/10/2022 22:13:39 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:16:58 ::INFO:: Epoch 7/150
+24/10/2022 22:16:58 ::INFO:: ***** Training loss : 0.29666
+24/10/2022 22:16:58 ::INFO:: ***** MSE validation box loss : 0.32194
+24/10/2022 22:16:58 ::INFO:: ***** MSE validation confidence score : 0.78895
+24/10/2022 22:16:58 ::INFO:: ***** Validation class acc : 43.33%
+
+24/10/2022 22:16:58 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:20:16 ::INFO:: Epoch 8/150
+24/10/2022 22:20:16 ::INFO:: ***** Training loss : 0.29229
+24/10/2022 22:20:16 ::INFO:: ***** MSE validation box loss : 0.30704
+24/10/2022 22:20:16 ::INFO:: ***** MSE validation confidence score : 0.76988
+24/10/2022 22:20:16 ::INFO:: ***** Validation class acc : 44.62%
+
+24/10/2022 22:20:16 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:23:34 ::INFO:: Epoch 9/150
+24/10/2022 22:23:34 ::INFO:: ***** Training loss : 0.27910
+24/10/2022 22:23:34 ::INFO:: ***** MSE validation box loss : 0.32740
+24/10/2022 22:23:34 ::INFO:: ***** MSE validation confidence score : 0.78385
+24/10/2022 22:23:34 ::INFO:: ***** Validation class acc : 46.15%
+
+24/10/2022 22:23:34 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:26:53 ::INFO:: Epoch 10/150
+24/10/2022 22:26:53 ::INFO:: ***** Training loss : 0.27050
+24/10/2022 22:26:53 ::INFO:: ***** MSE validation box loss : 0.33337
+24/10/2022 22:26:53 ::INFO:: ***** MSE validation confidence score : 0.81944
+24/10/2022 22:26:53 ::INFO:: ***** Validation class acc : 48.21%
+
+24/10/2022 22:26:53 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:30:10 ::INFO:: Epoch 11/150
+24/10/2022 22:30:10 ::INFO:: ***** Training loss : 0.25978
+24/10/2022 22:30:10 ::INFO:: ***** MSE validation box loss : 0.37364
+24/10/2022 22:30:10 ::INFO:: ***** MSE validation confidence score : 0.78186
+24/10/2022 22:30:10 ::INFO:: ***** Validation class acc : 51.03%
+
+24/10/2022 22:30:10 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:33:33 ::INFO:: Epoch 12/150
+24/10/2022 22:33:33 ::INFO:: ***** Training loss : 0.25050
+24/10/2022 22:33:33 ::INFO:: ***** MSE validation box loss : 0.33409
+24/10/2022 22:33:33 ::INFO:: ***** MSE validation confidence score : 0.82097
+24/10/2022 22:33:33 ::INFO:: ***** Validation class acc : 51.28%
+
+24/10/2022 22:33:33 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:36:55 ::INFO:: Epoch 13/150
+24/10/2022 22:36:55 ::INFO:: ***** Training loss : 0.23783
+24/10/2022 22:36:55 ::INFO:: ***** MSE validation box loss : 0.36099
+24/10/2022 22:36:55 ::INFO:: ***** MSE validation confidence score : 0.75956
+24/10/2022 22:36:55 ::INFO:: ***** Validation class acc : 52.56%
+
+24/10/2022 22:36:55 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:40:16 ::INFO:: Epoch 14/150
+24/10/2022 22:40:16 ::INFO:: ***** Training loss : 0.21969
+24/10/2022 22:40:16 ::INFO:: ***** MSE validation box loss : 0.27837
+24/10/2022 22:40:16 ::INFO:: ***** MSE validation confidence score : 0.72422
+24/10/2022 22:40:16 ::INFO:: ***** Validation class acc : 53.59%
+
+24/10/2022 22:40:16 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:43:40 ::INFO:: Epoch 15/150
+24/10/2022 22:43:40 ::INFO:: ***** Training loss : 0.21335
+24/10/2022 22:43:40 ::INFO:: ***** MSE validation box loss : 0.28621
+24/10/2022 22:43:40 ::INFO:: ***** MSE validation confidence score : 0.69406
+24/10/2022 22:43:40 ::INFO:: ***** Validation class acc : 55.90%
+
+24/10/2022 22:43:40 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:47:02 ::INFO:: Epoch 16/150
+24/10/2022 22:47:02 ::INFO:: ***** Training loss : 0.20431
+24/10/2022 22:47:02 ::INFO:: ***** MSE validation box loss : 0.25733
+24/10/2022 22:47:02 ::INFO:: ***** MSE validation confidence score : 0.74265
+24/10/2022 22:47:02 ::INFO:: ***** Validation class acc : 55.64%
+
+24/10/2022 22:47:02 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:50:24 ::INFO:: Epoch 17/150
+24/10/2022 22:50:24 ::INFO:: ***** Training loss : 0.20224
+24/10/2022 22:50:24 ::INFO:: ***** MSE validation box loss : 0.27117
+24/10/2022 22:50:24 ::INFO:: ***** MSE validation confidence score : 0.67633
+24/10/2022 22:50:24 ::INFO:: ***** Validation class acc : 57.95%
+
+24/10/2022 22:50:24 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:53:48 ::INFO:: Epoch 18/150
+24/10/2022 22:53:48 ::INFO:: ***** Training loss : 0.19594
+24/10/2022 22:53:48 ::INFO:: ***** MSE validation box loss : 0.30680
+24/10/2022 22:53:48 ::INFO:: ***** MSE validation confidence score : 0.70325
+24/10/2022 22:53:48 ::INFO:: ***** Validation class acc : 59.74%
+
+24/10/2022 22:53:48 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 22:57:10 ::INFO:: Epoch 19/150
+24/10/2022 22:57:10 ::INFO:: ***** Training loss : 0.19385
+24/10/2022 22:57:10 ::INFO:: ***** MSE validation box loss : 0.25501
+24/10/2022 22:57:10 ::INFO:: ***** MSE validation confidence score : 0.70243
+24/10/2022 22:57:10 ::INFO:: ***** Validation class acc : 60.51%
+
+24/10/2022 22:57:10 ::INFO:: Learning rate : lr 0.0001
+24/10/2022 23:00:32 ::INFO:: Epoch 20/150
+24/10/2022 23:00:32 ::INFO:: ***** Training loss : 1.96015
+24/10/2022 23:00:32 ::INFO:: ***** MSE validation box loss : 146.89182
+24/10/2022 23:00:32 ::INFO:: ***** MSE validation confidence score : 1.61343
+24/10/2022 23:00:32 ::INFO:: ***** Validation class acc : 24.87%
+
+24/10/2022 23:00:32 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:03:59 ::INFO:: Epoch 21/150
+24/10/2022 23:03:59 ::INFO:: ***** Training loss : 9.92295
+24/10/2022 23:03:59 ::INFO:: ***** MSE validation box loss : 85.52589
+24/10/2022 23:03:59 ::INFO:: ***** MSE validation confidence score : 7.24815
+24/10/2022 23:03:59 ::INFO:: ***** Validation class acc : 11.79%
+
+24/10/2022 23:03:59 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:07:21 ::INFO:: Epoch 22/150
+24/10/2022 23:07:21 ::INFO:: ***** Training loss : 36.61438
+24/10/2022 23:07:21 ::INFO:: ***** MSE validation box loss : 27.02887
+24/10/2022 23:07:21 ::INFO:: ***** MSE validation confidence score : 5.73464
+24/10/2022 23:07:21 ::INFO:: ***** Validation class acc : 12.05%
+
+24/10/2022 23:07:21 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:10:41 ::INFO:: Epoch 23/150
+24/10/2022 23:10:41 ::INFO:: ***** Training loss : 2.77369
+24/10/2022 23:10:41 ::INFO:: ***** MSE validation box loss : 43.25408
+24/10/2022 23:10:41 ::INFO:: ***** MSE validation confidence score : 0.70080
+24/10/2022 23:10:41 ::INFO:: ***** Validation class acc : 24.10%
+
+24/10/2022 23:10:41 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:14:01 ::INFO:: Epoch 24/150
+24/10/2022 23:14:01 ::INFO:: ***** Training loss : 0.90027
+24/10/2022 23:14:01 ::INFO:: ***** MSE validation box loss : 18.83016
+24/10/2022 23:14:01 ::INFO:: ***** MSE validation confidence score : 0.72832
+24/10/2022 23:14:01 ::INFO:: ***** Validation class acc : 36.92%
+
+24/10/2022 23:14:01 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:17:24 ::INFO:: Epoch 25/150
+24/10/2022 23:17:24 ::INFO:: ***** Training loss : 0.68183
+24/10/2022 23:17:24 ::INFO:: ***** MSE validation box loss : 9.90896
+24/10/2022 23:17:24 ::INFO:: ***** MSE validation confidence score : 0.68803
+24/10/2022 23:17:24 ::INFO:: ***** Validation class acc : 41.54%
+
+24/10/2022 23:17:24 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:20:46 ::INFO:: Epoch 26/150
+24/10/2022 23:20:46 ::INFO:: ***** Training loss : 0.63525
+24/10/2022 23:20:46 ::INFO:: ***** MSE validation box loss : 6.73615
+24/10/2022 23:20:46 ::INFO:: ***** MSE validation confidence score : 0.72427
+24/10/2022 23:20:46 ::INFO:: ***** Validation class acc : 47.44%
+
+24/10/2022 23:20:46 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:24:07 ::INFO:: Epoch 27/150
+24/10/2022 23:24:07 ::INFO:: ***** Training loss : 0.58367
+24/10/2022 23:24:07 ::INFO:: ***** MSE validation box loss : 3.43539
+24/10/2022 23:24:07 ::INFO:: ***** MSE validation confidence score : 0.72221
+24/10/2022 23:24:07 ::INFO:: ***** Validation class acc : 47.18%
+
+24/10/2022 23:24:07 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:27:28 ::INFO:: Epoch 28/150
+24/10/2022 23:27:28 ::INFO:: ***** Training loss : 0.52027
+24/10/2022 23:27:28 ::INFO:: ***** MSE validation box loss : 1.50584
+24/10/2022 23:27:28 ::INFO:: ***** MSE validation confidence score : 0.58809
+24/10/2022 23:27:28 ::INFO:: ***** Validation class acc : 42.31%
+
+24/10/2022 23:27:28 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:30:48 ::INFO:: Epoch 29/150
+24/10/2022 23:30:48 ::INFO:: ***** Training loss : 1.65324
+24/10/2022 23:30:48 ::INFO:: ***** MSE validation box loss : 20.65407
+24/10/2022 23:30:48 ::INFO:: ***** MSE validation confidence score : 0.98981
+24/10/2022 23:30:48 ::INFO:: ***** Validation class acc : 30.77%
+
+24/10/2022 23:30:48 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:34:15 ::INFO:: Epoch 30/150
+24/10/2022 23:34:15 ::INFO:: ***** Training loss : 1.13296
+24/10/2022 23:34:15 ::INFO:: ***** MSE validation box loss : 17.72866
+24/10/2022 23:34:15 ::INFO:: ***** MSE validation confidence score : 0.69268
+24/10/2022 23:34:15 ::INFO:: ***** Validation class acc : 34.87%
+
+24/10/2022 23:34:15 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:37:37 ::INFO:: Epoch 31/150
+24/10/2022 23:37:37 ::INFO:: ***** Training loss : 0.75056
+24/10/2022 23:37:37 ::INFO:: ***** MSE validation box loss : 12.91692
+24/10/2022 23:37:37 ::INFO:: ***** MSE validation confidence score : 0.68991
+24/10/2022 23:37:37 ::INFO:: ***** Validation class acc : 39.49%
+
+24/10/2022 23:37:37 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:41:00 ::INFO:: Epoch 32/150
+24/10/2022 23:41:00 ::INFO:: ***** Training loss : 0.69931
+24/10/2022 23:41:00 ::INFO:: ***** MSE validation box loss : 10.21896
+24/10/2022 23:41:00 ::INFO:: ***** MSE validation confidence score : 0.69384
+24/10/2022 23:41:00 ::INFO:: ***** Validation class acc : 46.41%
+
+24/10/2022 23:41:00 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:44:24 ::INFO:: Epoch 33/150
+24/10/2022 23:44:24 ::INFO:: ***** Training loss : 0.68904
+24/10/2022 23:44:24 ::INFO:: ***** MSE validation box loss : 8.51427
+24/10/2022 23:44:24 ::INFO:: ***** MSE validation confidence score : 0.74646
+24/10/2022 23:44:24 ::INFO:: ***** Validation class acc : 46.92%
+
+24/10/2022 23:44:24 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:47:51 ::INFO:: Epoch 34/150
+24/10/2022 23:47:51 ::INFO:: ***** Training loss : 0.68119
+24/10/2022 23:47:51 ::INFO:: ***** MSE validation box loss : 8.02757
+24/10/2022 23:47:51 ::INFO:: ***** MSE validation confidence score : 0.71392
+24/10/2022 23:47:51 ::INFO:: ***** Validation class acc : 45.64%
+
+24/10/2022 23:47:51 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:51:13 ::INFO:: Epoch 35/150
+24/10/2022 23:51:13 ::INFO:: ***** Training loss : 0.66755
+24/10/2022 23:51:13 ::INFO:: ***** MSE validation box loss : 7.68908
+24/10/2022 23:51:13 ::INFO:: ***** MSE validation confidence score : 0.70110
+24/10/2022 23:51:13 ::INFO:: ***** Validation class acc : 48.46%
+
+24/10/2022 23:51:13 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:54:33 ::INFO:: Epoch 36/150
+24/10/2022 23:54:33 ::INFO:: ***** Training loss : 0.65448
+24/10/2022 23:54:33 ::INFO:: ***** MSE validation box loss : 7.61063
+24/10/2022 23:54:33 ::INFO:: ***** MSE validation confidence score : 0.70242
+24/10/2022 23:54:33 ::INFO:: ***** Validation class acc : 51.03%
+
+24/10/2022 23:54:34 ::INFO:: Learning rate : lr 5e-05
+24/10/2022 23:57:54 ::INFO:: Epoch 37/150
+24/10/2022 23:57:54 ::INFO:: ***** Training loss : 0.66413
+24/10/2022 23:57:54 ::INFO:: ***** MSE validation box loss : 6.72631
+24/10/2022 23:57:54 ::INFO:: ***** MSE validation confidence score : 0.69094
+24/10/2022 23:57:54 ::INFO:: ***** Validation class acc : 53.33%
+
+24/10/2022 23:57:54 ::INFO:: Learning rate : lr 5e-05
+25/10/2022 00:01:24 ::INFO:: Epoch 38/150
+25/10/2022 00:01:24 ::INFO:: ***** Training loss : 0.64919
+25/10/2022 00:01:24 ::INFO:: ***** MSE validation box loss : 6.69643
+25/10/2022 00:01:24 ::INFO:: ***** MSE validation confidence score : 0.68670
+25/10/2022 00:01:24 ::INFO:: ***** Validation class acc : 48.97%
+
+25/10/2022 00:01:24 ::INFO:: Learning rate : lr 5e-05
+25/10/2022 00:04:45 ::INFO:: Epoch 39/150
+25/10/2022 00:04:45 ::INFO:: ***** Training loss : 0.64718
+25/10/2022 00:04:45 ::INFO:: ***** MSE validation box loss : 6.08752
+25/10/2022 00:04:45 ::INFO:: ***** MSE validation confidence score : 0.69308
+25/10/2022 00:04:45 ::INFO:: ***** Validation class acc : 51.54%
+
+25/10/2022 00:04:45 ::INFO:: Learning rate : lr 5e-05
+25/10/2022 00:08:06 ::INFO:: Epoch 40/150
+25/10/2022 00:08:06 ::INFO:: ***** Training loss : 0.65329
+25/10/2022 00:08:06 ::INFO:: ***** MSE validation box loss : 5.93211
+25/10/2022 00:08:06 ::INFO:: ***** MSE validation confidence score : 0.68884
+25/10/2022 00:08:06 ::INFO:: ***** Validation class acc : 48.21%
+
+25/10/2022 00:08:06 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:11:30 ::INFO:: Epoch 41/150
+25/10/2022 00:11:30 ::INFO:: ***** Training loss : 0.62579
+25/10/2022 00:11:30 ::INFO:: ***** MSE validation box loss : 4.88791
+25/10/2022 00:11:30 ::INFO:: ***** MSE validation confidence score : 0.65929
+25/10/2022 00:11:30 ::INFO:: ***** Validation class acc : 48.21%
+
+25/10/2022 00:11:30 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:14:55 ::INFO:: Epoch 42/150
+25/10/2022 00:14:55 ::INFO:: ***** Training loss : 0.59295
+25/10/2022 00:14:55 ::INFO:: ***** MSE validation box loss : 3.26432
+25/10/2022 00:14:55 ::INFO:: ***** MSE validation confidence score : 0.71419
+25/10/2022 00:14:55 ::INFO:: ***** Validation class acc : 52.05%
+
+25/10/2022 00:14:55 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:18:20 ::INFO:: Epoch 43/150
+25/10/2022 00:18:20 ::INFO:: ***** Training loss : 0.50068
+25/10/2022 00:18:20 ::INFO:: ***** MSE validation box loss : 1.82337
+25/10/2022 00:18:20 ::INFO:: ***** MSE validation confidence score : 0.59288
+25/10/2022 00:18:20 ::INFO:: ***** Validation class acc : 50.26%
+
+25/10/2022 00:18:20 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:21:43 ::INFO:: Epoch 44/150
+25/10/2022 00:21:43 ::INFO:: ***** Training loss : 0.45722
+25/10/2022 00:21:43 ::INFO:: ***** MSE validation box loss : 1.52978
+25/10/2022 00:21:43 ::INFO:: ***** MSE validation confidence score : 0.67003
+25/10/2022 00:21:43 ::INFO:: ***** Validation class acc : 50.26%
+
+25/10/2022 00:21:43 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:25:05 ::INFO:: Epoch 45/150
+25/10/2022 00:25:05 ::INFO:: ***** Training loss : 0.45223
+25/10/2022 00:25:05 ::INFO:: ***** MSE validation box loss : 1.52667
+25/10/2022 00:25:05 ::INFO:: ***** MSE validation confidence score : 0.78050
+25/10/2022 00:25:05 ::INFO:: ***** Validation class acc : 46.92%
+
+25/10/2022 00:25:05 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:28:28 ::INFO:: Epoch 46/150
+25/10/2022 00:28:28 ::INFO:: ***** Training loss : 0.40813
+25/10/2022 00:28:28 ::INFO:: ***** MSE validation box loss : 1.01795
+25/10/2022 00:28:28 ::INFO:: ***** MSE validation confidence score : 0.67572
+25/10/2022 00:28:28 ::INFO:: ***** Validation class acc : 46.41%
+
+25/10/2022 00:28:28 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:31:53 ::INFO:: Epoch 47/150
+25/10/2022 00:31:53 ::INFO:: ***** Training loss : 0.36303
+25/10/2022 00:31:53 ::INFO:: ***** MSE validation box loss : 0.83951
+25/10/2022 00:31:53 ::INFO:: ***** MSE validation confidence score : 0.67003
+25/10/2022 00:31:53 ::INFO:: ***** Validation class acc : 49.49%
+
+25/10/2022 00:31:53 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:35:20 ::INFO:: Epoch 48/150
+25/10/2022 00:35:20 ::INFO:: ***** Training loss : 0.34697
+25/10/2022 00:35:20 ::INFO:: ***** MSE validation box loss : 0.54172
+25/10/2022 00:35:20 ::INFO:: ***** MSE validation confidence score : 0.67090
+25/10/2022 00:35:20 ::INFO:: ***** Validation class acc : 51.54%
+
+25/10/2022 00:35:20 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:38:43 ::INFO:: Epoch 49/150
+25/10/2022 00:38:43 ::INFO:: ***** Training loss : 0.31947
+25/10/2022 00:38:43 ::INFO:: ***** MSE validation box loss : 0.51250
+25/10/2022 00:38:43 ::INFO:: ***** MSE validation confidence score : 0.52661
+25/10/2022 00:38:43 ::INFO:: ***** Validation class acc : 56.92%
+
+25/10/2022 00:38:43 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:42:06 ::INFO:: Epoch 50/150
+25/10/2022 00:42:06 ::INFO:: ***** Training loss : 0.42417
+25/10/2022 00:42:06 ::INFO:: ***** MSE validation box loss : 0.62354
+25/10/2022 00:42:06 ::INFO:: ***** MSE validation confidence score : 0.76837
+25/10/2022 00:42:06 ::INFO:: ***** Validation class acc : 50.00%
+
+25/10/2022 00:42:06 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:45:29 ::INFO:: Epoch 51/150
+25/10/2022 00:45:29 ::INFO:: ***** Training loss : 0.33083
+25/10/2022 00:45:29 ::INFO:: ***** MSE validation box loss : 0.33285
+25/10/2022 00:45:29 ::INFO:: ***** MSE validation confidence score : 0.63958
+25/10/2022 00:45:29 ::INFO:: ***** Validation class acc : 49.23%
+
+25/10/2022 00:45:29 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:48:50 ::INFO:: Epoch 52/150
+25/10/2022 00:48:50 ::INFO:: ***** Training loss : 0.26829
+25/10/2022 00:48:50 ::INFO:: ***** MSE validation box loss : 0.29047
+25/10/2022 00:48:50 ::INFO:: ***** MSE validation confidence score : 0.60314
+25/10/2022 00:48:50 ::INFO:: ***** Validation class acc : 51.28%
+
+25/10/2022 00:48:50 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:52:15 ::INFO:: Epoch 53/150
+25/10/2022 00:52:15 ::INFO:: ***** Training loss : 0.26087
+25/10/2022 00:52:15 ::INFO:: ***** MSE validation box loss : 0.22477
+25/10/2022 00:52:15 ::INFO:: ***** MSE validation confidence score : 0.61088
+25/10/2022 00:52:15 ::INFO:: ***** Validation class acc : 54.10%
+
+25/10/2022 00:52:15 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:55:39 ::INFO:: Epoch 54/150
+25/10/2022 00:55:39 ::INFO:: ***** Training loss : 0.26495
+25/10/2022 00:55:40 ::INFO:: ***** MSE validation box loss : 0.28862
+25/10/2022 00:55:40 ::INFO:: ***** MSE validation confidence score : 0.59447
+25/10/2022 00:55:40 ::INFO:: ***** Validation class acc : 51.54%
+
+25/10/2022 00:55:40 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 00:59:01 ::INFO:: Epoch 55/150
+25/10/2022 00:59:01 ::INFO:: ***** Training loss : 0.25639
+25/10/2022 00:59:01 ::INFO:: ***** MSE validation box loss : 0.26145
+25/10/2022 00:59:01 ::INFO:: ***** MSE validation confidence score : 0.66324
+25/10/2022 00:59:01 ::INFO:: ***** Validation class acc : 51.54%
+
+25/10/2022 00:59:01 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 01:02:22 ::INFO:: Epoch 56/150
+25/10/2022 01:02:22 ::INFO:: ***** Training loss : 0.22760
+25/10/2022 01:02:22 ::INFO:: ***** MSE validation box loss : 0.17402
+25/10/2022 01:02:22 ::INFO:: ***** MSE validation confidence score : 0.57315
+25/10/2022 01:02:22 ::INFO:: ***** Validation class acc : 53.33%
+
+25/10/2022 01:02:22 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 01:05:47 ::INFO:: Epoch 57/150
+25/10/2022 01:05:47 ::INFO:: ***** Training loss : 0.23082
+25/10/2022 01:05:47 ::INFO:: ***** MSE validation box loss : 0.20978
+25/10/2022 01:05:47 ::INFO:: ***** MSE validation confidence score : 0.63668
+25/10/2022 01:05:47 ::INFO:: ***** Validation class acc : 52.56%
+
+25/10/2022 01:05:47 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 01:09:07 ::INFO:: Epoch 58/150
+25/10/2022 01:09:07 ::INFO:: ***** Training loss : 0.23642
+25/10/2022 01:09:07 ::INFO:: ***** MSE validation box loss : 0.30976
+25/10/2022 01:09:07 ::INFO:: ***** MSE validation confidence score : 0.61171
+25/10/2022 01:09:07 ::INFO:: ***** Validation class acc : 50.26%
+
+25/10/2022 01:09:07 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 01:12:28 ::INFO:: Epoch 59/150
+25/10/2022 01:12:28 ::INFO:: ***** Training loss : 0.26215
+25/10/2022 01:12:28 ::INFO:: ***** MSE validation box loss : 0.26717
+25/10/2022 01:12:28 ::INFO:: ***** MSE validation confidence score : 0.58480
+25/10/2022 01:12:28 ::INFO:: ***** Validation class acc : 50.00%
+
+25/10/2022 01:12:28 ::INFO:: Learning rate : lr 2.5e-05
+25/10/2022 01:15:48 ::INFO:: Epoch 60/150
+25/10/2022 01:15:48 ::INFO:: ***** Training loss : 0.23732
+25/10/2022 01:15:48 ::INFO:: ***** MSE validation box loss : 0.22329
+25/10/2022 01:15:48 ::INFO:: ***** MSE validation confidence score : 0.67425
+25/10/2022 01:15:48 ::INFO:: ***** Validation class acc : 51.28%
+
+25/10/2022 01:15:48 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:19:14 ::INFO:: Epoch 61/150
+25/10/2022 01:19:14 ::INFO:: ***** Training loss : 0.21040
+25/10/2022 01:19:14 ::INFO:: ***** MSE validation box loss : 0.19164
+25/10/2022 01:19:14 ::INFO:: ***** MSE validation confidence score : 0.66616
+25/10/2022 01:19:14 ::INFO:: ***** Validation class acc : 52.82%
+
+25/10/2022 01:19:14 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:22:37 ::INFO:: Epoch 62/150
+25/10/2022 01:22:37 ::INFO:: ***** Training loss : 0.19224
+25/10/2022 01:22:37 ::INFO:: ***** MSE validation box loss : 0.16919
+25/10/2022 01:22:37 ::INFO:: ***** MSE validation confidence score : 0.63193
+25/10/2022 01:22:37 ::INFO:: ***** Validation class acc : 55.38%
+
+25/10/2022 01:22:37 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:25:58 ::INFO:: Epoch 63/150
+25/10/2022 01:25:58 ::INFO:: ***** Training loss : 0.17935
+25/10/2022 01:25:58 ::INFO:: ***** MSE validation box loss : 0.15681
+25/10/2022 01:25:58 ::INFO:: ***** MSE validation confidence score : 0.60948
+25/10/2022 01:25:58 ::INFO:: ***** Validation class acc : 56.41%
+
+25/10/2022 01:25:58 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:29:19 ::INFO:: Epoch 64/150
+25/10/2022 01:29:19 ::INFO:: ***** Training loss : 0.18227
+25/10/2022 01:29:19 ::INFO:: ***** MSE validation box loss : 0.16044
+25/10/2022 01:29:19 ::INFO:: ***** MSE validation confidence score : 0.61900
+25/10/2022 01:29:19 ::INFO:: ***** Validation class acc : 57.69%
+
+25/10/2022 01:29:19 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:32:39 ::INFO:: Epoch 65/150
+25/10/2022 01:32:39 ::INFO:: ***** Training loss : 0.18470
+25/10/2022 01:32:39 ::INFO:: ***** MSE validation box loss : 0.15641
+25/10/2022 01:32:39 ::INFO:: ***** MSE validation confidence score : 0.60847
+25/10/2022 01:32:39 ::INFO:: ***** Validation class acc : 56.67%
+
+25/10/2022 01:32:39 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:36:04 ::INFO:: Epoch 66/150
+25/10/2022 01:36:04 ::INFO:: ***** Training loss : 0.17358
+25/10/2022 01:36:04 ::INFO:: ***** MSE validation box loss : 0.15187
+25/10/2022 01:36:04 ::INFO:: ***** MSE validation confidence score : 0.62317
+25/10/2022 01:36:04 ::INFO:: ***** Validation class acc : 55.38%
+
+25/10/2022 01:36:04 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:39:24 ::INFO:: Epoch 67/150
+25/10/2022 01:39:24 ::INFO:: ***** Training loss : 0.17293
+25/10/2022 01:39:24 ::INFO:: ***** MSE validation box loss : 0.14988
+25/10/2022 01:39:24 ::INFO:: ***** MSE validation confidence score : 0.59281
+25/10/2022 01:39:24 ::INFO:: ***** Validation class acc : 55.90%
+
+25/10/2022 01:39:24 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:42:43 ::INFO:: Epoch 68/150
+25/10/2022 01:42:43 ::INFO:: ***** Training loss : 0.17134
+25/10/2022 01:42:43 ::INFO:: ***** MSE validation box loss : 0.14991
+25/10/2022 01:42:43 ::INFO:: ***** MSE validation confidence score : 0.61391
+25/10/2022 01:42:43 ::INFO:: ***** Validation class acc : 56.15%
+
+25/10/2022 01:42:43 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:46:01 ::INFO:: Epoch 69/150
+25/10/2022 01:46:01 ::INFO:: ***** Training loss : 0.16921
+25/10/2022 01:46:01 ::INFO:: ***** MSE validation box loss : 0.15718
+25/10/2022 01:46:01 ::INFO:: ***** MSE validation confidence score : 0.63764
+25/10/2022 01:46:01 ::INFO:: ***** Validation class acc : 57.18%
+
+25/10/2022 01:46:01 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:49:20 ::INFO:: Epoch 70/150
+25/10/2022 01:49:20 ::INFO:: ***** Training loss : 0.16457
+25/10/2022 01:49:20 ::INFO:: ***** MSE validation box loss : 0.15228
+25/10/2022 01:49:20 ::INFO:: ***** MSE validation confidence score : 0.62372
+25/10/2022 01:49:20 ::INFO:: ***** Validation class acc : 58.72%
+
+25/10/2022 01:49:20 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:52:41 ::INFO:: Epoch 71/150
+25/10/2022 01:52:41 ::INFO:: ***** Training loss : 0.16173
+25/10/2022 01:52:41 ::INFO:: ***** MSE validation box loss : 0.14798
+25/10/2022 01:52:41 ::INFO:: ***** MSE validation confidence score : 0.62194
+25/10/2022 01:52:41 ::INFO:: ***** Validation class acc : 57.18%
+
+25/10/2022 01:52:41 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:56:00 ::INFO:: Epoch 72/150
+25/10/2022 01:56:00 ::INFO:: ***** Training loss : 0.16748
+25/10/2022 01:56:00 ::INFO:: ***** MSE validation box loss : 0.14051
+25/10/2022 01:56:00 ::INFO:: ***** MSE validation confidence score : 0.60611
+25/10/2022 01:56:00 ::INFO:: ***** Validation class acc : 59.23%
+
+25/10/2022 01:56:00 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 01:59:19 ::INFO:: Epoch 73/150
+25/10/2022 01:59:19 ::INFO:: ***** Training loss : 0.16611
+25/10/2022 01:59:19 ::INFO:: ***** MSE validation box loss : 0.13941
+25/10/2022 01:59:19 ::INFO:: ***** MSE validation confidence score : 0.61926
+25/10/2022 01:59:19 ::INFO:: ***** Validation class acc : 59.49%
+
+25/10/2022 01:59:19 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 02:02:39 ::INFO:: Epoch 74/150
+25/10/2022 02:02:39 ::INFO:: ***** Training loss : 0.16137
+25/10/2022 02:02:39 ::INFO:: ***** MSE validation box loss : 0.13305
+25/10/2022 02:02:39 ::INFO:: ***** MSE validation confidence score : 0.63002
+25/10/2022 02:02:39 ::INFO:: ***** Validation class acc : 58.97%
+
+25/10/2022 02:02:39 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 02:06:03 ::INFO:: Epoch 75/150
+25/10/2022 02:06:03 ::INFO:: ***** Training loss : 0.15676
+25/10/2022 02:06:03 ::INFO:: ***** MSE validation box loss : 0.13332
+25/10/2022 02:06:03 ::INFO:: ***** MSE validation confidence score : 0.64299
+25/10/2022 02:06:03 ::INFO:: ***** Validation class acc : 58.97%
+
+25/10/2022 02:06:03 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 02:09:29 ::INFO:: Epoch 76/150
+25/10/2022 02:09:29 ::INFO:: ***** Training loss : 0.15085
+25/10/2022 02:09:29 ::INFO:: ***** MSE validation box loss : 0.12813
+25/10/2022 02:09:29 ::INFO:: ***** MSE validation confidence score : 0.65253
+25/10/2022 02:09:29 ::INFO:: ***** Validation class acc : 58.97%
+
+25/10/2022 02:09:29 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 02:12:57 ::INFO:: Epoch 77/150
+25/10/2022 02:12:57 ::INFO:: ***** Training loss : 0.15660
+25/10/2022 02:12:57 ::INFO:: ***** MSE validation box loss : 0.11736
+25/10/2022 02:12:57 ::INFO:: ***** MSE validation confidence score : 0.64945
+25/10/2022 02:12:57 ::INFO:: ***** Validation class acc : 60.26%
+
+25/10/2022 02:12:57 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 02:16:16 ::INFO:: Epoch 78/150
+25/10/2022 02:16:16 ::INFO:: ***** Training loss : 0.15289
+25/10/2022 02:16:16 ::INFO:: ***** MSE validation box loss : 0.11251
+25/10/2022 02:16:16 ::INFO:: ***** MSE validation confidence score : 0.67011
+25/10/2022 02:16:16 ::INFO:: ***** Validation class acc : 59.23%
+
+25/10/2022 02:16:16 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 02:19:34 ::INFO:: Epoch 79/150
+25/10/2022 02:19:34 ::INFO:: ***** Training loss : 0.14779
+25/10/2022 02:19:34 ::INFO:: ***** MSE validation box loss : 0.11110
+25/10/2022 02:19:34 ::INFO:: ***** MSE validation confidence score : 0.62787
+25/10/2022 02:19:34 ::INFO:: ***** Validation class acc : 62.82%
+
+25/10/2022 02:19:34 ::INFO:: Learning rate : lr 1.25e-05
+25/10/2022 02:22:53 ::INFO:: Epoch 80/150
+25/10/2022 02:22:53 ::INFO:: ***** Training loss : 0.14705
+25/10/2022 02:22:53 ::INFO:: ***** MSE validation box loss : 0.11487
+25/10/2022 02:22:53 ::INFO:: ***** MSE validation confidence score : 0.56194
+25/10/2022 02:22:53 ::INFO:: ***** Validation class acc : 62.82%
+
+25/10/2022 02:22:53 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 02:26:15 ::INFO:: Epoch 81/150
+25/10/2022 02:26:15 ::INFO:: ***** Training loss : 0.13644
+25/10/2022 02:26:15 ::INFO:: ***** MSE validation box loss : 0.10921
+25/10/2022 02:26:15 ::INFO:: ***** MSE validation confidence score : 0.61230
+25/10/2022 02:26:15 ::INFO:: ***** Validation class acc : 62.31%
+
+25/10/2022 02:26:15 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 02:29:34 ::INFO:: Epoch 82/150
+25/10/2022 02:29:34 ::INFO:: ***** Training loss : 0.14092
+25/10/2022 02:29:34 ::INFO:: ***** MSE validation box loss : 0.10529
+25/10/2022 02:29:34 ::INFO:: ***** MSE validation confidence score : 0.59768
+25/10/2022 02:29:34 ::INFO:: ***** Validation class acc : 63.33%
+
+25/10/2022 02:29:34 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 02:32:54 ::INFO:: Epoch 83/150
+25/10/2022 02:32:54 ::INFO:: ***** Training loss : 0.13458
+25/10/2022 02:32:54 ::INFO:: ***** MSE validation box loss : 0.10163
+25/10/2022 02:32:54 ::INFO:: ***** MSE validation confidence score : 0.59961
+25/10/2022 02:32:54 ::INFO:: ***** Validation class acc : 62.56%
+
+25/10/2022 02:32:54 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 02:36:16 ::INFO:: Epoch 84/150
+25/10/2022 02:36:16 ::INFO:: ***** Training loss : 0.30528
+25/10/2022 02:36:16 ::INFO:: ***** MSE validation box loss : 8.40869
+25/10/2022 02:36:16 ::INFO:: ***** MSE validation confidence score : 1.11145
+25/10/2022 02:36:16 ::INFO:: ***** Validation class acc : 33.59%
+
+25/10/2022 02:36:16 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 02:39:40 ::INFO:: Epoch 85/150
+25/10/2022 02:39:40 ::INFO:: ***** Training loss : 0.65399
+25/10/2022 02:39:40 ::INFO:: ***** MSE validation box loss : 1.49192
+25/10/2022 02:39:40 ::INFO:: ***** MSE validation confidence score : 0.60913
+25/10/2022 02:39:40 ::INFO:: ***** Validation class acc : 43.85%
+
+25/10/2022 02:39:40 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 02:43:04 ::INFO:: Epoch 86/150
+25/10/2022 02:43:04 ::INFO:: ***** Training loss : 0.43322
+25/10/2022 02:43:04 ::INFO:: ***** MSE validation box loss : 1.06556
+25/10/2022 02:43:04 ::INFO:: ***** MSE validation confidence score : 0.60080
+25/10/2022 02:43:04 ::INFO:: ***** Validation class acc : 52.05%
+
+25/10/2022 02:43:04 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 02:46:31 ::INFO:: Epoch 87/150
+25/10/2022 02:46:31 ::INFO:: ***** Training loss : 0.32357
+25/10/2022 02:46:31 ::INFO:: ***** MSE validation box loss : 0.36045
+25/10/2022 02:46:31 ::INFO:: ***** MSE validation confidence score : 0.68390
+25/10/2022 02:46:31 ::INFO:: ***** Validation class acc : 55.38%
+
+25/10/2022 02:46:31 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 02:49:56 ::INFO:: Epoch 88/150
+25/10/2022 02:49:56 ::INFO:: ***** Training loss : 0.21751
+25/10/2022 02:49:56 ::INFO:: ***** MSE validation box loss : 0.17748
+25/10/2022 02:49:56 ::INFO:: ***** MSE validation confidence score : 0.62603
+25/10/2022 02:49:56 ::INFO:: ***** Validation class acc : 59.49%
+
+25/10/2022 02:49:56 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 02:53:18 ::INFO:: Epoch 89/150
+25/10/2022 02:53:18 ::INFO:: ***** Training loss : 0.17335
+25/10/2022 02:53:18 ::INFO:: ***** MSE validation box loss : 0.13499
+25/10/2022 02:53:18 ::INFO:: ***** MSE validation confidence score : 0.60708
+25/10/2022 02:53:18 ::INFO:: ***** Validation class acc : 56.92%
+
+25/10/2022 02:53:18 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 02:56:40 ::INFO:: Epoch 90/150
+25/10/2022 02:56:40 ::INFO:: ***** Training loss : 0.14751
+25/10/2022 02:56:40 ::INFO:: ***** MSE validation box loss : 0.11950
+25/10/2022 02:56:40 ::INFO:: ***** MSE validation confidence score : 0.63805
+25/10/2022 02:56:40 ::INFO:: ***** Validation class acc : 61.28%
+
+25/10/2022 02:56:40 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 02:59:59 ::INFO:: Epoch 91/150
+25/10/2022 02:59:59 ::INFO:: ***** Training loss : 0.14079
+25/10/2022 02:59:59 ::INFO:: ***** MSE validation box loss : 0.10775
+25/10/2022 02:59:59 ::INFO:: ***** MSE validation confidence score : 0.63127
+25/10/2022 02:59:59 ::INFO:: ***** Validation class acc : 61.03%
+
+25/10/2022 02:59:59 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 03:03:21 ::INFO:: Epoch 92/150
+25/10/2022 03:03:21 ::INFO:: ***** Training loss : 0.14337
+25/10/2022 03:03:21 ::INFO:: ***** MSE validation box loss : 0.11872
+25/10/2022 03:03:21 ::INFO:: ***** MSE validation confidence score : 0.61783
+25/10/2022 03:03:21 ::INFO:: ***** Validation class acc : 60.26%
+
+25/10/2022 03:03:21 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 03:06:41 ::INFO:: Epoch 93/150
+25/10/2022 03:06:41 ::INFO:: ***** Training loss : 0.14245
+25/10/2022 03:06:41 ::INFO:: ***** MSE validation box loss : 0.11410
+25/10/2022 03:06:41 ::INFO:: ***** MSE validation confidence score : 0.60199
+25/10/2022 03:06:41 ::INFO:: ***** Validation class acc : 62.82%
+
+25/10/2022 03:06:42 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 03:10:04 ::INFO:: Epoch 94/150
+25/10/2022 03:10:04 ::INFO:: ***** Training loss : 0.13727
+25/10/2022 03:10:04 ::INFO:: ***** MSE validation box loss : 0.10315
+25/10/2022 03:10:04 ::INFO:: ***** MSE validation confidence score : 0.64242
+25/10/2022 03:10:04 ::INFO:: ***** Validation class acc : 61.54%
+
+25/10/2022 03:10:04 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 03:13:28 ::INFO:: Epoch 95/150
+25/10/2022 03:13:28 ::INFO:: ***** Training loss : 0.12881
+25/10/2022 03:13:28 ::INFO:: ***** MSE validation box loss : 0.10590
+25/10/2022 03:13:28 ::INFO:: ***** MSE validation confidence score : 0.59631
+25/10/2022 03:13:28 ::INFO:: ***** Validation class acc : 64.36%
+
+25/10/2022 03:13:28 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 03:16:49 ::INFO:: Epoch 96/150
+25/10/2022 03:16:49 ::INFO:: ***** Training loss : 0.12923
+25/10/2022 03:16:49 ::INFO:: ***** MSE validation box loss : 0.10848
+25/10/2022 03:16:49 ::INFO:: ***** MSE validation confidence score : 0.59011
+25/10/2022 03:16:49 ::INFO:: ***** Validation class acc : 65.38%
+
+25/10/2022 03:16:49 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 03:20:09 ::INFO:: Epoch 97/150
+25/10/2022 03:20:09 ::INFO:: ***** Training loss : 0.13069
+25/10/2022 03:20:09 ::INFO:: ***** MSE validation box loss : 0.10139
+25/10/2022 03:20:09 ::INFO:: ***** MSE validation confidence score : 0.62143
+25/10/2022 03:20:09 ::INFO:: ***** Validation class acc : 63.85%
+
+25/10/2022 03:20:09 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 03:23:33 ::INFO:: Epoch 98/150
+25/10/2022 03:23:33 ::INFO:: ***** Training loss : 0.12922
+25/10/2022 03:23:33 ::INFO:: ***** MSE validation box loss : 0.10185
+25/10/2022 03:23:33 ::INFO:: ***** MSE validation confidence score : 0.61193
+25/10/2022 03:23:33 ::INFO:: ***** Validation class acc : 64.62%
+
+25/10/2022 03:23:33 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 03:26:57 ::INFO:: Epoch 99/150
+25/10/2022 03:26:57 ::INFO:: ***** Training loss : 0.12598
+25/10/2022 03:26:57 ::INFO:: ***** MSE validation box loss : 0.09848
+25/10/2022 03:26:57 ::INFO:: ***** MSE validation confidence score : 0.62942
+25/10/2022 03:26:57 ::INFO:: ***** Validation class acc : 66.15%
+
+25/10/2022 03:26:57 ::INFO:: Learning rate : lr 6.25e-06
+25/10/2022 03:30:20 ::INFO:: Epoch 100/150
+25/10/2022 03:30:20 ::INFO:: ***** Training loss : 0.12196
+25/10/2022 03:30:20 ::INFO:: ***** MSE validation box loss : 0.09084
+25/10/2022 03:30:20 ::INFO:: ***** MSE validation confidence score : 0.62666
+25/10/2022 03:30:20 ::INFO:: ***** Validation class acc : 65.90%
+
+25/10/2022 03:30:20 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 03:33:41 ::INFO:: Epoch 101/150
+25/10/2022 03:33:41 ::INFO:: ***** Training loss : 0.12242
+25/10/2022 03:33:41 ::INFO:: ***** MSE validation box loss : 0.08604
+25/10/2022 03:33:41 ::INFO:: ***** MSE validation confidence score : 0.60977
+25/10/2022 03:33:41 ::INFO:: ***** Validation class acc : 67.18%
+
+25/10/2022 03:33:41 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 03:37:00 ::INFO:: Epoch 102/150
+25/10/2022 03:37:00 ::INFO:: ***** Training loss : 0.12126
+25/10/2022 03:37:00 ::INFO:: ***** MSE validation box loss : 0.09506
+25/10/2022 03:37:00 ::INFO:: ***** MSE validation confidence score : 0.57262
+25/10/2022 03:37:00 ::INFO:: ***** Validation class acc : 66.92%
+
+25/10/2022 03:37:00 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 03:40:23 ::INFO:: Epoch 103/150
+25/10/2022 03:40:23 ::INFO:: ***** Training loss : 0.11825
+25/10/2022 03:40:23 ::INFO:: ***** MSE validation box loss : 0.08189
+25/10/2022 03:40:23 ::INFO:: ***** MSE validation confidence score : 0.61900
+25/10/2022 03:40:23 ::INFO:: ***** Validation class acc : 69.74%
+
+25/10/2022 03:40:23 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 03:43:41 ::INFO:: Epoch 104/150
+25/10/2022 03:43:41 ::INFO:: ***** Training loss : 0.12194
+25/10/2022 03:43:41 ::INFO:: ***** MSE validation box loss : 0.08074
+25/10/2022 03:43:41 ::INFO:: ***** MSE validation confidence score : 0.65095
+25/10/2022 03:43:41 ::INFO:: ***** Validation class acc : 66.41%
+
+25/10/2022 03:43:41 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 03:47:01 ::INFO:: Epoch 105/150
+25/10/2022 03:47:01 ::INFO:: ***** Training loss : 0.11228
+25/10/2022 03:47:01 ::INFO:: ***** MSE validation box loss : 0.08330
+25/10/2022 03:47:01 ::INFO:: ***** MSE validation confidence score : 0.66554
+25/10/2022 03:47:01 ::INFO:: ***** Validation class acc : 66.67%
+
+25/10/2022 03:47:01 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 03:50:19 ::INFO:: Epoch 106/150
+25/10/2022 03:50:19 ::INFO:: ***** Training loss : 0.11106
+25/10/2022 03:50:19 ::INFO:: ***** MSE validation box loss : 0.08540
+25/10/2022 03:50:19 ::INFO:: ***** MSE validation confidence score : 0.66109
+25/10/2022 03:50:19 ::INFO:: ***** Validation class acc : 67.18%
+
+25/10/2022 03:50:19 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 03:53:40 ::INFO:: Epoch 107/150
+25/10/2022 03:53:40 ::INFO:: ***** Training loss : 0.11495
+25/10/2022 03:53:40 ::INFO:: ***** MSE validation box loss : 0.08076
+25/10/2022 03:53:40 ::INFO:: ***** MSE validation confidence score : 0.69159
+25/10/2022 03:53:40 ::INFO:: ***** Validation class acc : 67.44%
+
+25/10/2022 03:53:40 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 03:56:57 ::INFO:: Epoch 108/150
+25/10/2022 03:56:57 ::INFO:: ***** Training loss : 0.11130
+25/10/2022 03:56:57 ::INFO:: ***** MSE validation box loss : 0.08205
+25/10/2022 03:56:57 ::INFO:: ***** MSE validation confidence score : 0.63964
+25/10/2022 03:56:57 ::INFO:: ***** Validation class acc : 69.23%
+
+25/10/2022 03:56:57 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:00:17 ::INFO:: Epoch 109/150
+25/10/2022 04:00:17 ::INFO:: ***** Training loss : 0.10962
+25/10/2022 04:00:17 ::INFO:: ***** MSE validation box loss : 0.08006
+25/10/2022 04:00:17 ::INFO:: ***** MSE validation confidence score : 0.60283
+25/10/2022 04:00:17 ::INFO:: ***** Validation class acc : 69.23%
+
+25/10/2022 04:00:17 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:03:34 ::INFO:: Epoch 110/150
+25/10/2022 04:03:34 ::INFO:: ***** Training loss : 0.10891
+25/10/2022 04:03:34 ::INFO:: ***** MSE validation box loss : 0.08205
+25/10/2022 04:03:34 ::INFO:: ***** MSE validation confidence score : 0.65761
+25/10/2022 04:03:34 ::INFO:: ***** Validation class acc : 67.18%
+
+25/10/2022 04:03:34 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:06:54 ::INFO:: Epoch 111/150
+25/10/2022 04:06:54 ::INFO:: ***** Training loss : 0.10923
+25/10/2022 04:06:54 ::INFO:: ***** MSE validation box loss : 0.08153
+25/10/2022 04:06:54 ::INFO:: ***** MSE validation confidence score : 0.63237
+25/10/2022 04:06:54 ::INFO:: ***** Validation class acc : 67.69%
+
+25/10/2022 04:06:54 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:10:13 ::INFO:: Epoch 112/150
+25/10/2022 04:10:13 ::INFO:: ***** Training loss : 0.10589
+25/10/2022 04:10:13 ::INFO:: ***** MSE validation box loss : 0.08214
+25/10/2022 04:10:13 ::INFO:: ***** MSE validation confidence score : 0.61578
+25/10/2022 04:10:13 ::INFO:: ***** Validation class acc : 68.97%
+
+25/10/2022 04:10:13 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:13:31 ::INFO:: Epoch 113/150
+25/10/2022 04:13:31 ::INFO:: ***** Training loss : 0.11545
+25/10/2022 04:13:31 ::INFO:: ***** MSE validation box loss : 0.07429
+25/10/2022 04:13:31 ::INFO:: ***** MSE validation confidence score : 0.61903
+25/10/2022 04:13:31 ::INFO:: ***** Validation class acc : 69.74%
+
+25/10/2022 04:13:31 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:16:49 ::INFO:: Epoch 114/150
+25/10/2022 04:16:49 ::INFO:: ***** Training loss : 0.10786
+25/10/2022 04:16:49 ::INFO:: ***** MSE validation box loss : 0.07712
+25/10/2022 04:16:49 ::INFO:: ***** MSE validation confidence score : 0.63078
+25/10/2022 04:16:49 ::INFO:: ***** Validation class acc : 69.49%
+
+25/10/2022 04:16:49 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:20:07 ::INFO:: Epoch 115/150
+25/10/2022 04:20:07 ::INFO:: ***** Training loss : 0.10844
+25/10/2022 04:20:07 ::INFO:: ***** MSE validation box loss : 0.09072
+25/10/2022 04:20:07 ::INFO:: ***** MSE validation confidence score : 0.58293
+25/10/2022 04:20:07 ::INFO:: ***** Validation class acc : 65.90%
+
+25/10/2022 04:20:07 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:23:29 ::INFO:: Epoch 116/150
+25/10/2022 04:23:29 ::INFO:: ***** Training loss : 0.12292
+25/10/2022 04:23:29 ::INFO:: ***** MSE validation box loss : 0.07890
+25/10/2022 04:23:29 ::INFO:: ***** MSE validation confidence score : 0.65702
+25/10/2022 04:23:29 ::INFO:: ***** Validation class acc : 66.92%
+
+25/10/2022 04:23:29 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:26:50 ::INFO:: Epoch 117/150
+25/10/2022 04:26:50 ::INFO:: ***** Training loss : 0.10879
+25/10/2022 04:26:50 ::INFO:: ***** MSE validation box loss : 0.07911
+25/10/2022 04:26:50 ::INFO:: ***** MSE validation confidence score : 0.66688
+25/10/2022 04:26:50 ::INFO:: ***** Validation class acc : 71.03%
+
+25/10/2022 04:26:50 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:30:08 ::INFO:: Epoch 118/150
+25/10/2022 04:30:08 ::INFO:: ***** Training loss : 0.18772
+25/10/2022 04:30:08 ::INFO:: ***** MSE validation box loss : 0.54922
+25/10/2022 04:30:08 ::INFO:: ***** MSE validation confidence score : 0.65500
+25/10/2022 04:30:08 ::INFO:: ***** Validation class acc : 50.51%
+
+25/10/2022 04:30:08 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:33:29 ::INFO:: Epoch 119/150
+25/10/2022 04:33:29 ::INFO:: ***** Training loss : 0.29107
+25/10/2022 04:33:29 ::INFO:: ***** MSE validation box loss : 0.20481
+25/10/2022 04:33:29 ::INFO:: ***** MSE validation confidence score : 0.59831
+25/10/2022 04:33:29 ::INFO:: ***** Validation class acc : 60.51%
+
+25/10/2022 04:33:29 ::INFO:: Learning rate : lr 3.125e-06
+25/10/2022 04:36:50 ::INFO:: Epoch 120/150
+25/10/2022 04:36:50 ::INFO:: ***** Training loss : 0.17022
+25/10/2022 04:36:50 ::INFO:: ***** MSE validation box loss : 0.10990
+25/10/2022 04:36:50 ::INFO:: ***** MSE validation confidence score : 0.67468
+25/10/2022 04:36:50 ::INFO:: ***** Validation class acc : 62.56%
+
+25/10/2022 04:36:50 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 04:40:10 ::INFO:: Epoch 121/150
+25/10/2022 04:40:10 ::INFO:: ***** Training loss : 0.14444
+25/10/2022 04:40:10 ::INFO:: ***** MSE validation box loss : 0.10045
+25/10/2022 04:40:10 ::INFO:: ***** MSE validation confidence score : 0.62521
+25/10/2022 04:40:10 ::INFO:: ***** Validation class acc : 63.33%
+
+25/10/2022 04:40:10 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 04:43:40 ::INFO:: Epoch 122/150
+25/10/2022 04:43:40 ::INFO:: ***** Training loss : 0.12601
+25/10/2022 04:43:40 ::INFO:: ***** MSE validation box loss : 0.09900
+25/10/2022 04:43:40 ::INFO:: ***** MSE validation confidence score : 0.61214
+25/10/2022 04:43:40 ::INFO:: ***** Validation class acc : 67.44%
+
+25/10/2022 04:43:40 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 04:47:05 ::INFO:: Epoch 123/150
+25/10/2022 04:47:05 ::INFO:: ***** Training loss : 0.11688
+25/10/2022 04:47:05 ::INFO:: ***** MSE validation box loss : 0.08831
+25/10/2022 04:47:05 ::INFO:: ***** MSE validation confidence score : 0.60387
+25/10/2022 04:47:05 ::INFO:: ***** Validation class acc : 69.74%
+
+25/10/2022 04:47:05 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 04:50:28 ::INFO:: Epoch 124/150
+25/10/2022 04:50:28 ::INFO:: ***** Training loss : 0.11485
+25/10/2022 04:50:28 ::INFO:: ***** MSE validation box loss : 0.07646
+25/10/2022 04:50:28 ::INFO:: ***** MSE validation confidence score : 0.58223
+25/10/2022 04:50:28 ::INFO:: ***** Validation class acc : 68.97%
+
+25/10/2022 04:50:28 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 04:53:54 ::INFO:: Epoch 125/150
+25/10/2022 04:53:54 ::INFO:: ***** Training loss : 0.10867
+25/10/2022 04:53:54 ::INFO:: ***** MSE validation box loss : 0.07384
+25/10/2022 04:53:54 ::INFO:: ***** MSE validation confidence score : 0.62255
+25/10/2022 04:53:54 ::INFO:: ***** Validation class acc : 69.49%
+
+25/10/2022 04:53:54 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 04:57:17 ::INFO:: Epoch 126/150
+25/10/2022 04:57:17 ::INFO:: ***** Training loss : 0.10808
+25/10/2022 04:57:17 ::INFO:: ***** MSE validation box loss : 0.06502
+25/10/2022 04:57:17 ::INFO:: ***** MSE validation confidence score : 0.63578
+25/10/2022 04:57:17 ::INFO:: ***** Validation class acc : 69.74%
+
+25/10/2022 04:57:17 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:00:41 ::INFO:: Epoch 127/150
+25/10/2022 05:00:41 ::INFO:: ***** Training loss : 0.10512
+25/10/2022 05:00:41 ::INFO:: ***** MSE validation box loss : 0.06747
+25/10/2022 05:00:41 ::INFO:: ***** MSE validation confidence score : 0.60205
+25/10/2022 05:00:41 ::INFO:: ***** Validation class acc : 70.00%
+
+25/10/2022 05:00:41 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:04:06 ::INFO:: Epoch 128/150
+25/10/2022 05:04:06 ::INFO:: ***** Training loss : 0.10375
+25/10/2022 05:04:06 ::INFO:: ***** MSE validation box loss : 0.06625
+25/10/2022 05:04:06 ::INFO:: ***** MSE validation confidence score : 0.66365
+25/10/2022 05:04:06 ::INFO:: ***** Validation class acc : 71.03%
+
+25/10/2022 05:04:06 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:07:26 ::INFO:: Epoch 129/150
+25/10/2022 05:07:26 ::INFO:: ***** Training loss : 0.10180
+25/10/2022 05:07:26 ::INFO:: ***** MSE validation box loss : 0.06786
+25/10/2022 05:07:26 ::INFO:: ***** MSE validation confidence score : 0.62828
+25/10/2022 05:07:26 ::INFO:: ***** Validation class acc : 72.56%
+
+25/10/2022 05:07:26 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:10:45 ::INFO:: Epoch 130/150
+25/10/2022 05:10:45 ::INFO:: ***** Training loss : 0.10123
+25/10/2022 05:10:45 ::INFO:: ***** MSE validation box loss : 0.06525
+25/10/2022 05:10:45 ::INFO:: ***** MSE validation confidence score : 0.60322
+25/10/2022 05:10:45 ::INFO:: ***** Validation class acc : 70.51%
+
+25/10/2022 05:10:45 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:14:05 ::INFO:: Epoch 131/150
+25/10/2022 05:14:05 ::INFO:: ***** Training loss : 0.09833
+25/10/2022 05:14:05 ::INFO:: ***** MSE validation box loss : 0.06365
+25/10/2022 05:14:05 ::INFO:: ***** MSE validation confidence score : 0.62086
+25/10/2022 05:14:05 ::INFO:: ***** Validation class acc : 72.05%
+
+25/10/2022 05:14:05 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:17:25 ::INFO:: Epoch 132/150
+25/10/2022 05:17:25 ::INFO:: ***** Training loss : 0.10018
+25/10/2022 05:17:25 ::INFO:: ***** MSE validation box loss : 0.06760
+25/10/2022 05:17:25 ::INFO:: ***** MSE validation confidence score : 0.61240
+25/10/2022 05:17:25 ::INFO:: ***** Validation class acc : 71.03%
+
+25/10/2022 05:17:25 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:20:45 ::INFO:: Epoch 133/150
+25/10/2022 05:20:45 ::INFO:: ***** Training loss : 0.09754
+25/10/2022 05:20:45 ::INFO:: ***** MSE validation box loss : 0.06612
+25/10/2022 05:20:45 ::INFO:: ***** MSE validation confidence score : 0.62576
+25/10/2022 05:20:45 ::INFO:: ***** Validation class acc : 72.31%
+
+25/10/2022 05:20:45 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:24:07 ::INFO:: Epoch 134/150
+25/10/2022 05:24:07 ::INFO:: ***** Training loss : 0.09649
+25/10/2022 05:24:07 ::INFO:: ***** MSE validation box loss : 0.06547
+25/10/2022 05:24:07 ::INFO:: ***** MSE validation confidence score : 0.64513
+25/10/2022 05:24:07 ::INFO:: ***** Validation class acc : 73.33%
+
+25/10/2022 05:24:07 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:27:28 ::INFO:: Epoch 135/150
+25/10/2022 05:27:28 ::INFO:: ***** Training loss : 0.09181
+25/10/2022 05:27:28 ::INFO:: ***** MSE validation box loss : 0.06805
+25/10/2022 05:27:28 ::INFO:: ***** MSE validation confidence score : 0.58853
+25/10/2022 05:27:28 ::INFO:: ***** Validation class acc : 73.08%
+
+25/10/2022 05:27:28 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:30:47 ::INFO:: Epoch 136/150
+25/10/2022 05:30:47 ::INFO:: ***** Training loss : 0.09485
+25/10/2022 05:30:47 ::INFO:: ***** MSE validation box loss : 0.06527
+25/10/2022 05:30:47 ::INFO:: ***** MSE validation confidence score : 0.66759
+25/10/2022 05:30:47 ::INFO:: ***** Validation class acc : 73.08%
+
+25/10/2022 05:30:47 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:34:08 ::INFO:: Epoch 137/150
+25/10/2022 05:34:08 ::INFO:: ***** Training loss : 0.09934
+25/10/2022 05:34:08 ::INFO:: ***** MSE validation box loss : 0.06691
+25/10/2022 05:34:08 ::INFO:: ***** MSE validation confidence score : 0.65034
+25/10/2022 05:34:08 ::INFO:: ***** Validation class acc : 74.10%
+
+25/10/2022 05:34:08 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:37:32 ::INFO:: Epoch 138/150
+25/10/2022 05:37:32 ::INFO:: ***** Training loss : 0.09776
+25/10/2022 05:37:32 ::INFO:: ***** MSE validation box loss : 0.06419
+25/10/2022 05:37:32 ::INFO:: ***** MSE validation confidence score : 0.60026
+25/10/2022 05:37:32 ::INFO:: ***** Validation class acc : 75.13%
+
+25/10/2022 05:37:32 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:40:55 ::INFO:: Epoch 139/150
+25/10/2022 05:40:55 ::INFO:: ***** Training loss : 0.09513
+25/10/2022 05:40:55 ::INFO:: ***** MSE validation box loss : 0.06540
+25/10/2022 05:40:55 ::INFO:: ***** MSE validation confidence score : 0.59347
+25/10/2022 05:40:55 ::INFO:: ***** Validation class acc : 75.64%
+
+25/10/2022 05:40:55 ::INFO:: Learning rate : lr 1.5625e-06
+25/10/2022 05:44:15 ::INFO:: Epoch 140/150
+25/10/2022 05:44:15 ::INFO:: ***** Training loss : 0.09389
+25/10/2022 05:44:15 ::INFO:: ***** MSE validation box loss : 0.06373
+25/10/2022 05:44:15 ::INFO:: ***** MSE validation confidence score : 0.57987
+25/10/2022 05:44:15 ::INFO:: ***** Validation class acc : 73.08%
+
+25/10/2022 05:44:15 ::INFO:: Learning rate : lr 7.8125e-07
+25/10/2022 05:47:39 ::INFO:: Epoch 141/150
+25/10/2022 05:47:39 ::INFO:: ***** Training loss : 0.09454
+25/10/2022 05:47:39 ::INFO:: ***** MSE validation box loss : 0.06654
+25/10/2022 05:47:39 ::INFO:: ***** MSE validation confidence score : 0.59021
+25/10/2022 05:47:39 ::INFO:: ***** Validation class acc : 73.33%
+
+25/10/2022 05:47:39 ::INFO:: Learning rate : lr 7.8125e-07
+25/10/2022 05:50:57 ::INFO:: Epoch 142/150
+25/10/2022 05:50:57 ::INFO:: ***** Training loss : 0.09242
+25/10/2022 05:50:57 ::INFO:: ***** MSE validation box loss : 0.06536
+25/10/2022 05:50:57 ::INFO:: ***** MSE validation confidence score : 0.62000
+25/10/2022 05:50:57 ::INFO:: ***** Validation class acc : 72.82%
+
+25/10/2022 05:50:57 ::INFO:: Learning rate : lr 7.8125e-07
+25/10/2022 05:54:16 ::INFO:: Epoch 143/150
+25/10/2022 05:54:16 ::INFO:: ***** Training loss : 0.08714
+25/10/2022 05:54:16 ::INFO:: ***** MSE validation box loss : 0.06437
+25/10/2022 05:54:16 ::INFO:: ***** MSE validation confidence score : 0.56071
+25/10/2022 05:54:16 ::INFO:: ***** Validation class acc : 74.10%
+
+25/10/2022 05:54:16 ::INFO:: Learning rate : lr 7.8125e-07
+25/10/2022 05:57:35 ::INFO:: Epoch 144/150
+25/10/2022 05:57:35 ::INFO:: ***** Training loss : 0.08920
+25/10/2022 05:57:35 ::INFO:: ***** MSE validation box loss : 0.06150
+25/10/2022 05:57:35 ::INFO:: ***** MSE validation confidence score : 0.60981
+25/10/2022 05:57:35 ::INFO:: ***** Validation class acc : 72.82%
+
+25/10/2022 05:57:35 ::INFO:: Learning rate : lr 7.8125e-07
+25/10/2022 06:00:53 ::INFO:: Epoch 145/150
+25/10/2022 06:00:53 ::INFO:: ***** Training loss : 0.09615
+25/10/2022 06:00:53 ::INFO:: ***** MSE validation box loss : 0.06242
+25/10/2022 06:00:53 ::INFO:: ***** MSE validation confidence score : 0.59476
+25/10/2022 06:00:53 ::INFO:: ***** Validation class acc : 73.85%
+
+25/10/2022 06:00:53 ::INFO:: Learning rate : lr 7.8125e-07
+25/10/2022 06:04:12 ::INFO:: Epoch 146/150
+25/10/2022 06:04:12 ::INFO:: ***** Training loss : 0.09083
+25/10/2022 06:04:12 ::INFO:: ***** MSE validation box loss : 0.06191
+25/10/2022 06:04:12 ::INFO:: ***** MSE validation confidence score : 0.67300
+25/10/2022 06:04:12 ::INFO:: ***** Validation class acc : 75.13%
+
+25/10/2022 06:04:12 ::INFO:: Learning rate : lr 7.8125e-07
+25/10/2022 06:07:32 ::INFO:: Epoch 147/150
+25/10/2022 06:07:32 ::INFO:: ***** Training loss : 0.08651
+25/10/2022 06:07:32 ::INFO:: ***** MSE validation box loss : 0.06263
+25/10/2022 06:07:32 ::INFO:: ***** MSE validation confidence score : 0.59920
+25/10/2022 06:07:32 ::INFO:: ***** Validation class acc : 75.38%
+
+25/10/2022 06:07:32 ::INFO:: Learning rate : lr 7.8125e-07
+25/10/2022 06:10:52 ::INFO:: Epoch 148/150
+25/10/2022 06:10:52 ::INFO:: ***** Training loss : 0.08427
+25/10/2022 06:10:52 ::INFO:: ***** MSE validation box loss : 0.06346
+25/10/2022 06:10:52 ::INFO:: ***** MSE validation confidence score : 0.62136
+25/10/2022 06:10:52 ::INFO:: ***** Validation class acc : 74.62%
+
+25/10/2022 06:10:52 ::INFO:: Learning rate : lr 7.8125e-07
+25/10/2022 06:14:13 ::INFO:: Epoch 149/150
+25/10/2022 06:14:13 ::INFO:: ***** Training loss : 0.08972
+25/10/2022 06:14:13 ::INFO:: ***** MSE validation box loss : 0.06296
+25/10/2022 06:14:13 ::INFO:: ***** MSE validation confidence score : 0.62192
+25/10/2022 06:14:13 ::INFO:: ***** Validation class acc : 75.13%
+
+25/10/2022 06:14:13 ::INFO:: Learning rate : lr 7.8125e-07
+25/10/2022 06:17:32 ::INFO:: Epoch 150/150
+25/10/2022 06:17:32 ::INFO:: ***** Training loss : 0.08892
+25/10/2022 06:17:32 ::INFO:: ***** MSE validation box loss : 0.06138
+25/10/2022 06:17:32 ::INFO:: ***** MSE validation confidence score : 0.64967
+25/10/2022 06:17:32 ::INFO:: ***** Validation class acc : 75.13%
+
+25/10/2022 06:17:32 ::INFO:: 
+Model saved to yoloPlato_resnet101_150epochs_25102022_06h17.pt.
+25/10/2022 06:17:33 ::INFO:: Time duration: 8:24:29.667447.
+25/10/2022 06:17:33 ::INFO:: End training.
