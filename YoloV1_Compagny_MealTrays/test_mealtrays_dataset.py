@@ -54,9 +54,7 @@ class TestMealtraysDataset(unittest.TestCase):
         print("Std of the image:", std)
 
         img_idx = torchvision.transforms.ToPILImage()(img_idx)
-
-        print("\nDEBUG : ", img_idx.size)
-
+        
         cells_i, cells_j, _ = target.nonzero().permute(1,0)
         cells_with_obj = torch.stack((cells_i, cells_j), dim=1)
         cells_i, cells_j = torch.unique(cells_with_obj,dim=0).permute(1,0)

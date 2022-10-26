@@ -48,6 +48,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
         self.FLIP_H = False
         self.FLIP_V = False
         self.CROP = False
+        self.HARDCROP = False
 
         ### Data normalization. See utils.py module
         self.isNormalize = isNormalize
@@ -147,7 +148,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
 
     def _crop(self, img_PIL):
         self.CROP = True 
-        if rd.random() < 0.0001:
+        if rd.random() < 0.5:
             self.CROP = False
             new_size = (self.SIZE, self.SIZE)
             img_PIL = img_PIL.resize(new_size, PIL.Image.Resampling.BICUBIC)
@@ -158,10 +159,32 @@ class MealtraysDataset(torch.utils.data.Dataset):
         img_PIL = torchvision.transforms.functional.crop(img_PIL, *crop_infos)
         return img_PIL, crop_infos
 
+    def _hardcrop(self, img_PIL):
+        self.HARDCROP = True
+        if rd.random() < 0.00001:
+            self.HARDCROP = False
+            new_size = (self.SIZE, self.SIZE)
+            img_PIL = img_PIL.resize(new_size, PIL.Image.Resampling.BICUBIC)
+            return img_PIL
+
+        crop_size = (400, 400)
+        crop_infos = list(torchvision.transforms.RandomCrop.get_params(img_PIL, crop_size))
+        img_PIL = torchvision.transforms.functional.crop(img_PIL, *crop_infos)
+        img_PIL = img_PIL.resize((448,448), PIL.Image.Resampling.BICUBIC)
+
+        # offset = 448 - 400
+        # crop_infos[1] += offset
+        # crop_infos[0] += offset
+
+        print("\nDEBUG: ", crop_infos)
+
+        return img_PIL, crop_infos
+
     def _augmentation(self, img_PIL):
         img_PIL = self._flipH(img_PIL)
         img_PIL = self._flipV(img_PIL)
         img_PIL = self._crop(img_PIL)
+        # img_PIL = self._hardcrop(img_PIL)
         return img_PIL
 
     def _encode(self, img_path, crop_infos=()):
@@ -210,6 +233,25 @@ class MealtraysDataset(torch.utils.data.Dataset):
                 xcr_img = np.clip(xcr_img, 0, 1)
                 ycr_img = np.clip(ycr_img, 0, 1)
 
+            if self.HARDCROP: #TODO
+                posXcrop_rimg = crop_infos[1]/self.SIZE
+                posYcrop_rimg = crop_infos[0]/self.SIZE
+            
+                ### Compute absolute coord in 500x500 img
+                xc = xcr_img * self.SIZE_TEMP + 48
+                yc = ycr_img * self.SIZE_TEMP + 48
+            
+                ### Compute relative coord to 448x448 img and handle cropping
+                xcr_img = xc/self.SIZE - posXcrop_rimg
+                ycr_img = yc/self.SIZE - posYcrop_rimg
+
+                ### Restrict the cropping btw 0 & 1
+                xcr_img = np.clip(xcr_img, 0, 1)
+                ycr_img = np.clip(ycr_img, 0, 1)
+
+                wr_img += 48 / 500
+                hr_img += 48 / 500
+
             ### Object grid location
             i = np.ceil(xcr_img / self.CELL_SIZE) - 1.0
             j = np.ceil(ycr_img / self.CELL_SIZE) - 1.0
@@ -244,7 +286,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
         img_PIL = self._convert_to_PIL(img_path)
         if self.isAugment:
             img_PIL = self._augmentation(img_PIL)
-            if self.CROP:
+            if self.CROP: #or self.HARDCROP:
                 img_PIL, crop_infos = img_PIL
 
         img = self._transform(img_PIL)
@@ -253,19 +295,19 @@ class MealtraysDataset(torch.utils.data.Dataset):
         return img, target
 
 
-def get_training_dataset(BATCH_SIZE=16):
+def get_training_dataset(BATCH_SIZE=16, **kwargs):
     """
     Loads and maps the training split of the dataset using the custom dataset class. 
     """
-    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="train", isNormalize=True, isAugment=True)
+    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", **kwargs)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     return dataloader
 
-def get_validation_dataset(BATCH_SIZE=None):
+def get_validation_dataset(BATCH_SIZE=None, **kwargs):
     """
     Loads and maps the validation split of the datasetusing the custom dataset class. 
     """
-    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", split="test", isNormalize=True, isAugment=False)
+    dataset = MealtraysDataset(root="YoloV1_Compagny_MealTrays/mealtrays_dataset", **kwargs)
     if BATCH_SIZE is None:
         BATCH_SIZE = len(dataset)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
