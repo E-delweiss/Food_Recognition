@@ -8,34 +8,34 @@ import torch
 import utils
 from yolo_loss import YoloLoss
 from mealtrays_dataset import get_training_dataset, get_validation_dataset
-from darknet_like import YoloV1
+# from darknet_like import YoloV1
 # from darknet import YoloV1
 # from tinydarknet import TinyYolo as YoloV1
 # from darknet_like2 import YoloV1
+from resnet101 import YoloV1
 from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
-learning_rate = 0.0005
+learning_rate = 0.0001
 BATCH_SIZE = 32
 SAVE_MODEL = True
 SAVE_LOSS = True
-utils.create_logging(prefix="tinydarknet")
+prefix="resnet101"
+utils.create_logging(prefix=prefix)
 device = utils.device(verbose=1)
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
 
-# model = YoloV1(in_channels=3, S=7, C=8, B=2)
-model = YoloV1(448, S=7, C=8, B=2)
+model = YoloV1(in_channels=3, S=7, C=8, B=2)
+# model = YoloV1(448, S=7, C=8, B=2)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=0.0005)
 loss_yolo = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=7, device=device)
 logging.info(f"Using optimizer : {optimizer}")
 
-training_dataloader = get_training_dataset(BATCH_SIZE)
-validation_dataloader = get_validation_dataset()
+training_dataloader = get_training_dataset(BATCH_SIZE, split="train", isNormalize=True, isAugment=True)
+validation_dataloader = get_validation_dataset(split="test", isNormalize=True, isAugment=False)
 DO_VALIDATION = True
-
-# img, target = next(iter(training_dataloader))
 
 ################################################################################
 
@@ -51,7 +51,7 @@ print(f"Learning rate : {optimizer.defaults['lr']}")
 logging.info("Start training")
 logging.info(f"[START] : {time_formatted}")
 
-EPOCHS = 50
+EPOCHS = 150
 S = 7
 
 ################################################################################
@@ -64,7 +64,7 @@ batch_val_confscore_list = []
 batch_val_class_acc = []
 
 for epoch in range(EPOCHS):
-    # utils.update_lr(epoch, optimizer)
+    utils.update_lr(epoch, optimizer)
 
     begin_time = timer()
     epochs_loss = 0.
@@ -151,7 +151,7 @@ for epoch in range(EPOCHS):
                 logging.info(f"***** Validation class acc : {acc*100:.2f}%\n")
                 
 ### Saving results
-path_save_model = f"yolo_model_{epoch+1}epochs"
+path_save_model = f"yoloPlato_{prefix}_{epoch+1}epochs"
 utils.save_model(model, path_save_model, SAVE_MODEL)
 
 pickle_val_results = {

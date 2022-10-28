@@ -1,6 +1,6 @@
 import torch
 
-def validation_loop(model, validation_dataset, S=7, device=torch.device("cpu")):
+def validation_loop(model, validation_dataset, S=7, device=torch.device("cpu"), ONE_BATCH=False):
     """
     TODO
     Execute validation loop
@@ -14,6 +14,8 @@ def validation_loop(model, validation_dataset, S=7, device=torch.device("cpu")):
             Grid size. Defaults to 7.
         device (torch.device, optional)
             Running device. Defaults to cpu
+        ONE_BATCH (bool, optional)
+            For debugging or testing, permits to load only one batch. Default to False.
 
     Returns:
         img (torch.Tensor of shape (N,3,448,448))
@@ -31,6 +33,9 @@ def validation_loop(model, validation_dataset, S=7, device=torch.device("cpu")):
         with torch.no_grad():
             ### prediction
             prediction = model(img)
+            
+            if ONE_BATCH is True:
+                break
 
     return img, target, prediction
 

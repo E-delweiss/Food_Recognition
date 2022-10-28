@@ -29,6 +29,7 @@ def create_logging(prefix:str):
         filemode="w",
         filename=(logging_name),
     )
+    logging.info("Model is {}.".format(prefix))
 
 def device(verbose=0)->torch.device:
     """
@@ -94,7 +95,7 @@ def pretty_print(batch:int, len_training_ds:int, current_loss:float, losses:dict
     print(f"** Training class accuracy : {train_classes_acc*100:.2f}%")
 
 
-def update_lr(current_epoch:int, optimizer:torch.optim, epoch_threshold:int):
+def update_lr(current_epoch:int, optimizer:torch.optim):#, epoch_threshold:int):
     """
     Schedule the learning rate
 
@@ -106,8 +107,10 @@ def update_lr(current_epoch:int, optimizer:torch.optim, epoch_threshold:int):
         epoch_threshold (int)
             Epoch from which the learning rate will decrease
     """
-    if current_epoch > epoch_threshold:
-        optimizer.defaults['lr'] = 0.0001
+    if current_epoch % 20 == 0 and current_epoch != 0:
+        optimizer.defaults['lr'] = optimizer.defaults['lr']/2
+    logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
+
 
 
 def save_model(model, path:str, save:bool):
