@@ -5,23 +5,23 @@ import logging
 
 import torch
 
-# from utils import create_logging, device, pretty_print, update_lr, save_model, tqdm_fct
 import utils
 from yolo_loss import YoloLoss
 from MNIST_dataset import get_training_dataset, get_validation_dataset
-from darknet_like import YoloMNIST
+from smallnet import NetMNIST
 from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
 learning_rate = 0.001
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 SAVE_MODEL = True
-utils.create_logging()
-device = utils.device()
+prefix="tinydarknet"
+utils.create_logging(prefix=prefix)
+device = utils.device(verbose=1)
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
 
-model_MNIST = YoloMNIST(sizeHW=75, S=6, C=10, B=1)
+model_MNIST = NetMNIST(75, S=6, B=1, C=10)
 model_MNIST = model_MNIST.to(device)
 optimizer = torch.optim.Adam(params=model_MNIST.parameters(), lr=learning_rate, weight_decay=0.0005)
 loss_yolo = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=6, device=device)
@@ -37,10 +37,13 @@ timezone = datetime.timezone(offset=delta_time)
 
 t = datetime.datetime.now(tz=timezone)
 str_t = '{:%Y-%m-%d %H:%M:%S}'.format(t)
+start_time = datetime.datetime.now()
+
 print(f"[START] : {str_t} :")
 print(f"[Training on] : {str(device).upper()}")
 print(f"Learning rate : {optimizer.defaults['lr']}")
 logging.info("Start training")
+logging.info(f"[START] : {str_t}")
 
 EPOCHS = 10
 S = 6
@@ -139,7 +142,7 @@ for epoch in range(EPOCHS):
                 logging.info(f"***** Validation class acc : {acc*100:.2f}%")
 
 ### Saving results
-path_save_model = f"yolo_mnist_model_{epoch}epochs_relativeCoords"
+path_save_model = f"MNIST_{prefix}_{epoch+1}epochs"
 utils.save_model(model_MNIST, path_save_model, SAVE_MODEL)
 
 pickle_val_results = {
@@ -157,7 +160,9 @@ with open('train_results.pkl', 'wb') as pkl:
     pickle.dump(pickle_train_results, pkl)
 
 with open('val_results.pkl', 'wb') as pkl:
-    pickle.dump(pickle_train_results, pkl)
+    pickle.dump(pickle_val_results, pkl)
 
+end_time = datetime.datetime.now()
+logging.info('Time duration: {}.'.format(end_time - start_time))
 logging.info("End training.")
 #####################################################################################################

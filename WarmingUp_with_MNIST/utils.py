@@ -1,19 +1,34 @@
 import logging
+from datetime import datetime
+
 import torch
 from tqdm import tqdm
 
-def create_logging():
+def create_logging(prefix:str):
+    """
+    TODO
+
+    Args:
+        prefix (str): _description_
+    """
+    assert type(prefix) is str, TypeError
+
     log_format = (
     '%(asctime)s ::%(levelname)s:: %(message)s')
+
+    tm = datetime.now()
+    tm = tm.strftime("%d%m%Y_%Hh%M")
+    logging_name = 'YoloV1_Compagny_MealTrays/logging_'+prefix+'_'+tm+'.log'
 
     logging.basicConfig(
         level=logging.INFO,
         format=log_format, datefmt='%d/%m/%Y %H:%M:%S',
         filemode="w",
-        filename=('logging.log'),
+        filename=(logging_name),
     )
+    logging.info("Model is {}.".format(prefix))
 
-def device()->torch.device:
+def device(verbose=0)->torch.device:
     """
     Set the device to 'cpu', 'cuda' or 'mps'.
 
@@ -33,9 +48,10 @@ def device()->torch.device:
         device=torch.device('cpu')
     
     logging.info("Execute on {}".format(device))
-    print("\n------------------------------------")
-    print(f"Execute script on - {device} -")
-    print("------------------------------------\n")
+    if verbose:
+        print("\n------------------------------------")
+        print(f"Execute script on - {device} -")
+        print("------------------------------------\n")
 
     return device
 
@@ -57,7 +73,7 @@ def pretty_print(batch:int, len_training_ds:int, current_loss:float, losses:dict
         train_classes_acc (float)
             Training class accuracy.
     """
-    BATCH_SIZE = 64
+    BATCH_SIZE = 128
     if batch+1 <= len_training_ds//BATCH_SIZE:
         current_training_sample = (batch+1)*BATCH_SIZE
     else:
@@ -88,16 +104,25 @@ def update_lr(current_epoch:int, optimizer:torch.optim):
         optimizer.defaults['lr'] = 0.0001
 
 
-def save_model(model, path, save):
-    from datetime import datetime
-    if not save:
+def save_model(model, path:str, save:bool):
+    """
+    TODO
+
+    Args:
+        model (_type_): _description_
+        path (str): _description_
+        save (bool): _description_
+    """
+    if save:
+        tm = datetime.now()
+        tm = tm.strftime("%d%m%Y_%Hh%M")
+        path = path+'_'+tm+'.pt'
+        torch.save(model.state_dict(), path)
+        print("\n")
+        print("*"*5, "Model saved to {}.".format(path))
+        logging.info("\nModel saved to {}.".format(path))
+    else:
         return
-    tm = datetime.now()
-    tm = tm.strftime("%d%m%Y_%Hh%M")
-    path = path+'_'+tm+'.pt'
-    torch.save(model.state_dict(), path)
-    print("\n")
-    print("*"*5, "Model saved to {}.".format(path))
 
 
 

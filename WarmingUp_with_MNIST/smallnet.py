@@ -14,9 +14,9 @@ class CNNBlock(torch.nn.Module):
         return self.l_relu(x)
 
 
-class YoloMNIST(torch.nn.Module):
+class NetMNIST(torch.nn.Module):
     def __init__(self, sizeHW, S, C, B):
-        super(YoloMNIST, self).__init__()
+        super(NetMNIST, self).__init__()
         self.S, self.C, self.B = S, C, B
         self.sizeHW = sizeHW
         self.cell_size = self.sizeHW / self.S
@@ -93,8 +93,6 @@ class YoloMNIST(torch.nn.Module):
                 6x6 grid cells.
         """     
         x = self.seq(input)
-        print("\nDEBUG : ", x.shape)
-
         x = self.fcs(x)
         x = x.view(x.size(0), self.S, self.S, self.B * 5 + self.C)
         box_coord = x[:,:,:,0:5]
@@ -103,7 +101,7 @@ class YoloMNIST(torch.nn.Module):
 
 
 if __name__ == "__main__":
-    model = YoloMNIST(sizeHW=75, S=6, C=10, B=1)
+    model = NetMNIST(sizeHW=75, S=6, C=10, B=1)
 
     BATCH_SIZE = 64
     img_test = torch.rand(BATCH_SIZE, 1, 75, 75)

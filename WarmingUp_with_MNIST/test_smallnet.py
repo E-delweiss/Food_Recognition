@@ -1,9 +1,9 @@
 import unittest
 import torch
 
-from darknet_like import YoloMNIST
+from smallnet import NetMNIST
 
-class TestDarknetlike(unittest.TestCase):
+class TestSmallNet(unittest.TestCase):
     def __init__(self, TestDarknetlike) -> None:
         super().__init__(TestDarknetlike)
         self.size = 75
@@ -12,9 +12,9 @@ class TestDarknetlike(unittest.TestCase):
         self.C = 10
         self.channel_img = 1
 
-    def test_YoloMNIST(self):
+    def test_smallnet(self):
         BATCH_SIZE = 64
-        model = YoloMNIST(sizeHW=self.size, S=self.S, C=self.C, B=self.B)
+        model = NetMNIST(sizeHW=self.size, S=self.S, C=self.C, B=self.B)
         img_test = torch.rand(BATCH_SIZE, self.channel_img, self.size, self.size)
         box_pred, label_pred = model(img_test)
         
