@@ -12,17 +12,9 @@ from mealtrays_dataset import get_validation_dataset
 from validation import validation_loop
 from utils import get_cells_with_object
 
-
-# pickle_val_results = {
-# "batch_val_MSE_box_list":batch_val_MSE_box_list,
-# "batch_val_confscore_list":batch_val_confscore_list,
-# "batch_val_class_acc":batch_val_class_acc
-# }
-
-# pickle_train_results = {
-#     "batch_train_losses_list" : batch_train_losses_list,
-#     "batch_train_class_acc" : batch_train_class_acc,
-# }
+S=7
+C=8
+B=2
 
 ### Extracting losses
 with open("train_results.pkl", 'rb') as pkl:
@@ -96,7 +88,7 @@ y_pred = []
 y_true = []
 
 ### Loading model weights
-model = YoloV1(3,7,8,2)
+model = YoloV1(3,S=S,C=C,B=B)
 model.load_state_dict(torch.load("yoloPlato_resnet101_150epochs_25102022_06h17.pt"))
 
 ### Validation loop
@@ -116,7 +108,7 @@ classes = [str(x) for x in range(8)]
 
 # Build confusion matrix
 cf_matrix = confusion_matrix(y_true, y_pred)
-df_cm = pd.DataFrame(cf_matrix/np.sum(cf_matrix)*8, index = [i for i in classes],
+df_cm = pd.DataFrame(cf_matrix/np.sum(cf_matrix)*C, index = [i for i in classes],
                      columns = [i for i in classes])
 
 sn.heatmap(df_cm, annot=True)
