@@ -10,7 +10,7 @@ import seaborn as sn
 from smallnet import NetMNIST
 from MNIST_dataset import get_validation_dataset
 from validation import validation_loop
-import os
+
 S=6
 C=10
 B=1
