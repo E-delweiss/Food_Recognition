@@ -2,6 +2,7 @@ import datetime
 from timeit import default_timer as timer
 import pickle
 import logging
+from configparser import ConfigParser
 
 import torch
 
@@ -16,26 +17,46 @@ from resnet101 import YoloV1
 from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
-learning_rate = 0.0001
-BATCH_SIZE = 32
-SAVE_MODEL = True
-SAVE_LOSS = True
-prefix="resnet101"
-utils.create_logging(prefix=prefix)
-device = utils.device(verbose=1)
-logging.info(f"Learning rate = {learning_rate}")
-logging.info(f"Batch size = {BATCH_SIZE}")
 
-model = YoloV1(in_channels=3, S=7, C=8, B=2)
+config = ConfigParser()
+config.read('config.ini')
+
+DEVICE = config.get('TRAINING', 'DEVICE')
+learning_rate = config.getfloat('TRAINING', 'LEARNING_RATE')
+BATCH_SIZE = config.getfloat('TRAINING', 'BATCH_SIZE')
+WEIGHT_DECAY = config.getfloat('TRAINING', 'WEIGHT_DECAY')
+DO_VALIDATION = config.getboolean('TRAINING', 'DO_VALIDATION')
+EPOCHS = config.getint('TRAINING', 'NB_EPOCHS')
+LR_SCHEDULER = config.getboolean('TRAINING', 'LR_SCHEDULER')
+
+SAVE_MODEL = config.getboolean('SAVING', 'SAVE_MODEL')
+SAVE_LOSS = config.getboolean('SAVING', 'SAVE_LOSS')
+
+PREFIX=config.get('MODEL', 'model_name')
+IN_CHANNEL = config.getint('MODEL', 'in_channel')
+S = config.getint('MODEL', 'GRID_SIZE')
+B = config.getint('MODEL', 'NB_BOX')
+C = config.getint('MODEL', 'NB_CLASS')
+isNormalize_trainset = config.getboolean('MODEL', 'isNormalize_trainset')
+isAugment_trainset = config.getboolean('MODEL', 'isAugment_trainset')
+isNormalize_valset = config.getboolean('MODEL', 'isNormalize_valset')
+isAugment_valset = config.getboolean('MODEL', 'isAugment_valset')
+
+LAMBD_COORD = config.getint('LOSS', 'lambd_coord')
+LAMBD_NOOBJ = config.getfloat('LOSS', 'lambd_noobj')
+
+FREQ = config.getint('PRINTING', 'FREQ')
+
+device = utils.set_device(DEVICE, verbose=0)
+
+model = YoloV1(IN_CHANNEL, S, C, B)
 # model = YoloV1(448, S=7, C=8, B=2)
 model = model.to(device)
-optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=0.0005)
-loss_yolo = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=7, device=device)
-logging.info(f"Using optimizer : {optimizer}")
+optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
+loss_yolo = YoloLoss(lambd_coord=LAMBD_COORD, lambd_noobj=LAMBD_NOOBJ, S=S, device=device)
 
-training_dataloader = get_training_dataset(BATCH_SIZE, split="train", isNormalize=True, isAugment=True)
-validation_dataloader = get_validation_dataset(split="test", isNormalize=True, isAugment=False)
-DO_VALIDATION = True
+training_dataloader = get_training_dataset(BATCH_SIZE, split="train", isNormalize=isNormalize_trainset, isAugment=isAugment_trainset)
+validation_dataloader = get_validation_dataset(split="test", isNormalize=isNormalize_valset, isAugment=isAugment_valset)
 
 ################################################################################
 
@@ -48,11 +69,13 @@ start_time = datetime.datetime.now()
 
 print(f"[Training on] : {str(device).upper()}")
 print(f"Learning rate : {optimizer.defaults['lr']}")
+
+utils.create_logging(prefix=PREFIX)
+logging.info(f"Learning rate = {learning_rate}")
+logging.info(f"Batch size = {BATCH_SIZE}")
+logging.info(f"Using optimizer : {optimizer}")
 logging.info("Start training")
 logging.info(f"[START] : {time_formatted}")
-
-EPOCHS = 150
-S = 7
 
 ################################################################################
 batch_total_train_loss_list = []
@@ -63,8 +86,9 @@ batch_val_MSE_box_list = []
 batch_val_confscore_list = []
 batch_val_class_acc = []
 
+
 for epoch in range(EPOCHS):
-    utils.update_lr(epoch, optimizer)
+    utils.update_lr(epoch, optimizer, LR_SCHEDULER)
 
     begin_time = timer()
     epochs_loss = 0.
@@ -105,7 +129,7 @@ for epoch in range(EPOCHS):
         current_loss = loss.item()
         epochs_loss += current_loss
 
-        if batch == 0 or (batch+1)%8 == 0 or batch == len(training_dataloader.dataset)//BATCH_SIZE:
+        if batch == 0 or (batch+1)%FREQ == 0 or batch == len(training_dataloader.dataset)//BATCH_SIZE:
             # Recording the total loss
             batch_total_train_loss_list.append(current_loss)
             # Recording each losses 
@@ -115,7 +139,7 @@ for epoch in range(EPOCHS):
 
             utils.pretty_print(batch, len(training_dataloader.dataset), current_loss, losses, train_classes_acc, batch_size=BATCH_SIZE)
 
-            ############### Compute validation metrics each 5 batch ###########################################
+            ############### Compute validation metrics each FREQ batch ###########################################
             if DO_VALIDATION:
                 model.eval()
                 _, target_val, prediction_val = validation_loop(model, validation_dataloader, S, device)
@@ -151,8 +175,7 @@ for epoch in range(EPOCHS):
                 logging.info(f"***** Validation class acc : {acc*100:.2f}%\n")
                 
 ### Saving results
-path_save_model = f"yoloPlato_{prefix}_{epoch+1}epochs"
-utils.save_model(model, path_save_model, SAVE_MODEL)
+path_save_model = f"yoloPlato_{PREFIX}_{epoch+1}epochs"
 
 pickle_val_results = {
 "batch_val_MSE_box_list":batch_val_MSE_box_list,
@@ -165,12 +188,8 @@ pickle_train_results = {
     "batch_train_class_acc" : batch_train_class_acc,
 }
 
-if SAVE_LOSS:
-    with open('train_results.pkl', 'wb') as pkl:
-        pickle.dump(pickle_train_results, pkl)
-
-    with open('val_results.pkl', 'wb') as pkl:
-        pickle.dump(pickle_val_results, pkl)
+utils.save_model(model, path_save_model, SAVE_MODEL)
+utils.save_losses(pickle_train_results, pickle_val_results, SAVE_LOSS)
 
 end_time = datetime.datetime.now()
 logging.info('Time duration: {}.'.format(end_time - start_time))

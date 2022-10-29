@@ -1,6 +1,8 @@
 import logging
 import glob
 from datetime import datetime
+import pickle
+import os
 
 from tqdm import tqdm
 import PIL
@@ -21,7 +23,7 @@ def create_logging(prefix:str):
 
     tm = datetime.now()
     tm = tm.strftime("%d%m%Y_%Hh%M")
-    logging_name = 'YoloV1_Compagny_MealTrays/logging_'+prefix+'_'+tm+'.log'
+    logging_name = 'logging_'+prefix+'_'+tm+'.log'
 
     logging.basicConfig(
         level=logging.INFO,
@@ -31,25 +33,25 @@ def create_logging(prefix:str):
     )
     logging.info("Model is {}.".format(prefix))
 
-def device(verbose=0)->torch.device:
+
+def set_device(device, verbose=0)->torch.device:
     """
     Set the device to 'cpu', 'cuda' or 'mps'.
 
     Args:
         None.
-
     Return:
         device : torch.device
     """
-
-    ### Choosing device between CPU or GPU
-    if torch.cuda.is_available():
-        device = torch.device('cuda')
-    # elif torch.has_mps:
-    #     device=torch.device('mps')
-    else:
-        device=torch.device('cpu')
-    
+    if device == 'cpu':
+        device = torch.device('cpu')
+    if device == 'cuda' and torch.cuda.is_available():
+        torch.device('cuda')
+    else : 
+        logging.warning(f"Device {device} not available.")
+    if device == 'mps' and torch.has_mps:
+        logging.warning(f"Device {device} currently not working well with PyTorch.")
+        device = torch.device('cpu')
     logging.info("Execute on {}".format(device))
     if verbose:
         print("\n------------------------------------")
@@ -95,7 +97,7 @@ def pretty_print(batch:int, len_training_ds:int, current_loss:float, losses:dict
     print(f"** Training class accuracy : {train_classes_acc*100:.2f}%")
 
 
-def update_lr(current_epoch:int, optimizer:torch.optim):#, epoch_threshold:int):
+def update_lr(current_epoch:int, optimizer:torch.optim, do_scheduler:bool):
     """
     Schedule the learning rate
 
@@ -104,13 +106,17 @@ def update_lr(current_epoch:int, optimizer:torch.optim):#, epoch_threshold:int):
             Current training loop epoch.
         optimizer (torch.optim)
             Gradient descent optimizer.
-        epoch_threshold (int)
-            Epoch from which the learning rate will decrease
+        do_scheduler (bool)
+            TODO
     """
-    if current_epoch % 20 == 0 and current_epoch != 0:
-        optimizer.defaults['lr'] = optimizer.defaults['lr']/2
-    logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
+    # k = 0.1
+    # optimizer.defaults['lr'] = k/np.sqrt(current_epoch+1) * lr0
+    # logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
 
+    if do_scheduler:
+        if current_epoch % 30 == 0 and current_epoch != 0:
+            optimizer.defaults['lr'] = optimizer.defaults['lr']/2
+        logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
 
 
 def save_model(model, path:str, save:bool):
@@ -131,7 +137,37 @@ def save_model(model, path:str, save:bool):
         print("*"*5, "Model saved to {}.".format(path))
         logging.info("\nModel saved to {}.".format(path))
     else:
-        return
+        logging.warning("No saving has been requested for model.")
+    return
+
+def save_losses(train_loss:dict, val_loss:dict, model_name:str, save:bool):
+    """
+    TODO
+
+    Args:
+        train_loss (dict): _description_
+        val_loss (dict): _description_
+        val_loss (str): _description_
+        save (bool): _description_
+    """
+    if save:
+        tm = datetime.now()
+        tm = tm.strftime("%d%m%Y_%Hh%M")
+        train_path = f"train_results_{model_name}_{tm}.pkl"
+        val_path = f"val_results_{model_name}_{tm}.pkl"
+        
+        with open(train_path, 'wb') as pkl:
+            pickle.dump(train_loss, pkl)
+
+        with open(val_path, 'wb') as pkl:
+            pickle.dump(val_loss, pkl)
+        
+        logging.info("\Training results saved to {}.".format(train_path))
+        logging.info("Validation results saved to {}.".format(val_path))
+    else:
+        logging.warning("No saving has been requested for losses.")
+    return
+
 
 def tqdm_fct(training_dataset):
     """
