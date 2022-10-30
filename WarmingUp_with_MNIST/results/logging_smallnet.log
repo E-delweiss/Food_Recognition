@@ -55,17 +55,19 @@ Parameter Group 0
 28/10/2022 16:30:14 ::INFO:: ***** MSE validation box loss : 0.01931
 28/10/2022 16:30:14 ::INFO:: ***** MSE validation confidence score : 0.14651
 28/10/2022 16:30:14 ::INFO:: ***** Validation class acc : 87.37%
+[PAUSE]
 28/10/2022 17:12:13 ::INFO:: Epoch 9/10
 28/10/2022 17:12:13 ::INFO:: ***** Training loss : 0.00224
 28/10/2022 17:12:13 ::INFO:: ***** MSE validation box loss : 0.08983
 28/10/2022 17:12:13 ::INFO:: ***** MSE validation confidence score : 0.17644
 28/10/2022 17:12:13 ::INFO:: ***** Validation class acc : 95.37%
+[PAUSE]
 28/10/2022 17:52:01 ::INFO:: Epoch 10/10
 28/10/2022 17:52:01 ::INFO:: ***** Training loss : 0.00222
 28/10/2022 17:52:01 ::INFO:: ***** MSE validation box loss : 0.00888
 28/10/2022 17:52:01 ::INFO:: ***** MSE validation confidence score : 0.13033
 28/10/2022 17:52:01 ::INFO:: ***** Validation class acc : 97.07%
 28/10/2022 17:54:42 ::INFO:: 
-Model saved to MNIST_tinydarknet_10epochs_28102022_17h54.pt.
+Model saved to MNIST_smallnet_10epochs_28102022_17h54.pt.
 28/10/2022 17:54:42 ::INFO:: Time duration: 2:01:49.882483.
 28/10/2022 17:54:42 ::INFO:: End training.
