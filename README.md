@@ -1,3 +1,6 @@
+![alt text](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/results/MNIST_localization_10exemples.png)
+
+
 ### Project 1 : Warming Up with MNIST
 This project aims to detect and recognize MNIST digit. See the [RoadMap](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/RoadMap.md) notebook if needed.\
 I randomly pasted each 28x28 digit in a 75x75 black background and trained a Darknet-like model to reproduce a YoloV1 algorithm on MNIST. The model handle a unique bounding box and tries to localize and classify a digit with a 6x6 grid.
@@ -6,11 +9,8 @@ The model is composed of 5 CNN blocks with batch normalizations and LeakyReLU. I
 
 The mAP has not been produced since it's a first approach on YoloV1 but for your information, the model achieved a 97.23% validation class accuracy and a validation MSE of 0.14 on confidence score (confidence of detecting an object within a bounding box).
 
-![alt text](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/results/MNIST_localization_10exemples.png)
 
 ```
-==========================================================================================
-Layer (type:depth-idx)                   Output Shape              Param #
 ==========================================================================================
 YoloMNIST                                [64, 6, 6, 5]             --
 ├─Sequential: 1-1                        [64, 128, 6, 6]           --
@@ -27,9 +27,17 @@ YoloMNIST                                [64, 6, 6, 5]             --
 │    └─Linear: 2-11                      [64, 540]                 2,212,380
 ==========================================================================================
 Trainable params: 21,359,612
-==========================================================================================
 ```
 
 
 ### Project 2 : Food Recognition on Company Meal Trays
-(In process...)
+After understanding what's under the hood of YOLO, this project aims to detect and recognize various objects on meal trays from my former compagny restaurant. Make sure to see the [RoadMap] if needed. \
+Each photo contains a meal tray with various objects on it. Each photo was taken from the same point of view four times : when the "photo kiosk" detects a meal tray, it captures 4 photos to cover the time spent by the employee to place his meal tray correctly.
+
+Each meal tray contains various objects that I labelised with cvat.org. Since this exercice is a kind of "proof of concept", and since the labelisation process is time-consumming, I labelised only about **300** images.  
+
+[in process]
+
+
+**Disclaimer: all the photos in my dataset are NOT under licence or NDA. They were given to me by the restaurant adminitration after a lawyer approval.**
+
