@@ -1,16 +1,26 @@
-import torch
-import numpy as np
-import matplotlib.pyplot as plt 
 import os
+from configparser import ConfigParser
+
+import torch
+import torchvision
+import numpy as np
+import matplotlib.pyplot as plt
+from YoloV1_Compagny_MealTrays.train import IN_CHANNEL 
 
 from resnet101 import YoloV1
 from validation import validation_loop
 from mealtrays_dataset import get_validation_dataset
 import IoU
-import NMS
+import utils
+# import NMS
 import draw_boxes_utils
 
-
+config = ConfigParser()
+config.read("config.ini")
+IN_CHANNEL = config.getint("MODEL", "in_channel")
+S = config.getint("MODEL", "GRID_SIZE")
+C = config.getint("MODEL", "NB_CLASS")
+B = config.getint("MODEL", "NB_BOX")
 
 def draw_boxes(
     img:torch.Tensor, target:torch.Tensor, prediction:torch.Tensor, iou_threshold:float=0.6, nb_sample:int=10, title:str=""
@@ -39,23 +49,51 @@ def draw_boxes(
     N = range(nb_sample)
 
     ### Choose image & rescale pixel values to un-normed values (from 0 -black- to 255 -white-)
-    n_imgs = img[indexes].numpy()
+    n_imgs = img[indexes]
+    # mean=(0.4168, 0.4055, 0.3838), std=(0.3475, 0.3442, 0.3386)
+    inv_normalize = torchvision.transforms.Normalize(
+        mean=[-0.4168/0.3475, -0.4055/0.3442, -0.3838/0.3386],
+        std=[1/0.3475, 1/0.3442, 1/0.3386]
+        )
+    n_imgs = inv_normalize(n_imgs).numpy()
     n_imgs = n_imgs * 255.0
-    n_imgs = n_imgs.reshape(nb_sample, 3, 448, 448)
+    # n_imgs = n_imgs.reshape(nb_sample, 3, 448, 448)
 
     ### Choose label & argmax of one-hot vectors.
-    n_label_true = target[indexes, :, :, 5:]
+    n_label_true = target[indexes,:,:,5:]
     n_label_true_argmax = torch.argmax(n_label_true, dim=-1).numpy()
 
-    n_label_pred = label_pred[indexes]
-    n_label_pred_argmax = torch.argmax(torch.softmax(n_label_pred, dim=-1), dim=-1).numpy() #(N,S,S,10) -> (N,S,S,1)
+    n_label_pred = prediction[indexes,:,:,10:]
+    n_label_pred_argmax = torch.argmax(torch.softmax(n_label_pred, dim=-1), dim=-1).numpy() #(N,S,S,8) -> (N,S,S,1)
 
     ### Groundtruth & preds boxes
     n_box_true = target[indexes, :, :, :5]
-    n_box_pred = box_pred[indexes, :, :, :10]
+    n_box_pred = prediction[indexes, :, :, :10] ### !!!
+
+#### ------------------------ ##########
 
     ### Turn to absolute coords and get indices of box positions after NMS
-    n_box_true_abs = IoU.relative2absolute_true(n_box_true)
+    N, cell_i, cell_j = utils.get_cells_with_object(target)
+    n_box_true_abs = IoU.relative2absolute(n_box_true, N, cell_i, cell_j)
+
+    iou_box = []
+    for b in range(B):
+        box_k = 5*b
+        n_box_pred = IoU.relative2absolute(n_box_pred[:,:,:, box_k : 5+box_k], N, cell_i, cell_j) # -> (N,4)
+        iou = IoU.intersection_over_union(n_box_true_abs, n_box_pred) # -> (N,1)
+        iou_box.append(iou) # -> [iou_box1:(N), iou_box:(N)]    
+
+    iou_mask = torch.gt(iou_box[0], iou_box[1])
+    iou_mask = iou_mask.to(torch.int64)
+    idx = 5*iou_mask #if 0 -> box1 infos, if 5 -> box2 infos
+    x_pred_abs = n_box_pred[N, cell_i, cell_j, idx]                
+    y_pred_abs = n_box_pred[N, cell_i, cell_j, idx+1]                
+    w_pred_abs = n_box_pred[N, cell_i, cell_j, idx+2]
+    h_pred_abs = n_box_pred[N, cell_i, cell_j, idx+3] ## ???
+
+    n_box_pred_abs = torch.stack((x_pred_abs, y_pred_abs, w_pred_abs, h_pred_abs), dim=-1)
+
+
     n_box_pred_abs, temp_indices = NMS.non_max_suppression(n_box_pred, n_label_pred, 0.6)
     n_box_pred_abs = n_box_pred_abs[N, temp_indices[:,0], temp_indices[:,1]]
     
@@ -112,7 +150,7 @@ if __name__ == "__main__":
     os.chdir("WarmingUp_with_MNIST")
 
     print("Load model...")
-    resnet101 = YoloV1(3, 7, 8, 2)
+    resnet101 = YoloV1(IN_CHANNEL, S, C, B)
     resnet101.load_state_dict(torch.load("yoloPlato_resnet101_150epochs_25102022_06h17.pt"))
     
     print("Validation loop")
