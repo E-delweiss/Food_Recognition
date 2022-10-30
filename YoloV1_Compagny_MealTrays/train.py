@@ -1,6 +1,5 @@
 import datetime
 from timeit import default_timer as timer
-import pickle
 import logging
 from configparser import ConfigParser
 
@@ -10,20 +9,21 @@ import utils
 from yolo_loss import YoloLoss
 from mealtrays_dataset import get_training_dataset, get_validation_dataset
 # from darknet_like import YoloV1
-# from darknet import YoloV1
+from darknet import YoloV1
 # from tinydarknet import TinyYolo as YoloV1
 # from darknet_like2 import YoloV1
-from resnet101 import YoloV1
+# from resnet101 import YoloV1
 from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
+################################################################################
 
 config = ConfigParser()
-config.read('config.ini')
+config.read('YoloV1_Compagny_MealTrays/config.ini')
 
 DEVICE = config.get('TRAINING', 'DEVICE')
 learning_rate = config.getfloat('TRAINING', 'LEARNING_RATE')
-BATCH_SIZE = config.getfloat('TRAINING', 'BATCH_SIZE')
+BATCH_SIZE = config.getint('TRAINING', 'BATCH_SIZE')
 WEIGHT_DECAY = config.getfloat('TRAINING', 'WEIGHT_DECAY')
 DO_VALIDATION = config.getboolean('TRAINING', 'DO_VALIDATION')
 EPOCHS = config.getint('TRAINING', 'NB_EPOCHS')
@@ -37,19 +37,21 @@ IN_CHANNEL = config.getint('MODEL', 'in_channel')
 S = config.getint('MODEL', 'GRID_SIZE')
 B = config.getint('MODEL', 'NB_BOX')
 C = config.getint('MODEL', 'NB_CLASS')
-isNormalize_trainset = config.getboolean('MODEL', 'isNormalize_trainset')
-isAugment_trainset = config.getboolean('MODEL', 'isAugment_trainset')
-isNormalize_valset = config.getboolean('MODEL', 'isNormalize_valset')
-isAugment_valset = config.getboolean('MODEL', 'isAugment_valset')
+isNormalize_trainset = config.getboolean('DATASET', 'isNormalize_trainset')
+isAugment_trainset = config.getboolean('DATASET', 'isAugment_trainset')
+isNormalize_valset = config.getboolean('DATASET', 'isNormalize_valset')
+isAugment_valset = config.getboolean('DATASET', 'isAugment_valset')
 
 LAMBD_COORD = config.getint('LOSS', 'lambd_coord')
 LAMBD_NOOBJ = config.getfloat('LOSS', 'lambd_noobj')
 
 FREQ = config.getint('PRINTING', 'FREQ')
 
+################################################################################
+
 device = utils.set_device(DEVICE, verbose=0)
 
-model = YoloV1(IN_CHANNEL, S, C, B)
+model = YoloV1(IN_CHANNEL, S, B, C)
 # model = YoloV1(448, S=7, C=8, B=2)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
@@ -98,10 +100,9 @@ for epoch in range(EPOCHS):
     print(" "*5 + f"Learning rate : lr = {optimizer.defaults['lr']}")
     print("-"*20)
 
-    #########################################################################
+    ################################################################################
 
     for batch, (img, target) in utils.tqdm_fct(training_dataloader):
-    # for batch in range(1):
         model.train()
         loss = 0
         begin_batch_time = timer()
@@ -163,7 +164,7 @@ for epoch in range(EPOCHS):
                 print("\n\n")
             else : 
                 mse_score, mse_confidence_score, acc = 9999, 9999, 9999
-            #####################################################################################################
+            ################################################################################
 
             if batch == len(training_dataloader.dataset)//BATCH_SIZE:
                 print(f"Mean training loss for this epoch : {epochs_loss / len(training_dataloader):.5f}")
@@ -173,7 +174,8 @@ for epoch in range(EPOCHS):
                 logging.info(f"***** MSE validation box loss : {mse_score:.5f}")
                 logging.info(f"***** MSE validation confidence score : {mse_confidence_score:.5f}")
                 logging.info(f"***** Validation class acc : {acc*100:.2f}%\n")
-                
+
+################################################################################
 ### Saving results
 path_save_model = f"yoloPlato_{PREFIX}_{epoch+1}epochs"
 
@@ -189,9 +191,9 @@ pickle_train_results = {
 }
 
 utils.save_model(model, path_save_model, SAVE_MODEL)
-utils.save_losses(pickle_train_results, pickle_val_results, SAVE_LOSS)
+utils.save_losses(pickle_train_results, pickle_val_results, PREFIX, SAVE_LOSS)
 
 end_time = datetime.datetime.now()
 logging.info('Time duration: {}.'.format(end_time - start_time))
 logging.info("End training.")
-#####################################################################################################
+################################################################################

@@ -2,6 +2,7 @@ import numpy as np
 import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
+from configparser import ConfigParser
 
 import torch
 from sklearn.metrics import confusion_matrix
@@ -12,9 +13,12 @@ from mealtrays_dataset import get_validation_dataset
 from validation import validation_loop
 from utils import get_cells_with_object
 
-S=7
-C=8
-B=2
+config = ConfigParser()
+config.read("YoloV1_Compagny_MealTrays/config.ini")
+S = config.getint("MODEL", "GRID_SIZE")
+C = config.getint("MODEL", "NB_CLASS")
+B = config.getint("MODEL", "NB_BOX")
+
 
 ### Extracting losses
 with open("train_results.pkl", 'rb') as pkl:

@@ -18,6 +18,9 @@ def create_logging(prefix:str):
     """
     assert type(prefix) is str, TypeError
 
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
     log_format = (
     '%(asctime)s ::%(levelname)s:: %(message)s')
 
@@ -45,13 +48,16 @@ def set_device(device, verbose=0)->torch.device:
     """
     if device == 'cpu':
         device = torch.device('cpu')
+
     if device == 'cuda' and torch.cuda.is_available():
         torch.device('cuda')
-    else : 
+    elif device == 'cuda' and torch.cuda.is_available() is False:
         logging.warning(f"Device {device} not available.")
+
     if device == 'mps' and torch.has_mps:
         logging.warning(f"Device {device} currently not working well with PyTorch.")
         device = torch.device('cpu')
+
     logging.info("Execute on {}".format(device))
     if verbose:
         print("\n------------------------------------")

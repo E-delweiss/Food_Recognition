@@ -11,8 +11,12 @@ class YoloV1(torch.nn.Module):
         self.B = B
 
         resnet101 = torchvision.models.resnet50(weights='DEFAULT')
+        count=0
         for param in resnet101.parameters():
             param.requires_grad = False
+            # if count == 9:
+            #     break
+            count+=1
 
         self.seq1 = torch.nn.Sequential(*list(resnet101.children())[:-4])
         self.seq2 = torch.nn.Sequential(
@@ -41,5 +45,5 @@ class YoloV1(torch.nn.Module):
 
 if __name__ == "__main__":
     # darknet = resnet101(in_channels=3, S=7, B=2, C=8)
-    Yolo = YoloV1(7, 8, 2)
+    Yolo = YoloV1(3, 7, 8, 2)
     summary(Yolo, (64, 3, 448, 448))

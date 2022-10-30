@@ -1,6 +1,9 @@
 import torch
+from configparser import ConfigParser
 
-from utils import device, get_cells_with_object
+config = ConfigParser()
+config.read("YoloV1_Compagny_MealTrays/config.ini")
+S = config.getint("MODEL", "GRID_SIZE")
 
 def relative2absolute(box, N, cell_i, cell_j)->torch.Tensor:
     """
@@ -28,7 +31,6 @@ def relative2absolute(box, N, cell_i, cell_j)->torch.Tensor:
     assert box.shape[-1] == 5, "Error: box_prediction should contain a unique box -> (N,S,S,5)"
 
     SIZEHW = 448
-    S = 7
     CELL_SIZE = 1/S
 
     ### Absolute center coordinates (xcyc+cell_size)*ji
@@ -50,50 +52,6 @@ def relative2absolute(box, N, cell_i, cell_j)->torch.Tensor:
 
     box_absolute = torch.stack((xmin, ymin, xmax, ymax), dim=-1)
     return box_absolute
-
-
-def relative2absolute_true_old(box_target)->tuple:
-    """
-    Only for groundtruth.
-    TODO
-    Each groundtruth bboxes is a zero (N,S,S,5) tensor except at the
-    ji position where there are the corresponding bounding boxe coordinates. 
-    
-    Args:
-        box_target : torch.Tensor of shape (N, S, S, 5)
-            Bounding box coordinates to convert. xy are relative-to-cell 
-            and wh are relative to image size.
-    Return:
-        box_target_absolute : torch.Tensor of shape (N,4)
-            Contains the 4 coordinates xmin, ymin, xmax, ymax for each image.
-    """
-    assert len(box_target.shape) == 4, "Error: box_target is torch.Tensor of shape (N,S,S,5)"
-    assert box_target.shape[-1] == 5, "Error: box_target should contain a unique box -> (N,S,S,5)"
-
-    SIZEHW = 448
-    S = 7
-    CELL_SIZE = 1/S
-
-    ### Get non-zero ij coordinates
-    N, cells_i, cells_j = get_cells_with_object(box_target)
-
-    ### Retrieve box coordinates
-    xr_cell, yr_cell, wr_img, hr_img = box_target[N, cells_i, cells_j, 0:4].permute(1,0)
-
-    ### Compute xc and yc center coordinates relative to the image
-    xcr_img =  xr_cell * CELL_SIZE + cells_j * CELL_SIZE
-    ycr_img =  yr_cell * CELL_SIZE + cells_i * CELL_SIZE
-
-    ### Compute absolute top left  and bottom right coordinates
-    xmin = (xcr_img - wr_img/2) * SIZEHW
-    ymin = (ycr_img - hr_img/2) * SIZEHW
-    xmax = xmin + wr_img*SIZEHW 
-    ymax = ymin + hr_img*SIZEHW
-
-    xmin, ymin, xmax, ymax = xmin.floor(), ymin.floor(), xmax.floor(), ymax.floor()
-
-    box_target_absolute = torch.stack((xmin, ymin, xmax, ymax), dim=-1)
-    return box_target_absolute
 
 
 def intersection_over_union(box_1:torch.Tensor, box_2:torch.Tensor)->torch.Tensor:
