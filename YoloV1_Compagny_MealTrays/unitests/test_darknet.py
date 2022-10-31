@@ -1,6 +1,13 @@
 import unittest
+import os, sys
+from pathlib import Path
+
 import torch
 from torchinfo import summary
+
+current_folder = os.path.dirname(locals().get("__file__"))
+parent_folder = Path(current_folder).parent
+sys.path.append(str(parent_folder))
 
 import darknet
 import darknet_like

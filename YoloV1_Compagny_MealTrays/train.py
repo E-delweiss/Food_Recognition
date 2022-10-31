@@ -2,6 +2,7 @@ import datetime
 from timeit import default_timer as timer
 import logging
 from configparser import ConfigParser
+import os, sys
 
 import torch
 
@@ -17,9 +18,12 @@ from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
 ################################################################################
+current_folder = os.path.dirname(locals().get("__file__"))
+config_file = os.path.join(current_folder, "config.ini")
+sys.path.append(config_file)
 
 config = ConfigParser()
-config.read('YoloV1_Compagny_MealTrays/config.ini')
+config.read('config.ini')
 
 DEVICE = config.get('TRAINING', 'DEVICE')
 learning_rate = config.getfloat('TRAINING', 'LEARNING_RATE')

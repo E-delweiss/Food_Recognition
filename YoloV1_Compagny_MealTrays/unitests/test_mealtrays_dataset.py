@@ -1,10 +1,17 @@
 import unittest
-import numpy as np
+import os, sys
+import sys
+from pathlib import Path
 
-import torch
-import torchvision
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import torch
+import torchvision
+
+current_folder = os.path.dirname(locals().get("__file__"))
+parent_folder = Path(current_folder).parent
+sys.path.append(str(parent_folder))
 
 from mealtrays_dataset import MealtraysDataset
 

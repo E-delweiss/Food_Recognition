@@ -1,8 +1,13 @@
 import torch
 from configparser import ConfigParser
+import os, sys
+
+current_folder = os.path.dirname(locals().get("__file__"))
+config_file = os.path.join(current_folder, "config.ini")
+sys.path.append(config_file)
 
 config = ConfigParser()
-config.read("YoloV1_Compagny_MealTrays/config.ini")
+config.read("config.ini")
 S = config.getint("MODEL", "GRID_SIZE")
 
 def relative2absolute(box, N, cell_i, cell_j)->torch.Tensor:
