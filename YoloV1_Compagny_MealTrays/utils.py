@@ -120,7 +120,7 @@ def update_lr(current_epoch:int, optimizer:torch.optim, do_scheduler:bool):
     # logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
 
     if do_scheduler:
-        if current_epoch % 30 == 0 and current_epoch != 0:
+        if current_epoch % 20 == 0 and current_epoch != 0:
             optimizer.defaults['lr'] = optimizer.defaults['lr']/2
         logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
 
@@ -141,7 +141,8 @@ def save_model(model, path:str, save:bool):
         torch.save(model.state_dict(), path)
         print("\n")
         print("*"*5, "Model saved to {}.".format(path))
-        logging.info("\nModel saved to {}.".format(path))
+        logging.info("\n")
+        logging.info("Model saved to {}.".format(path))
     else:
         logging.warning("No saving has been requested for model.")
     return
@@ -168,7 +169,7 @@ def save_losses(train_loss:dict, val_loss:dict, model_name:str, save:bool):
         with open(val_path, 'wb') as pkl:
             pickle.dump(val_loss, pkl)
         
-        logging.info("\Training results saved to {}.".format(train_path))
+        logging.info("Training results saved to {}.".format(train_path))
         logging.info("Validation results saved to {}.".format(val_path))
     else:
         logging.warning("No saving has been requested for losses.")

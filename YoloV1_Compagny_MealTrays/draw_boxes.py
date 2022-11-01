@@ -20,7 +20,6 @@ IN_CHANNEL = config.getint("MODEL", "in_channel")
 S = config.getint("MODEL", "GRID_SIZE")
 C = config.getint("MODEL", "NB_CLASS")
 B = config.getint("MODEL", "NB_BOX")
-model_weights = config.get("PLOTS", "PT_FILE")
 
 
 def show(imgs):
@@ -96,11 +95,8 @@ def draw_boxes(
    
 
 if __name__ == "__main__":
-    # os.chdir("WarmingUp_with_MNIST")
-
     print("Load model...")
-    darknet = YoloV1(IN_CHANNEL, S=S, B=B, C=C)
-    darknet.load_state_dict(torch.load("results/yoloPlato_darknet_150epochs_30102022_18h11.pt"))
+    darknet = YoloV1(pretrained=True, in_channels=IN_CHANNEL, S=S, B=B, C=C)
     
     print("Validation loop")
     validation_dataset = get_validation_dataset(8, isNormalize=True, isAugment=False)
