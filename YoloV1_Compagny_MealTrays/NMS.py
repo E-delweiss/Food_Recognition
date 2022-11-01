@@ -1,6 +1,7 @@
 import torch
 
 import IoU
+import utils
 
 def find_indices_max(box):
     """
@@ -28,34 +29,66 @@ def find_indices_max(box):
     return batch_indices
 
 
-def non_max_suppression(box_pred, label_pred, iou_threshold):
+def non_max_suppression(prediction, prob_threshold, iou_threshold):
     """
     Use confidence number and class probabilities such as pc = pc * P(C)
     to keep only predicted boxes with the highest confidence number.
     Convert boxes into absolute coordinates and compute IoU.
 
-    Arguments :
-        box_pred : torch.Tensor of shape (N,S,S,5)
-            Predicted boxes
-        label_pred : torch.Tensor of shape (N,S,S,10)
-            Predicted labels
-        iou_threshold : float TODO 
+    TODO
     """
-    box = box_pred #(N,S,S,5)
-    labels = label_pred #(N,S,S,10)
-    
-    BATCH_SIZE = len(box)
     S = 7
-    N = range(BATCH_SIZE)
-
-    ### Apply softmax to multi class predictions
-    labels_prob = torch.softmax(labels, dim=-1)
 
     ### confidence number Pc is confidence number times class prediction
-    box[:,:,:,4] = torch.mul(box[:,:,:,4], torch.amax(labels_prob, dim=-1))
+    prediction[:,:,4] = torch.mul(prediction[:,:,4], torch.amax(prediction[:,:,10:], dim=-1))
+    prediction[:,:,9] = torch.mul(prediction[:,:,9], torch.amax(prediction[:,:,10:], dim=-1))
+
+    ### Create a mask regarding prob_threshold for each bbox in each cell
+    mask_box1 = prediction[:,:,4].lt(prob_threshold).unsqueeze(2)
+    mask_box2 = prediction[:,:,9].lt(prob_threshold).unsqueeze(2)
+    mask_box1 = mask_box1.repeat(1,1,5)
+    mask_box2 = mask_box2.repeat(1,1,5)
+    mask_box = torch.concat((mask_box1, mask_box2), dim=-1)
+    
+    ### Zeroed all box for which pc < prob_threshold
+    prediction[:,:,:10] = torch.masked_fill(prediction[:,:,:10], mask_box, 0)
+
+    ### DO IOU STUFF BTW BOXES
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   ### confidence number Pc is confidence number times class prediction
+    prediction[:,:,4] = torch.mul(prediction[:,:,4], torch.amax(prediction[:,:,10:], dim=-1))
+    prediction[:,:,9] = torch.mul(prediction[:,:,9], torch.amax(prediction[:,:,10:], dim=-1))
+
 
     # 1) finding indices i,j of the max confidence number of each image in the batch
-    m = find_indices_max(box[:,:,:,4])
+    m = find_indices_max(box[:,:,:,4]) ###???
 
     # 2) Getting boxes with the highest conf number for each image
     # box_max_confidence = box[N, m[:,0], m[:,1]] #(N,5)
