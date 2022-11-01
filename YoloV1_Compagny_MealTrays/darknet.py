@@ -1,6 +1,7 @@
+from configparser import ConfigParser
+
 import torch
 import torch.nn as nn
-
 from torchinfo import summary
 
 
@@ -16,9 +17,9 @@ class CNNBlock(torch.nn.Module):
         x = self.bn(x)
         return self.l_relu(x)
 
-class YoloV1(nn.Module):
+class DarkNet(nn.Module):
     def __init__(self, in_channels, S, B, C, **kwargs):
-        super(YoloV1, self).__init__()
+        super(DarkNet, self).__init__()
         self.S = S
         self.B = B
         self.C = C
@@ -46,7 +47,6 @@ class YoloV1(nn.Module):
             ]
         self.darknet = self._create_darknet()
         self.fcs = self._create_fcs(**kwargs)
-    
 
     def _size_output(self, sizeHW, kernel, stride, padding=0):
         output_size = (sizeHW + 2 * padding - (kernel-1)-1)/stride
@@ -102,6 +102,18 @@ class YoloV1(nn.Module):
         return x
 
 
+def darknet(pretrained=False, **kwargs) -> DarkNet:
+    config = ConfigParser()
+    config.read("config.ini")
+    darknet_weights = config.get("WEIGHTS", "PT_FILE")
+
+    model = DarkNet(**kwargs)
+    if pretrained:
+        model.load_state_dict(torch.load(darknet_weights))
+    
+    return model
+    
+
 if __name__ == "__main__":
-    darknet = YoloV1(in_channels=3, S=7, B=2, C=8)
-    summary(darknet, (64, 3, 448, 448))
+    model = darknet(in_channels=3, S=7, B=2, C=8)
+    summary(model, (64, 3, 448, 448))
