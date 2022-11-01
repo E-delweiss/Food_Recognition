@@ -1,30 +1,38 @@
-import numpy as np
+import os, sys
 import pickle
 import pandas as pd
 import matplotlib.pyplot as plt
 from configparser import ConfigParser
 
+import numpy as np
 import torch
 from sklearn.metrics import confusion_matrix
 import seaborn as sn
 
-from resnet101 import YoloV1
+
+from darknet import darknet
 from mealtrays_dataset import get_validation_dataset
 from validation import validation_loop
 from utils import get_cells_with_object
 
+current_folder = os.path.dirname(locals().get("__file__"))
+config_file = os.path.join(current_folder, "config.ini")
+sys.path.append(config_file)
+
 config = ConfigParser()
-config.read("YoloV1_Compagny_MealTrays/config.ini")
+config.read('config.ini')
 S = config.getint("MODEL", "GRID_SIZE")
 C = config.getint("MODEL", "NB_CLASS")
 B = config.getint("MODEL", "NB_BOX")
 
+pkl_train_path = config.get("PICKLE", "pkl_train")
+pkl_val_path = config.get("PICKLE", "pkl_val")
 
 ### Extracting losses
-with open("train_results.pkl", 'rb') as pkl:
+with open(pkl_train_path, 'rb') as pkl:
     pickle_data_train = pickle.load(pkl)
 
-with open("val_results.pkl", 'rb') as pkl:
+with open(pkl_val_path, 'rb') as pkl:
     pickle_data_val = pickle.load(pkl)
 
 batch_train_losses_list = pickle_data_train["batch_train_losses_list"]
@@ -92,8 +100,7 @@ y_pred = []
 y_true = []
 
 ### Loading model weights
-model = YoloV1(3,S=S,C=C,B=B)
-model.load_state_dict(torch.load("yoloPlato_resnet101_150epochs_25102022_06h17.pt"))
+model = darknet(True, in_channels=3, S=S, C=C, B=B)
 
 ### Validation loop
 img, target, prediction = validation_loop(model, get_validation_dataset())

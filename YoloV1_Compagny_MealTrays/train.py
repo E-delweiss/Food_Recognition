@@ -9,15 +9,12 @@ import torch
 import utils
 from yolo_loss import YoloLoss
 from mealtrays_dataset import get_training_dataset, get_validation_dataset
-# from darknet_like import YoloV1
-from darknet import YoloV1
-# from tinydarknet import TinyYolo as YoloV1
-# from darknet_like2 import YoloV1
-# from resnet101 import YoloV1
+from darknet import darknet
 from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
 ################################################################################
+
 current_folder = os.path.dirname(locals().get("__file__"))
 config_file = os.path.join(current_folder, "config.ini")
 sys.path.append(config_file)
@@ -55,8 +52,7 @@ FREQ = config.getint('PRINTING', 'FREQ')
 
 device = utils.set_device(DEVICE, verbose=0)
 
-model = YoloV1(IN_CHANNEL, S, B, C)
-# model = YoloV1(448, S=7, C=8, B=2)
+model = darknet(pretrained=True, in_channel=IN_CHANNEL, S=S, B=B, C=C)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
 loss_yolo = YoloLoss(lambd_coord=LAMBD_COORD, lambd_noobj=LAMBD_NOOBJ, S=S, device=device)
@@ -80,6 +76,8 @@ utils.create_logging(prefix=PREFIX)
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
 logging.info(f"Using optimizer : {optimizer}")
+logging.info("Lr Scheduler : lr/2 each 20 epochs")
+logging.info("")
 logging.info("Start training")
 logging.info(f"[START] : {time_formatted}")
 
@@ -91,7 +89,6 @@ batch_train_class_acc = []
 batch_val_MSE_box_list = []
 batch_val_confscore_list = []
 batch_val_class_acc = []
-
 
 for epoch in range(EPOCHS):
     utils.update_lr(epoch, optimizer, LR_SCHEDULER)
@@ -137,9 +134,9 @@ for epoch in range(EPOCHS):
         if batch == 0 or (batch+1)%FREQ == 0 or batch == len(training_dataloader.dataset)//BATCH_SIZE:
             # Recording the total loss
             batch_total_train_loss_list.append(current_loss)
-            # Recording each losses 
+            # Recording each losses
             batch_train_losses_list.append(losses)
-            # Recording class accuracy 
+            # Recording class accuracy
             batch_train_class_acc.append(train_classes_acc)
 
             utils.pretty_print(batch, len(training_dataloader.dataset), current_loss, losses, train_classes_acc, batch_size=BATCH_SIZE)
