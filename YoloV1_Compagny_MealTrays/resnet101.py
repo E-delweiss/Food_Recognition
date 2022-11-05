@@ -1,11 +1,13 @@
+from configparser import ConfigParser
+
 import torchvision
 import torch
 
 from torchinfo import summary
 
-class YoloV1(torch.nn.Module):
+class ResNet(torch.nn.Module):
     def __init__(self, in_channels, S, C, B):
-        super(YoloV1, self).__init__()
+        super(ResNet, self).__init__()
         self.S = S
         self.C = C
         self.B = B
@@ -45,5 +47,21 @@ class YoloV1(torch.nn.Module):
 
 if __name__ == "__main__":
     # darknet = resnet101(in_channels=3, S=7, B=2, C=8)
-    Yolo = YoloV1(3, 7, 8, 2)
-    summary(Yolo, (64, 3, 448, 448))
+    ResNet = ResNet(3, 7, 8, 2)
+    summary(ResNet, (64, 3, 448, 448))
+
+def resnet(pretrained=False, **kwargs) -> ResNet:
+    config = ConfigParser()
+    config.read("config.ini")
+    model_weights = config.get("WEIGHTS", "PT_FILE")
+
+    model = ResNet(**kwargs)
+    if pretrained:
+        model.load_state_dict(torch.load(model_weights))
+    
+    return model
+    
+
+if __name__ == "__main__":
+    model = ResNet(in_channels=3, S=7, B=2, C=8)
+    summary(model, (64, 3, 448, 448))

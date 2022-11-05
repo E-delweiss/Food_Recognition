@@ -118,8 +118,8 @@ class YoloLoss(torch.nn.Module):
                 for b in range(self.B):
                     box_k = 5*b
                     prediction_box_abs = IoU.relative2absolute(prediction[:,:,:, box_k : 5+box_k], N, cell_i, cell_j) # -> (N,4)
-                    iou = IoU.intersection_over_union(target_box_abs, prediction_box_abs) # -> (N,1)
-                    iou_box.append(iou) # -> [iou_box1:(N), iou_box:(N)]      
+                    iou = IoU.intersection_over_union(target_box_abs[...,:4], prediction_box_abs[...,:4]) # -> (N,1)
+                    iou_box.append(iou) # -> [iou_box1:(N), iou_box:(N)]
                 
                 ### TODO comment
                 iou_mask = torch.gt(iou_box[0], iou_box[1])

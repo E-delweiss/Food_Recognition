@@ -115,5 +115,5 @@ def darknet(pretrained=False, **kwargs) -> DarkNet:
     
 
 if __name__ == "__main__":
-    model = darknet(in_channels=3, S=7, B=2, C=8)
+    model = darknet(True, in_channels=3, S=7, B=2, C=8)
     summary(model, (64, 3, 448, 448))

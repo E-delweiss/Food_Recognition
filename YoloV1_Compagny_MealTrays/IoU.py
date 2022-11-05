@@ -28,9 +28,9 @@ def relative2absolute(box, N, cell_i, cell_j)->torch.Tensor:
             Cell j position(s) TODO
 
     Returns:
-        box_prediction_absolute (torch.Tensor of shape (N,4))
+        box_prediction_absolute (torch.Tensor of shape (N,5))
             Contains the 4 predicted coordinates xmin, ymin, 
-            xmax, ymax for each image.
+            xmax, ymax and confidence_score for each image.
     """
     assert len(box.shape) == 4, "Error: box_prediction is torch.Tensor of shape (N,S,S,5)"
     assert box.shape[-1] == 5, "Error: box_prediction should contain a unique box -> (N,S,S,5)"
@@ -48,14 +48,16 @@ def relative2absolute(box, N, cell_i, cell_j)->torch.Tensor:
     wr_img, hr_img = box[N, cell_i, cell_j, 2:4].permute(1,0)
     xmin = (xcr_img - wr_img/2) * SIZEHW
     ymin = (ycr_img - hr_img/2) * SIZEHW
-    
+
+    confidence_score = box[N, cell_i, cell_j, 4]
+
     # Bottom right absolute coordinates
     xmax = xmin + wr_img*SIZEHW
     ymax = ymin + hr_img*SIZEHW
 
     xmin, ymin, xmax, ymax = xmin.floor(), ymin.floor(), xmax.floor(), ymax.floor()
 
-    box_absolute = torch.stack((xmin, ymin, xmax, ymax), dim=-1)
+    box_absolute = torch.stack((xmin, ymin, xmax, ymax, confidence_score), dim=-1)
     return box_absolute
 
 
