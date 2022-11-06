@@ -97,23 +97,20 @@ class YoloLoss(torch.nn.Module):
         ### Create a mask (N*S*S*4,1) -> (N,S,S,1) : if 0 -> box1, if 5 -> box2
         iou_mask = torch.gt(iou_box1, iou_box2).to(torch.int64)
         idx = iou_mask*5
-        idx = idx.view(BATCH_SIZE, self.S, self.S, 1)
+        idx = idx.view(BATCH_SIZE, self.S, self.S, 1).repeat(1,1,1,5)
+        idx = idx + torch.tensor([0,1,2,3,4])
 
         ### Retrieve predicted box coordinates and stack them regarding the best box : (N,S,S,1) -> (N,S,S,2)
-        x_hat = torch.gather(prediction, -1, idx)
-        y_hat = torch.gather(prediction, -1, idx+1)
-        w_hat = torch.gather(prediction, -1, idx+2)
-        h_hat = torch.gather(prediction, -1, idx+3)
-
-        xy_hat = torch.concat((x_hat, y_hat), dim=-1)
-        wh_hat = torch.concat((w_hat, h_hat), dim=-1)
+        xywhc_hat = torch.gather(prediction, -1, idx)
+        xy_hat = xywhc_hat[...,:2]
+        wh_hat = xywhc_hat[...,2:4]
 
         ### Retrieve groundtruths box coordinates (N,S,S,2)
         xy = target[...,:2]
         wh = target[...,2:4]
         
         ### Retrieve confidence numbers (N,S,S,1)
-        confidence_hat = torch.gather(prediction, -1, idx+4)
+        confidence_hat = xywhc_hat[...,4].unsqueeze(-1)
         confidence = target[..., 4].unsqueeze(-1)
 
         ### Create object mask : True if there is NO object (N,S,S,1,1)
