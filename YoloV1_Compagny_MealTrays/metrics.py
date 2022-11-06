@@ -52,14 +52,18 @@ def MSE(target:torch.Tensor, prediction:torch.Tensor, S=7, B=2)->float:
     
     ### Compute the losses for all images in the batch
     iou_box = []
-    target_box_abs = IoU.relative2absolute(target[:,:,:,:5], N, cells_i, cells_j) # -> (N,4)
-    for b in range(B):
-        box_k = 5*b
-        prediction_box_abs = IoU.relative2absolute(prediction[:,:,:, box_k : 5+box_k], N, cells_i, cells_j) # -> (N,4)
-        iou = IoU.intersection_over_union(target_box_abs, prediction_box_abs) # -> (N,1)
-        iou_box.append(iou) # -> [iou_box1:(N), iou_box2:(N)]                    
+    target_box_abs = IoU.relative2absolute(target[...,:5])
+    prediction_abs_box1 = IoU.relative2absolute(prediction[...,:5])
+    prediction_abs_box2 = IoU.relative2absolute(prediction[...,5:10])
+
+    target_box_abs = target_box_abs[N,cells_i, cells_j]
+    prediction_abs_box1 = prediction_abs_box1[N,cells_i,cells_j]
+    prediction_abs_box2 = prediction_abs_box2[N,cells_i,cells_j]
+
+    iou = IoU.intersection_over_union(target_box_abs.view(), prediction_box_abs) # -> (N,1) ?????????????
+    iou_box.append(iou) # -> [iou_box1:(N), iou_box2:(N)] ?????????????????????
     
-    ### TODO comment
+    ### TODO ICI
     box_mask = torch.lt(iou_box[0], iou_box[1]).to(torch.int64)
     idx = 5*box_mask #if 0 -> box1 infos, if 5 -> box2 infos
 
