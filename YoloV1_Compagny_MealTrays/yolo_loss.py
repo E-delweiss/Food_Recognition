@@ -10,81 +10,49 @@ class YoloLoss(torch.nn.Module):
         self.B = B
         self.device = device
 
-    def _coordloss(self, pred_coord_rcell, true_coord_rcell, isObject):
+    def _coordloss(self, pred_coord, true_coord, isObject):
         """
-        Args : 
-            pred_coord_rcell : torch.Tensor of shape (N, 2)
-            true_coord_rcell : torch.Tensor of shape (N, 2)
-            isObject : torch.Bool of shape (N,1)
-        Returns :
-            squared_error : torch.Tensor of shape (N)
+        TODO
         """
-        xcr_hat, ycr_hat = pred_coord_rcell.permute(1,0)
-        xcr, ycr = true_coord_rcell.permute(1,0)
+        isObject = isObject.repeat(1,1,1,pred_coord.shape[-1])
+        pred_coord = pred_coord.clamp(min=0)
+        pred_coord = torch.masked_fill(pred_coord, isObject, 0)
 
-        xcr_hat = xcr_hat.clamp(min=0) #?
-        ycr_hat = ycr_hat.clamp(min=0) #?
-
-        xcr_hat = torch.masked_fill(xcr_hat, isObject, 0)
-        ycr_hat = torch.masked_fill(ycr_hat, isObject, 0)
-        xcr = torch.masked_fill(xcr, isObject, 0)
-        ycr = torch.masked_fill(ycr, isObject, 0)
-
-        squared_error = torch.pow(xcr - xcr_hat,2) + torch.pow(ycr - ycr_hat,2)
-        return squared_error
+        mse = torch.nn.MSELoss(reduction='mean')
+        return mse(true_coord, pred_coord)
 
     def _sizeloss(self, pred_size, true_size, isObject):
         """
-        Args :
-            pred_size : torch.Tensor of shape (N, 2)
-            true_size : torch.Tensor of shape (N, 2)
-            isObject : torch.Bool of shape (N,1)
-        Returns : 
-            root_squared_error : torch.Tensor of shape (N)
+        TODO
         """
-        wr_hat, hr_hat = pred_size.permute(1,0)
-        wr, hr = true_size.permute(1,0)
+        isObject = isObject.repeat(1,1,1,pred_size.shape[-1])
+        pred_size = pred_size.clamp(min=0)
+        pred_size = torch.masked_fill(pred_size, isObject, 0)
 
-        wr_hat = torch.masked_fill(wr_hat, isObject, 0)
-        hr_hat = torch.masked_fill(hr_hat, isObject, 0)
-        wr = torch.masked_fill(wr, isObject, 0)
-        hr = torch.masked_fill(hr, isObject, 0)
-
-        wr_hat = wr_hat.clamp(min=0)
-        hr_hat = hr_hat.clamp(min=0)
-
-        root_squared_error_w = torch.pow(torch.sqrt(wr) - torch.sqrt(wr_hat),2)
-        root_squared_error_h = torch.pow(torch.sqrt(hr) - torch.sqrt(hr_hat),2)
-        root_squared_error = root_squared_error_w + root_squared_error_h
-        return root_squared_error
+        eps = 1e-6
+        mse = torch.nn.MSELoss(reduce='mean')
+        rmse = torch.sqrt(mse(true_size,pred_size) + eps)
+        return rmse
 
     def _confidenceloss(self, pred_c, true_c, isObject):
         """
-        Args :
-            pred_c : torch.Tensor of shape (N,1)
-            true_c : torch.Tensor of shape (N,1)
-            isObject : torch.Bool of shape (N,1)
-        Return :
-            squared_error : torch.Tensor of shape (N)
+        TODO
         """
+        isObject = isObject.repeat(1,1,1,pred_c.shape[-1])
+        pred_c = pred_c.clamp(min=0, max=1)
         pred_c = torch.masked_fill(pred_c, isObject, 0)
-        true_c = torch.masked_fill(true_c, isObject, 0)
-
-        squared_error = torch.pow(true_c - pred_c, 2)
-        return squared_error
+        
+        mse = torch.nn.MSELoss(reduce='mean')
+        return mse(true_c, pred_c)
 
     def _classloss(self, pred_class, true_class, isObject):
         """
-        Args :
-            pred_class : torch.Tensor of shape (N, C)
-            true_class : torch.Tensor of shape (N, C)
-            isObject : torch.Bool of shape (N,1)
-        Returns :
-            squared_error : torch.Tensor of shape (N)
+        TODO
         """
-        squared_error = torch.pow(true_class - pred_class, 2)
-        squared_error = torch.sum(squared_error, dim=1)
-        return torch.masked_fill(squared_error, isObject, 0) 
+        isObject = isObject.repeat(1,1,1,pred_class.shape[-1])
+        torch.masked_fill(pred_class, isObject, 0) 
+        mse = torch.nn.MSELoss(reduce='mean')
+        return mse(true_class, pred_class)
 
     def forward(self, prediction:torch.Tensor, target:torch.Tensor):
         """
@@ -110,6 +78,65 @@ class YoloLoss(torch.nn.Module):
         losses_list = ['loss_xy', 'loss_wh', 'loss_conf_obj', 'loss_conf_noobj', 'loss_class']
         losses = {key : torch.zeros(BATCH_SIZE).to(self.device) for key in losses_list}
         
+        target_abs_box = IoU.relative2absolute(target[:,:,:,:5]) # -> (N,4)
+        prediction_abs_box1 = IoU.relative2absolute(prediction[...,:5])
+        prediction_abs_box2 = IoU.relative2absolute(prediction[...,5:10])
+
+        iou_box1 = IoU.intersection_over_union(
+            target_abs_box[...,:4].view(BATCH_SIZE*self.S*self.S,4), prediction_abs_box1[:,:,:,0:4].view(BATCH_SIZE*self.S*self.S,4)
+            ) # -> (N,1)
+        iou_box2 = IoU.intersection_over_union(
+            target_abs_box[...,:4].view(BATCH_SIZE*self.S*self.S,4), prediction_abs_box2[...,5:8].view(BATCH_SIZE*self.S*self.S,4)
+            ) # -> (N,1)
+        iou_mask = torch.gt(iou_box1, iou_box2).to(torch.int64)
+
+        idx = 5*iou_mask #if 0 -> box1 infos, if 5 -> box2 infos
+
+        print("\nDEBUG : ", idx.view(BATCH_SIZE,self.S,self.S)[4,2,3], idx.view(BATCH_SIZE,self.S,self.S).shape)
+        print("\n")
+
+        ### bbox coordinates
+        x_hat = prediction[:, :, :, idx]
+        y_hat = prediction[:, :, :, idx+1]
+        w_hat = prediction[:, :, :, idx+2]
+        h_hat = prediction[:, :, :, idx+3]
+
+        xy_hat = torch.stack((x_hat, y_hat), dim=-1)
+        wh_hat = torch.stack((w_hat, h_hat), dim=-1)
+
+        xy = target[...,:2]
+        wh = target[...,2:4]
+        
+        ### confidence numbers
+        confidence_hat = prediction[:, :, :, idx+4]
+        confidence = target[:, :, :, 4]
+
+        ### objects to detect
+        identity_obj = target.eq(0).unsqueeze(-1)
+
+        ### sum the losses over the grid
+        losses['loss_xy'] = self._coordloss(xy_hat, xy, identity_obj)
+        losses['loss_wh'] = self._sizeloss(wh_hat, wh, identity_obj)
+        losses['loss_conf_obj'] = self._confidenceloss(confidence_hat, confidence, identity_obj)
+        losses['loss_conf_noobj'] = self._confidenceloss(confidence_hat, confidence, torch.logical_not(identity_obj))
+
+        ### class labels
+        pred_class = prediction[..., 10:]
+        true_class = target[...,5:]
+        losses['loss_class'] = self._classloss(pred_class, true_class, identity_obj)
+
+        loss = self.LAMBD_COORD * losses['loss_xy'] \
+                + self.LAMBD_COORD * losses['loss_wh'] \
+                + losses['loss_conf_obj'] \
+                + self.LAMBD_NOOBJ * losses['loss_conf_noobj'] \
+                + losses['loss_class']
+
+        # assert torch.isnan(loss)==False, "Error : loss turns to NaN."   
+        return losses, loss
+
+
+if False:
+#################################
         ### Compute the losses for all images in the batch
         for cell_i in range(self.S):
             for cell_j in range(self.S):
@@ -149,8 +176,8 @@ class YoloLoss(torch.nn.Module):
                 ### sum the losses over the grid
                 losses['loss_xy'] += self._coordloss(xy_hat, xy, isObject)
                 losses['loss_wh'] += self._sizeloss(wh_hat, wh, isObject)
-                losses['loss_conf_obj'] += self._confidenceloss(pred_c, true_c, isObject)
-                losses['loss_conf_noobj'] += self._confidenceloss(pred_c, true_c, torch.logical_not(isObject))
+                losses['loss_conf_obj'] += self._confidenceloss(c_hat, true_c, isObject)
+                losses['loss_conf_noobj'] += self._confidenceloss(c_hat, true_c, torch.logical_not(isObject))
 
                 ### class labels
                 pred_class = prediction[N, cell_i, cell_j, 5*self.B:]
@@ -170,4 +197,3 @@ class YoloLoss(torch.nn.Module):
         loss = torch.sum(loss) / BATCH_SIZE
 
         assert torch.isnan(loss)==False, "Error : loss turns to NaN."   
-        return losses, loss
