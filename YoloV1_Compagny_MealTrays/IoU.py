@@ -63,7 +63,7 @@ def intersection_over_union(box_1:torch.Tensor, box_2:torch.Tensor)->torch.Tenso
 
     smoothing_factor = 1e-10
     zero = torch.Tensor([0])
-       
+    
     ### x, y overlaps btw 1 and 2
     xmin_overlap = torch.maximum(xmin_1, xmin_2)
     xmax_overlap = torch.minimum(xmax_1, xmax_2)

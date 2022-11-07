@@ -242,6 +242,35 @@ def get_cells_with_object(tensor:torch.Tensor)->tuple:
 
     return N, cells_i, cells_j
 
+
+def tensor2boxlist(tensor:torch.Tensor):
+    """
+    tensor (N,S,S,6-11) -> list[img1[box1[x,y,w,h,c,label], ...], img2[...]]
+    """
+    C = 8
+    S = 7
+    B = (tensor.shape[-1] - C) // 5
+
+    tensor_old = tensor.clone()
+
+    tensor = torch.zeros(1,7,7,5*B+1)
+    tensor[...,:5*B] = tensor_old[...,:5*B]
+    tensor[...,5*B] = torch.argmax(torch.softmax(tensor_old[...,5*B:], dim=-1), dim=-1)
+
+    if B == 2 :
+        tensor_box1 = tensor[...,:5].view(S*S, 5) #.view(1, S*S, 5)?
+        tensor_box2 = tensor[...,5:10].view(S*S, 5)
+        tensor_box = torch.concat((tensor_box1, tensor_box2), dim=1)
+    else : 
+        tensor_box = tensor[...,:5].view(S*S, 5)
+
+    tensor_box = torch.cat((tensor_box, tensor[...,5*B].view(S*S, 1).repeat(B,1)),dim=-1) #.view(1, S*S, 5)?
+
+    return tensor_box.tolist()
+
+
+
+
 if __name__ == "__main__":
     mean, std = mean_std_normalization()
     print(mean)

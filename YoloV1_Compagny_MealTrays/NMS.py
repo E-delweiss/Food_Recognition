@@ -11,38 +11,26 @@ def non_max_suppression(prediction, prob_threshold, iou_threshold):
     prediction is (1,7,7,18)
     TODO
     """
-    S = 7
-    N = range(len(prediction))
-
-    ### Create a mask regarding prob_threshold for each bbox in each cell
-    mask_box1 = prediction[...,4].lt(prob_threshold).unsqueeze(3)
-    mask_box2 = prediction[...,9].lt(prob_threshold).unsqueeze(3)
-    mask_box1 = mask_box1.repeat(1,1,1,5)
-    mask_box2 = mask_box2.repeat(1,1,1,5)
-    mask_box = torch.concat((mask_box1, mask_box2), dim=-1) # -> (1,7,7,10)
-
-    ### Save labels
-    prediction_label = prediction[...,10:]
-
-    for i in range(S):
-        for j in range(S):
-                prediction[:,i,j,0:5] = IoU.relative2absolute(prediction[...,:5], N, i, j)
-                prediction[:,i,j,5:10] = IoU.relative2absolute(prediction[...,5:10], N, i, j)
-
-    ### Zeroed all box for which pc < prob_threshold
-    prediction_masked = torch.masked_fill(prediction[...,:10], mask_box, 0)
-    cell_i, cell_j, _ = prediction_masked.nonzero().permute(1,0)
-
-    ### Retrieve boxes and label with pc>0
-    prediction_label = torch.argmax(torch.softmax(prediction_label[:,cell_i, cell_j], dim=-1), dim=-1).unsqueeze(-1)
-    prediction = torch.concat((prediction_masked[:,cell_i,cell_j,:5], prediction_masked[:,cell_i,cell_j,5:10]), dim=1)
-    prediction = torch.concat((prediction, prediction_label.repeat(1,2)), dim=-1)
-    prediction = prediction.unique(dim=1)
-
-    ### NMS
-    prediction_list = prediction.tolist()
-    prediction_list = sorted(prediction_list, key=lambda x: x[4])
+    prediction_abs_box1 = IoU.relative2absolute(torch.concat((prediction[...,:5], prediction[...,10:]), dim=-1))
+    prediction_abs_box2 = IoU.relative2absolute(prediction[...,5:])
     
+    # [img1[box1[x,y,w,h,c,label], ...], img2[box1[...]], ...]
+    list_box1 = utils.tensor2boxlist(prediction_abs_box1)
+    list_box2 = utils.tensor2boxlist(prediction_abs_box2)
+    list_all_boxes = list_box1 + list_box2
 
+    bboxes = [box for box in list_all_boxes if box[4] > prob_threshold]
+    bboxes = sorted(bboxes, key=lambda x: x[4], reverse=True)
+    bboxes_nms = []
+    
+    while bboxes:
+        box_candidate = bboxes.pop(0)
+        bboxes = [box for box in bboxes if box[5] != box_candidate[5] 
+            or IoU.intersection_over_union(
+                torch.tensor(box_candidate[:4]).unsqueeze(0), 
+                torch.tensor(box[:4]).unsqueeze(0)) < iou_threshold
+        ]
 
-    return bbox_nms
+        bboxes_nms.append(box_candidate)
+
+    return bboxes_nms
