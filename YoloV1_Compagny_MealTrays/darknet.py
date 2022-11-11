@@ -105,7 +105,7 @@ class DarkNet(nn.Module):
 def darknet(pretrained=False, **kwargs) -> DarkNet:
     config = ConfigParser()
     config.read("config.ini")
-    darknet_weights = config.get("WEIGHTS", "PT_FILE")
+    darknet_weights = config.get("WEIGHTS", "darknet_weights")
 
     model = DarkNet(**kwargs)
     if pretrained:

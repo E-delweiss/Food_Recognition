@@ -45,15 +45,10 @@ class ResNet(torch.nn.Module):
         return x
 
 
-if __name__ == "__main__":
-    # darknet = resnet101(in_channels=3, S=7, B=2, C=8)
-    ResNet = ResNet(3, 7, 8, 2)
-    summary(ResNet, (64, 3, 448, 448))
-
 def resnet(pretrained=False, **kwargs) -> ResNet:
     config = ConfigParser()
     config.read("config.ini")
-    model_weights = config.get("WEIGHTS", "PT_FILE")
+    model_weights = config.get("WEIGHTS", "resnet_weights")
 
     model = ResNet(**kwargs)
     if pretrained:

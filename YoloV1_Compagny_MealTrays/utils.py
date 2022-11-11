@@ -250,6 +250,7 @@ def tensor2boxlist(tensor:torch.Tensor):
     C = 8
     S = 7
     B = (tensor.shape[-1] - C) // 5
+    # BATCH_SIZE = len(tensor)
 
     tensor_old = tensor.clone()
 
@@ -260,11 +261,11 @@ def tensor2boxlist(tensor:torch.Tensor):
     if B == 2 :
         tensor_box1 = tensor[...,:5].view(S*S, 5) #.view(1, S*S, 5)?
         tensor_box2 = tensor[...,5:10].view(S*S, 5)
-        tensor_box = torch.concat((tensor_box1, tensor_box2), dim=1)
+        tensor_box = torch.concat((tensor_box1, tensor_box2), dim=0)
     else : 
         tensor_box = tensor[...,:5].view(S*S, 5)
 
-    tensor_box = torch.cat((tensor_box, tensor[...,5*B].view(S*S, 1).repeat(B,1)),dim=-1) #.view(1, S*S, 5)?
+    tensor_box = torch.concat((tensor_box, tensor[...,5*B].view(S*S, 1).repeat(B,1)),dim=-1) #.view(1, S*S, 5)?
 
     return tensor_box.tolist()
 

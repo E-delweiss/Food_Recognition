@@ -1,3 +1,4 @@
+from icecream import ic
 import torch
 
 import IoU
@@ -11,13 +12,17 @@ def non_max_suppression(prediction, prob_threshold, iou_threshold):
     prediction is (1,7,7,18)
     TODO
     """
-    prediction_abs_box1 = IoU.relative2absolute(torch.concat((prediction[...,:5], prediction[...,10:]), dim=-1))
+    # ic(torch.concat((prediction[...,:5], prediction[...,10:]), dim=-1).shape)
+    prediction_temp = torch.concat((prediction[...,:5], prediction[...,10:]), dim=-1)
+    prediction_abs_box1 = IoU.relative2absolute(prediction_temp)
     prediction_abs_box2 = IoU.relative2absolute(prediction[...,5:])
     
     # [img1[box1[x,y,w,h,c,label], ...], img2[box1[...]], ...]
     list_box1 = utils.tensor2boxlist(prediction_abs_box1)
     list_box2 = utils.tensor2boxlist(prediction_abs_box2)
     list_all_boxes = list_box1 + list_box2
+
+    # ic(list_box1)
 
     bboxes = [box for box in list_all_boxes if box[4] > prob_threshold]
     bboxes = sorted(bboxes, key=lambda x: x[4], reverse=True)

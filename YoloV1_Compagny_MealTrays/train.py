@@ -13,6 +13,10 @@ from darknet import darknet
 from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
+import NMS
+import IoU
+import mAP
+
 ################################################################################
 
 current_folder = os.path.dirname(locals().get("__file__"))
@@ -92,6 +96,12 @@ batch_val_MSE_box_list = []
 batch_val_confscore_list = []
 batch_val_class_acc = []
 
+
+
+all_pred_boxes = []
+all_true_boxes = []
+
+
 for epoch in range(EPOCHS):
     utils.update_lr(epoch, optimizer, LR_SCHEDULER)
 
@@ -145,20 +155,33 @@ for epoch in range(EPOCHS):
 
             ############### Compute validation metrics each FREQ batch ###########################################
             if DO_VALIDATION:
+                prob_threshold = 0.4
+                iou_threshold = 0.5
                 model.eval()
+                train_idx = 0
                 _, target_val, prediction_val = validation_loop(model, validation_dataloader, S, device)
                 
-                ### Validation MSE score
-                mse_score = MSE(target_val, prediction_val)
+                for idx in range(len(target_val)):
+                    true_bboxes = IoU.relative2absolute(prediction_val)
+                    true_bboxes = utils.tensor2boxlist(true_bboxes)
+
+                    nms_box_val = NMS.non_max_suppression(prediction_val, prob_threshold=prob_threshold, iou_threshold=iou_threshold)
+
+                    for nms_box in nms_box_val:
+                        all_pred_boxes.append([train_idx] + nms_box)
+
+                    for box in true_bboxes[idx]:
+                        # many will get converted to 0 pred
+                        if box[5] > prob_threshold:
+                            all_true_boxes.append([train_idx] + box)
+                    
+                    train_idx += 1
+
+                mAP = mAP.mean_average_precision(all_true_boxes, all_pred_boxes, iou_threshold)
 
                 ### Validation accuracy
                 acc = class_acc(target_val, prediction_val)
 
-                ### Validation confidence_score
-                mse_confidence_score = MSE_confidenceScore(target_val, prediction_val)
-
-                batch_val_MSE_box_list.append(mse_score)
-                batch_val_confscore_list.append(mse_confidence_score)
                 batch_val_class_acc.append(acc)
 
                 print(f"| MSE validation box loss : {mse_score:.5f}")
