@@ -1,6 +1,5 @@
 import torch
 import IoU
-from icecream import ic
 
 class YoloLoss(torch.nn.Module):
     def __init__(self, lambd_coord:int, lambd_noobj:float, device:torch.device, S:int=7, B:int=2):
@@ -10,6 +9,7 @@ class YoloLoss(torch.nn.Module):
         self.S = S
         self.B = B
         self.device = device
+        self.MSE = torch.nn.MSELoss(reduction='sum')
 
     def _coordloss(self, pred_coord, true_coord, isObject):
         """
@@ -20,21 +20,20 @@ class YoloLoss(torch.nn.Module):
         pred_coord = pred_coord.clamp(min=0)
         pred_coord = torch.masked_fill(pred_coord, isObject, 0)
 
-        mse = torch.nn.MSELoss(reduction='mean')
-        return mse(true_coord, pred_coord)
+        mse = self.MSE(true_coord, pred_coord)/len(pred_coord)
+        return mse
 
     def _sizeloss(self, pred_size, true_size, isObject):
         """
         TODO
         """
+        eps = 1e-6
         isObject = isObject.repeat(1,1,1,pred_size.shape[-1])
 
         pred_size = pred_size.clamp(min=0)
         pred_size = torch.masked_fill(pred_size, isObject, 0)
 
-        eps = 1e-6
-        mse = torch.nn.MSELoss(reduction ='mean')
-        rmse = torch.sqrt(mse(true_size,pred_size) + eps)
+        rmse = torch.sqrt(self.MSE(true_size,pred_size) + eps)/len(pred_size)
         return rmse
 
     def _confidenceloss(self, pred_c, true_c, isObject):
@@ -46,17 +45,19 @@ class YoloLoss(torch.nn.Module):
         pred_c = pred_c.clamp(min=0, max=1)
         pred_c = torch.masked_fill(pred_c, isObject, 0)
         
-        mse = torch.nn.MSELoss(reduction ='mean')
-        return mse(true_c, pred_c)
+        mse = self.MSE(true_c, pred_c)/len(pred_c)
+        return mse
 
     def _classloss(self, pred_class, true_class, isObject):
         """
         TODO
         """
         isObject = isObject.repeat(1,1,1,pred_class.shape[-1])
-        torch.masked_fill(pred_class, isObject, 0)
-        mse = torch.nn.MSELoss(reduction ='mean')
-        return mse(true_class, pred_class)
+
+        pred_class = torch.masked_fill(pred_class, isObject, 0)
+
+        mse = self.MSE(true_class, pred_class)/len(pred_class)
+        return mse
 
     def forward(self, prediction:torch.Tensor, target:torch.Tensor):
         """
@@ -82,7 +83,7 @@ class YoloLoss(torch.nn.Module):
         losses = {key : torch.zeros(BATCH_SIZE).to(self.device) for key in losses_list}
         
         ### Get absolute coordinates: (N,S,S,5) -> (N,S,S,5)
-        target_abs_box = IoU.relative2absolute(target[...,:5])
+        target_abs_box = IoU.relative2absolute(target[...,:5]) * target[...,4].unsqueeze(-1) #prevent noisy coordinates when confident=0
         prediction_abs_box1 = IoU.relative2absolute(prediction[...,:5])
         prediction_abs_box2 = IoU.relative2absolute(prediction[...,5:10])
 
@@ -113,7 +114,7 @@ class YoloLoss(torch.nn.Module):
         confidence_hat = xywhc_hat[...,4].unsqueeze(-1)
         confidence = target[..., 4].unsqueeze(-1)
 
-        ### Create object mask : True if there is NO object (N,S,S,1,1)
+        ### Create object mask : True if there is NO object (N,S,S,1)
         identity_obj = confidence.eq(0)
 
         ### Compute losses over the grid for the all batch
