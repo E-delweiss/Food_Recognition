@@ -9,7 +9,7 @@ current_folder = os.path.dirname(locals().get("__file__"))
 parent_folder = Path(current_folder).parent
 sys.path.append(str(parent_folder))
 
-from metrics import class_acc, MSE, MSE_confidenceScore
+from metrics import class_acc, hard_class_acc
 
 class TestYololoss(unittest.TestCase):
     def __init__(self, TestYololoss) -> None:
@@ -32,8 +32,6 @@ class TestYololoss(unittest.TestCase):
         self.target[N,i,j,5:] = label_true
         
         self.prediction = torch.zeros(BATCH_SIZE, S, S, 5*B+C)
-        self.prediction[N,i,j,:5] = box_value
-        self.prediction[N,i,j,5:10] = box_value
         self.prediction[:,:,:,10:] = torch.rand(8)
         self.prediction[N,i,j,10:] = label_true
 
@@ -42,34 +40,21 @@ class TestYololoss(unittest.TestCase):
     def test_class_acc(self):
         prediction = self.prediction.clone()
         prediction[self.N, self.i, self.j, 10:] *= 0.999
-        acc = class_acc(self.target, self.prediction)
+        acc = class_acc(self.target, prediction)
         self.assertIs(type(acc), float)
         self.assertGreaterEqual(acc, 0.)
         self.assertLessEqual(acc,1.)
         self.assertAlmostEqual(acc, 1)
 
-    def test_MSE(self):
-        variations = [[0.9995, 0.5], [0.5, 0.9995]]
-        for value in variations:
-            prediction = self.prediction.clone()
-            prediction[self.N, self.i, self.j, :5] *= value[0]
-            prediction[self.N, self.i, self.j, 5:10] *= value[1]
-            mse = MSE(self.target, prediction)
-            self.assertIs(type(mse), float)
-            self.assertGreaterEqual(mse, 0.)
-            self.assertAlmostEqual(mse, 0, places=5)
+    def test_class_hard_acc(self):
+        prediction = self.prediction.clone()
+        prediction[self.N, self.i, self.j, 10:] *= 0.999
+        acc = hard_class_acc(self.target, prediction)
+        self.assertIs(type(acc), float)
+        self.assertGreaterEqual(acc, 0.)
+        self.assertLessEqual(acc,1.)
+        self.assertAlmostEqual(acc, 1)
 
-    def test_MSE_confidenceScore(self):
-        variations = [[0.9995, 0.5], [0.5, 0.9995]]
-        for value in variations:
-            prediction = self.prediction.clone()
-            prediction[self.N, self.i, self.j, 4] *= value[0]
-            prediction[self.N, self.i, self.j, 9] *= value[1]
-
-            mse = MSE_confidenceScore(self.target, self.prediction)
-            self.assertIs(type(mse), float)
-            self.assertGreaterEqual(mse, 0.)
-            self.assertAlmostEqual(mse, 0, places=5)
 
 
 if __name__ == "__main__":
