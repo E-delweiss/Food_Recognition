@@ -1,27 +1,27 @@
 import datetime
-from timeit import default_timer as timer
 import logging
+import os
+import sys
 from configparser import ConfigParser
-import os, sys
+from timeit import default_timer as timer
 
 import torch
 
-import utils
-from yolo_loss import YoloLoss
-from mealtrays_dataset import get_training_dataset, get_validation_dataset
-from darknet import darknet
-from metrics import MSE, MSE_confidenceScore, class_acc
-from validation import validation_loop
-
-import NMS
 import IoU
 import mAP
+import NMS
+import utils
+from darknet import darknet
+from mealtrays_dataset import get_training_dataset, get_validation_dataset
+from metrics import class_acc, class_hard_acc
+from validation import validation_loop
+from yolo_loss import YoloLoss
 
 ################################################################################
-
 current_folder = os.path.dirname(locals().get("__file__"))
 config_file = os.path.join(current_folder, "config.ini")
 sys.path.append(config_file)
+################################################################################
 
 config = ConfigParser()
 config.read('config.ini')
@@ -52,13 +52,15 @@ isAugment_valset = config.getboolean('DATASET', 'isAugment_valset')
 LAMBD_COORD = config.getint('LOSS', 'lambd_coord')
 LAMBD_NOOBJ = config.getfloat('LOSS', 'lambd_noobj')
 
+PROB_THRESHOLD = config.getfloat('MAP', 'prob_threshold')
+IOU_THRESHOLD = config.getfloat('MAP', 'iou_threshold')
+
 FREQ = config.getint('PRINTING', 'freq')
 
 ################################################################################
-
 device = utils.set_device(DEVICE, verbose=0)
 
-model = darknet(pretrained=PRETRAINED, in_channel=IN_CHANNEL, S=S, B=B, C=C)
+model = darknet(pretrained=PRETRAINED, in_channels=IN_CHANNEL, S=S, B=B, C=C)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
 loss_yolo = YoloLoss(lambd_coord=LAMBD_COORD, lambd_noobj=LAMBD_NOOBJ, S=S, device=device)
@@ -155,41 +157,41 @@ for epoch in range(EPOCHS):
 
             ############### Compute validation metrics each FREQ batch ###########################################
             if DO_VALIDATION:
-                prob_threshold = 0.4
-                iou_threshold = 0.5
                 model.eval()
                 train_idx = 0
                 _, target_val, prediction_val = validation_loop(model, validation_dataloader, S, device)
                 
+                all_pred_boxes = []
+                all_true_boxes = []
                 for idx in range(len(target_val)):
-                    true_bboxes = IoU.relative2absolute(prediction_val)
+                    true_bboxes = IoU.relative2absolute(target_val[idx].unsqueeze(0))
                     true_bboxes = utils.tensor2boxlist(true_bboxes)
 
-                    nms_box_val = NMS.non_max_suppression(prediction_val, prob_threshold=prob_threshold, iou_threshold=iou_threshold)
+                    nms_box_val = NMS.non_max_suppression(prediction_val[idx].unsqueeze(0), PROB_THRESHOLD, IOU_THRESHOLD)
 
                     for nms_box in nms_box_val:
                         all_pred_boxes.append([train_idx] + nms_box)
 
-                    for box in true_bboxes[idx]:
+                    for box in true_bboxes:
                         # many will get converted to 0 pred
-                        if box[5] > prob_threshold:
+                        if box[4] > PROB_THRESHOLD:
                             all_true_boxes.append([train_idx] + box)
                     
                     train_idx += 1
 
-                mAP = mAP.mean_average_precision(all_true_boxes, all_pred_boxes, iou_threshold)
+                meanAP = mAP.mean_average_precision(all_true_boxes, all_pred_boxes, IOU_THRESHOLD)
 
                 ### Validation accuracy
-                acc = class_acc(target_val, prediction_val)
+                acc, hard_acc = class_acc(target_val, prediction_val)
 
                 batch_val_class_acc.append(acc)
 
-                print(f"| MSE validation box loss : {mse_score:.5f}")
-                print(f"| MSE validation confidence score : {mse_confidence_score:.5f}")
+                print(f"| Mean Average Precision @{IOU_THRESHOLD} : {meanAP:.2f}")
                 print(f"| Validation class acc : {acc*100:.2f}%")
+                print(f"| Validation class hard acc : {hard_acc*100:.2f}%")
                 print("\n\n")
             else : 
-                mse_score, mse_confidence_score, acc = 9999, 9999, 9999
+                meanAP, acc, hard_acc = 9999, 9999
             ################################################################################
 
             if batch == len(training_dataloader.dataset)//BATCH_SIZE:
@@ -197,9 +199,9 @@ for epoch in range(EPOCHS):
                 print("\n\n")
                 logging.info(f"Epoch {epoch+1}/{EPOCHS}")
                 logging.info(f"***** Training loss : {epochs_loss / len(training_dataloader):.5f}")
-                logging.info(f"***** MSE validation box loss : {mse_score:.5f}")
-                logging.info(f"***** MSE validation confidence score : {mse_confidence_score:.5f}")
-                logging.info(f"***** Validation class acc : {acc*100:.2f}%\n")
+                logging.info(f"***** Mean Average Precision @{IOU_THRESHOLD} : {meanAP:.2f}")
+                logging.info(f"***** Validation class acc : {acc*100:.2f}%")
+                logging.info(f"***** Validation class hard acc : {hard_acc*100:.2f}%\n")
 
 ################################################################################
 ### Saving results
