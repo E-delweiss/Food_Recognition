@@ -89,9 +89,9 @@ class DarkNet(nn.Module):
     def _create_fcs(self):
         output = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(1024*self.S*self.S, 4096),
+            torch.nn.Linear(1024*self.S*self.S, 496),
             torch.nn.LeakyReLU(0.1),
-            torch.nn.Linear(4096, self.S*self.S * (self.B*(4+1) + self.C))
+            torch.nn.Linear(496, self.S*self.S * (self.B*(4+1) + self.C))
         )
         return output
 
