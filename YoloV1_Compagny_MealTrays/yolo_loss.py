@@ -1,5 +1,6 @@
 import torch
 import IoU
+import datetime
 
 class YoloLoss(torch.nn.Module):
     def __init__(self, lambd_coord:int, lambd_noobj:float, device:torch.device, S:int=7, B:int=2):
@@ -76,6 +77,7 @@ class YoloLoss(torch.nn.Module):
             loss : float
                 The batch loss value of the grid
         """
+        start_time = datetime.datetime.now()
         BATCH_SIZE = len(prediction)
 
         ### Initialization of the losses
@@ -134,5 +136,7 @@ class YoloLoss(torch.nn.Module):
                 + self.LAMBD_NOOBJ * losses['loss_conf_noobj'] \
                 + losses['loss_class']
 
-        # assert torch.isnan(loss)==False, "Error : loss turns to NaN."   
+        # assert torch.isnan(loss)==False, "Error : loss turns to NaN."
+        end_time = datetime.datetime.now()
+        print("LOSS TIME : {}".format(end_time - start_time))
         return losses, loss

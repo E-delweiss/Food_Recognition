@@ -1,6 +1,5 @@
 import torch
 import utils
-import IoU
 
 def class_acc(target:torch.Tensor, prediction:torch.Tensor)->float:
     """
@@ -29,7 +28,7 @@ def class_acc(target:torch.Tensor, prediction:torch.Tensor)->float:
     labels_true = torch.argmax(target[N, cells_i, cells_j, 5:], dim=-1)
     
     ### Mean of the right predictions where there should be an object
-    acc = (1/len(N)) * torch.sum(labels_true == labels_pred)
+    acc = (1/len(N)) * torch.sum(labels_true == labels_pred).item()
 
     ### Compute hard accuracy : 0 if one object is not correctly classify
     N_tab = torch.stack((torch.unique(N), torch.bincount(N), torch.cumsum(torch.bincount(N), dim=-1)), dim=-1)
@@ -45,4 +44,4 @@ def class_acc(target:torch.Tensor, prediction:torch.Tensor)->float:
     ### Mean of the right predictions
     hard_acc = (1/len(torch.unique(N))) * count
 
-    return acc.item(), hard_acc
+    return acc, hard_acc

@@ -13,7 +13,7 @@ import NMS
 import utils
 from darknet import darknet
 from mealtrays_dataset import get_training_dataset, get_validation_dataset
-from metrics import class_acc, class_hard_acc
+from metrics import class_acc
 from validation import validation_loop
 from yolo_loss import YoloLoss
 
@@ -98,12 +98,8 @@ batch_val_MSE_box_list = []
 batch_val_confscore_list = []
 batch_val_class_acc = []
 
-
-
 all_pred_boxes = []
 all_true_boxes = []
-
-
 for epoch in range(EPOCHS):
     utils.update_lr(epoch, optimizer, LR_SCHEDULER)
 
@@ -139,7 +135,7 @@ for epoch in range(EPOCHS):
         optimizer.step()
 
         ##### Class accuracy
-        train_classes_acc = class_acc(target, prediction)
+        train_class_acc, _ = class_acc(target, prediction)
 
         ######### print part #######################
         current_loss = loss.item()
@@ -151,9 +147,9 @@ for epoch in range(EPOCHS):
             # Recording each losses
             batch_train_losses_list.append(losses)
             # Recording class accuracy
-            batch_train_class_acc.append(train_classes_acc)
+            batch_train_class_acc.append(train_class_acc)
 
-            utils.pretty_print(batch, len(training_dataloader.dataset), current_loss, losses, train_classes_acc, batch_size=BATCH_SIZE)
+            utils.pretty_print(batch, len(training_dataloader.dataset), current_loss, losses, train_class_acc, batch_size=BATCH_SIZE)
 
             ############### Compute validation metrics each FREQ batch ###########################################
             if DO_VALIDATION:
@@ -191,7 +187,7 @@ for epoch in range(EPOCHS):
                 print(f"| Validation class hard acc : {hard_acc*100:.2f}%")
                 print("\n\n")
             else : 
-                meanAP, acc, hard_acc = 9999, 9999
+                meanAP, acc, hard_acc = 9999, 9999, 9999
             ################################################################################
 
             if batch == len(training_dataloader.dataset)//BATCH_SIZE:
