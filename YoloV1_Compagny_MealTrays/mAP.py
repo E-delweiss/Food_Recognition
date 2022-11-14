@@ -1,10 +1,8 @@
-import sys
 from collections import Counter
 
 import torch
 
 import IoU
-import utils
 
 
 def mean_average_precision(target, prediction, iou_threshold):
@@ -77,10 +75,6 @@ def mean_average_precision(target, prediction, iou_threshold):
             else:
                 FP[detection_idx] = 1
 
-        from icecream import ic
-        ic(TP)
-        ic(FP)
-
         TP_cumsum = torch.cumsum(TP, dim=0)
         FP_cumsum = torch.cumsum(FP, dim=0)
         recalls = TP_cumsum / (total_true_bboxes + epsilon)
@@ -92,19 +86,3 @@ def mean_average_precision(target, prediction, iou_threshold):
         average_precisions.append(torch.trapz(precisions, recalls))
 
     return sum(average_precisions) / len(average_precisions)
-
-
-
-if __name__ == '__main__':
-    import torch
-
-    from mealtrays_dataset import get_validation_dataset
-    from resnet101 import resnet
-    from validation import validation_loop
-
-    # model = darknet(True, in_channels=3, S=7, C=8, B=2)
-    # model = resnet(True, in_channels=3, S=7, C=8, B=2)
-    # model.eval()
-    # validation_dataset = get_validation_dataset(32, isNormalize=False)
-    # n_img, n_target, n_prediction = validation_loop(model, validation_dataset, ONE_BATCH=True)
-    # print(mean_average_precision(n_target, n_prediction, 0.5))

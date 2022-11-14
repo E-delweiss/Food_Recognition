@@ -45,7 +45,7 @@ class TestmAP(unittest.TestCase):
         all_true_boxes = []
         for idx in range(len(target_val)):
             true_bboxes = IoU.relative2absolute(target_val[idx].unsqueeze(0))
-            true_bboxes = utils.tensor2boxlist(target_val[idx])
+            true_bboxes = utils.tensor2boxlist(true_bboxes)
 
             nms_box_val = NMS.non_max_suppression(prediction_val[idx].unsqueeze(0), prob_threshold, iou_threshold)
 
