@@ -11,54 +11,76 @@ class YoloLoss(torch.nn.Module):
         self.B = B
         self.device = device
         self.MSE = torch.nn.MSELoss(reduction='sum')
+        self.EPS = 1e-6
 
-    def _coordloss(self, pred_coord, true_coord, isObject):
+    def _MSELoss(self, pred, target, isObject, isRMSE=False):
         """
         TODO
         """
-        isObject = isObject.repeat(1,1,1,pred_coord.shape[-1])
+        size = len(target)
+        expand_shape = pred.shape[-1]
 
-        pred_coord = pred_coord.clamp(min=0)
-        pred_coord = torch.masked_fill(pred_coord, isObject, 0)
+        isObject = isObject.repeat(1,1,1, expand_shape)
+        pred = torch.masked_fill(pred, isObject, 0)
+        target = torch.masked_fill(target, isObject, 0)
 
-        mse = self.MSE(true_coord, pred_coord)/len(pred_coord)
-        return mse
-
-    def _sizeloss(self, pred_size, true_size, isObject):
-        """
-        TODO
-        """
-        eps = 1e-6
-        isObject = isObject.repeat(1,1,1,pred_size.shape[-1])
-
-        pred_size = pred_size.clamp(min=0)
-        pred_size = torch.masked_fill(pred_size, isObject, 0)
-
-        rmse = torch.sqrt(self.MSE(true_size,pred_size) + eps)/len(pred_size)
-        return rmse
-
-    def _confidenceloss(self, pred_c, true_c, isObject):
-        """
-        TODO
-        """
-        isObject = isObject.repeat(1,1,1,pred_c.shape[-1])
-
-        pred_c = pred_c.clamp(min=0, max=1)
-        pred_c = torch.masked_fill(pred_c, isObject, 0)
+        output = self.MSE(target, pred)
+        if isRMSE:
+            output = torch.sqrt(output + self.EPS)
         
-        mse = self.MSE(true_c, pred_c)/len(pred_c)
-        return mse
+        return output/size
 
-    def _classloss(self, pred_class, true_class, isObject):
-        """
-        TODO
-        """
-        isObject = isObject.repeat(1,1,1,pred_class.shape[-1])
 
-        pred_class = torch.masked_fill(pred_class, isObject, 0)
+    # def _coordloss(self, pred_coord, true_coord, isObject):
+    #     """
+    #     TODO
+    #     """
+    #     isObject = isObject.repeat(1,1,1,pred_coord.shape[-1])
+    #     pred_coord = pred_coord.clamp(min=0)
 
-        mse = self.MSE(true_class, pred_class)/len(pred_class)
-        return mse
+    #     pred_coord = torch.masked_fill(pred_coord, isObject, 0)
+    #     true_coord = torch.masked_fill(true_coord, isObject, 0)
+
+    #     mse = self.MSE(true_coord, pred_coord)/len(pred_coord)
+    #     return mse
+
+    # def _sizeloss(self, pred_size, true_size, isObject):
+    #     """
+    #     TODO
+    #     """
+    #     eps = 1e-6
+    #     isObject = isObject.repeat(1,1,1,pred_size.shape[-1])
+    #     pred_size = pred_size.clamp(min=0)
+
+    #     pred_size = torch.masked_fill(pred_size, isObject, 0)
+    #     true_size = torch.masked_fill(true_size, isObject, 0)
+
+    #     rmse = torch.sqrt(self.MSE(true_size, pred_size) + eps)/len(pred_size)
+    #     return rmse
+
+    # def _confidenceloss(self, pred_c, true_c, isObject):
+    #     """
+    #     TODO
+    #     """
+    #     isObject = isObject.repeat(1,1,1,pred_c.shape[-1])
+
+    #     pred_c = pred_c.clamp(min=0, max=1)
+    #     pred_c = torch.masked_fill(pred_c, isObject, 0)
+    #     true_c = torch.masked_fill(true_c, isObject, 0)
+        
+    #     mse = self.MSE(true_c, pred_c)/len(pred_c)
+    #     return mse
+
+    # def _classloss(self, pred_class, true_class, isObject):
+    #     """
+    #     TODO
+    #     """
+    #     isObject = isObject.repeat(1,1,1,pred_class.shape[-1])
+
+    #     pred_class = torch.masked_fill(pred_class, isObject, 0)
+
+    #     mse = self.MSE(true_class, pred_class)/len(pred_class)
+    #     return mse
 
     def forward(self, prediction:torch.Tensor, target:torch.Tensor):
         """
@@ -77,7 +99,6 @@ class YoloLoss(torch.nn.Module):
             loss : float
                 The batch loss value of the grid
         """
-        start_time = datetime.datetime.now()
         BATCH_SIZE = len(prediction)
 
         ### Initialization of the losses
@@ -105,30 +126,35 @@ class YoloLoss(torch.nn.Module):
 
         ### Retrieve predicted box coordinates and stack them regarding the best box : (N,S,S,1) -> (N,S,S,2)
         xywhc_hat = torch.gather(prediction, -1, idx)
-        xy_hat = xywhc_hat[...,:2]
-        wh_hat = xywhc_hat[...,2:4]
+        xy_hat = xywhc_hat[...,:2].clamp(min=0)
+        wh_hat = xywhc_hat[...,2:4].clamp(min=0)
 
         ### Retrieve groundtruths box coordinates (N,S,S,2)
         xy = target[...,:2]
         wh = target[...,2:4]
         
         ### Retrieve confidence numbers (N,S,S,1)
-        confidence_hat = xywhc_hat[...,4].unsqueeze(-1)
+        confidence_hat = xywhc_hat[...,4].unsqueeze(-1).clamp(min=0, max=1)
         confidence = target[..., 4].unsqueeze(-1)
 
         ### Create object mask : True if there is NO object (N,S,S,1)
         identity_obj = confidence.eq(0)
 
         ### Compute losses over the grid for the all batch
-        losses['loss_xy'] = self._coordloss(xy_hat, xy, identity_obj)
-        losses['loss_wh'] = self._sizeloss(wh_hat, wh, identity_obj)
-        losses['loss_conf_obj'] = self._confidenceloss(confidence_hat, confidence, identity_obj)
-        losses['loss_conf_noobj'] = self._confidenceloss(confidence_hat, confidence, torch.logical_not(identity_obj))
+        # losses['loss_xy'] = self._coordloss(xy_hat, xy, identity_obj)
+        # losses['loss_wh'] = self._sizeloss(wh_hat, wh, identity_obj)
+        # losses['loss_conf_obj'] = self._confidenceloss(confidence_hat, confidence, identity_obj)
+        # losses['loss_conf_noobj'] = self._confidenceloss(confidence_hat, confidence, torch.logical_not(identity_obj))
+
+        losses['loss_xy'] = self._MSELoss(xy_hat, xy, identity_obj)
+        losses['loss_wh'] = self._MSELoss(wh_hat, wh, identity_obj, isRMSE=True)
+        losses['loss_conf_obj'] = self._MSELoss(confidence_hat, confidence, identity_obj)
+        losses['loss_conf_noobj'] = self._MSELoss(confidence_hat, confidence, torch.logical_not(identity_obj))
 
         ### class labels
         class_hat = prediction[..., 10:]
         class_true = target[...,5:]
-        losses['loss_class'] = self._classloss(class_hat, class_true, identity_obj)
+        losses['loss_class'] = self._MSELoss(class_hat, class_true, identity_obj)
 
         loss = self.LAMBD_COORD * losses['loss_xy'] \
                 + self.LAMBD_COORD * losses['loss_wh'] \
@@ -136,7 +162,5 @@ class YoloLoss(torch.nn.Module):
                 + self.LAMBD_NOOBJ * losses['loss_conf_noobj'] \
                 + losses['loss_class']
 
-        # assert torch.isnan(loss)==False, "Error : loss turns to NaN."
-        end_time = datetime.datetime.now()
-        print("LOSS TIME : {}".format(end_time - start_time))
+        assert torch.isnan(loss)==False, "Error : loss turns to NaN."
         return losses, loss
