@@ -3,9 +3,6 @@ import sys
 import unittest
 from pathlib import Path
 
-import numpy as np
-import torch
-
 current_folder = os.path.dirname(locals().get("__file__"))
 parent_folder = Path(current_folder).parent
 sys.path.append(str(parent_folder))
@@ -18,6 +15,7 @@ import NMS
 import utils
 from mealtrays_dataset import get_validation_dataset
 from resnet101 import resnet
+from darknet import darknet
 from validation import validation_loop
 
 
@@ -31,7 +29,7 @@ class TestmAP(unittest.TestCase):
         self.channel_img = 3
         self.BATCH_SIZE = 16
         self.val_loader = get_validation_dataset(self.BATCH_SIZE, isAugment=False)
-        self.model = resnet(pretrained=True, in_channels=3, S=7, B=2, C=8)
+        self.model = darknet(pretrained=True, in_channels=3, S=7, B=2, C=8)
         self.model.eval()
 
     def test_mAP(self):      

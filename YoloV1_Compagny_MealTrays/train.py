@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 from configparser import ConfigParser
-from timeit import default_timer as timer
 
 import torch
 
@@ -11,7 +10,7 @@ import IoU
 import mAP
 import NMS
 import utils
-from darknet import darknet
+from yoloResnet import yoloResnet
 from mealtrays_dataset import get_training_dataset, get_validation_dataset
 from metrics import class_acc
 from validation import validation_loop
@@ -42,7 +41,8 @@ IN_CHANNEL = config.getint('MODEL', 'in_channel')
 S = config.getint('MODEL', 'grid_size')
 B = config.getint('MODEL', 'nb_box')
 C = config.getint('MODEL', 'nb_class')
-PRETRAINED = config.getboolean('MODEL', 'pretrained')
+PRETRAINED = config.getboolean('MODEL', 'pretrained_resnet')
+LOAD_CHECKPOINT = config.getboolean('MODEL', 'yoloResnet_checkpoint')
 
 isNormalize_trainset = config.getboolean('DATASET', 'isNormalize_trainset')
 isAugment_trainset = config.getboolean('DATASET', 'isAugment_trainset')
@@ -60,7 +60,7 @@ FREQ = config.getint('PRINTING', 'freq')
 ################################################################################
 device = utils.set_device(DEVICE, verbose=0)
 
-model = darknet(pretrained=PRETRAINED, in_channels=IN_CHANNEL, S=S, B=B, C=C)
+model = yoloResnet(resnet_pretrained=PRETRAINED, load_yoloweights=LOAD_CHECKPOINT, in_channels=IN_CHANNEL, S=S, B=B, C=C)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
 loss_yolo = YoloLoss(lambd_coord=LAMBD_COORD, lambd_noobj=LAMBD_NOOBJ, S=S, device=device)
@@ -102,8 +102,6 @@ all_pred_boxes = []
 all_true_boxes = []
 for epoch in range(EPOCHS):
     utils.update_lr(epoch, optimizer, LR_SCHEDULER)
-
-    begin_time = timer()
     epochs_loss = 0.
     
     print("-"*20)
@@ -116,7 +114,6 @@ for epoch in range(EPOCHS):
     for batch, (img, target) in utils.tqdm_fct(training_dataloader):
         model.train()
         loss = 0
-        begin_batch_time = timer()
         img, target = img.to(device), target.to(device)
         
         ### clear gradients

@@ -44,7 +44,7 @@ class YoloLoss(torch.nn.Module):
         return output/size
 
 
-    def forward(self, prediction:torch.Tensor, target:torch.Tensor)->tuple(dict, torch.Tensor):
+    def forward(self, prediction:torch.Tensor, target:torch.Tensor)->tuple[dict, torch.Tensor]:
         """
         Grid fowrard pass.
 
