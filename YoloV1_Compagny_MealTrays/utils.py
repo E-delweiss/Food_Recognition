@@ -2,7 +2,6 @@ import logging
 import glob
 from datetime import datetime
 import pickle
-import os
 
 from tqdm import tqdm
 import PIL
@@ -34,7 +33,8 @@ def create_logging(prefix:str):
         filemode="w",
         filename=(logging_name),
     )
-    logging.info("Model is {}.".format(prefix))
+    logging.info(f"Model is {prefix}")
+    
 
 
 def set_device(device, verbose=0)->torch.device:
@@ -125,7 +125,7 @@ def update_lr(current_epoch:int, optimizer:torch.optim, do_scheduler:bool):
         logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
 
 
-def save_model(model, path:str, save:bool):
+def save_model(model, prefix:str, current_epoch:int, save:bool):
     """
     TODO
 
@@ -135,6 +135,7 @@ def save_model(model, path:str, save:bool):
         save (bool): _description_
     """
     if save:
+        path = f"{prefix}_{current_epoch+1}epochs"
         tm = datetime.now()
         tm = tm.strftime("%d%m%Y_%Hh%M")
         path = path+'_'+tm+'.pt'

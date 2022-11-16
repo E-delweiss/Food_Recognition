@@ -81,6 +81,7 @@ print(f"[Training on] : {str(device).upper()}")
 print(f"Learning rate : {optimizer.defaults['lr']}")
 
 utils.create_logging(prefix=PREFIX)
+logging.info(f"Pretrained is {PRETRAINED}")
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
 logging.info(f"Using optimizer : {optimizer}")
@@ -130,6 +131,10 @@ for epoch in range(EPOCHS):
         
         ### Weight updates
         optimizer.step()
+
+        ### Checkpoint
+        if epoch == 100:
+            utils.save_model(model, PREFIX+"CHECKPOINT__", epoch, SAVE_MODEL)
 
         ##### Class accuracy
         train_class_acc, _ = class_acc(target, prediction)
@@ -198,8 +203,6 @@ for epoch in range(EPOCHS):
 
 ################################################################################
 ### Saving results
-path_save_model = f"yoloPlato_{PREFIX}_{epoch+1}epochs"
-
 pickle_val_results = {
 "batch_val_MSE_box_list":batch_val_MSE_box_list,
 "batch_val_confscore_list":batch_val_confscore_list,
@@ -211,7 +214,7 @@ pickle_train_results = {
     "batch_train_class_acc" : batch_train_class_acc,
 }
 
-utils.save_model(model, path_save_model, SAVE_MODEL)
+utils.save_model(model, PREFIX, epoch, SAVE_MODEL)
 utils.save_losses(pickle_train_results, pickle_val_results, PREFIX, SAVE_LOSS)
 
 end_time = datetime.datetime.now()
