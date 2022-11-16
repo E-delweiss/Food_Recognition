@@ -26,8 +26,8 @@ class YoloResNet(torch.nn.Module):
         ### Load ResNet model
         resnet_weights = None
         if resnet_pretrained:
-            resnet_weights = 'ResNet50_Weights.DEFAULT'
-        resnet = torchvision.models.resnet50(weights=resnet_weights)
+            resnet_weights = 'ResNet34_Weights.DEFAULT'
+        resnet = torchvision.models.resnet34(weights=resnet_weights)
         
         ### Freeze ResNet weights
         for param in resnet.parameters():
@@ -38,8 +38,8 @@ class YoloResNet(torch.nn.Module):
 
         ### Head part
         self.head = torch.nn.Sequential()
-        self.head.add_module("CNNBlock_0",CNNBlock(
-                    in_channels=2048, out_channels=512, kernel_size=1, stride=1, padding=0))
+        # self.head.add_module("CNNBlock_0",CNNBlock(
+        #             in_channels=2048, out_channels=512, kernel_size=1, stride=1, padding=0))
         self.head.add_module("CNNBlock_1",CNNBlock(
                     in_channels=512, out_channels=1024, kernel_size=3, stride=2, padding=1))
         self.head.add_module("CNNBlock_2",CNNBlock(
@@ -50,9 +50,11 @@ class YoloResNet(torch.nn.Module):
         ### Fully connected part
         self.fc = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(1024 * self.S * self.S, 4096),
+            torch.nn.Linear(1024 * self.S * self.S, 496), # 4096 -> 496 modifié le 16/11 
             torch.nn.LeakyReLU(0.1),
-            torch.nn.Linear(4096, self.S * self.S * (self.C + self.B*5))
+            torch.nn.Dropout(0.5), # dropout ajouté le 16/11 
+            torch.nn.Linear(496, self.S * self.S * (self.C + self.B*5)),
+            torch.nn.Sigmoid()  # normalized to 0~1 ajouté le 16/11 
         )
     
     def forward(self, input):
@@ -64,7 +66,7 @@ class YoloResNet(torch.nn.Module):
 
 
 def yoloResnet(load_yoloweights=False, resnet_pretrained=True, **kwargs) -> YoloResNet:
-    assert load_yoloweights != resnet_pretrained, "Can't load both ResNetYolo weights and ResNet101 weights"
+    assert load_yoloweights != resnet_pretrained, "Can't load both ResNetYolo weights and ResNet50 weights"
     
     config = ConfigParser()
     config.read("config.ini")
