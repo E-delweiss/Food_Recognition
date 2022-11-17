@@ -17,7 +17,7 @@ class CNNBlock(torch.nn.Module):
         return self.l_relu(x)
 
 class YoloResNet(torch.nn.Module):
-    def __init__(self, in_channels, S, C, B, resnet_pretrained=False):
+    def __init__(self, S, C, B, resnet_pretrained=False):
         super(YoloResNet, self).__init__()
         self.S = S
         self.C = C
@@ -26,31 +26,30 @@ class YoloResNet(torch.nn.Module):
         ### Load ResNet model
         resnet_weights = None
         if resnet_pretrained:
-            resnet_weights = 'ResNet34_Weights.DEFAULT'
-        resnet = torchvision.models.resnet34(weights=resnet_weights)
+            resnet_weights = 'DEFAULT'
+        resnet = torchvision.models.resnet152(weights=resnet_weights)
         
         ### Freeze ResNet weights
         for param in resnet.parameters():
             param.requires_grad = False
 
         ### Backbone part
-        self.backbone = torch.nn.Sequential(*list(resnet.children())[:-2])
+        self.backbone = torch.nn.Sequential(*list(resnet.children())[:-4])
 
         ### Head part
-        self.head = torch.nn.Sequential()
-        # self.head.add_module("CNNBlock_0",CNNBlock(
-        #             in_channels=2048, out_channels=512, kernel_size=1, stride=1, padding=0))
-        self.head.add_module("CNNBlock_1",CNNBlock(
-                    in_channels=512, out_channels=1024, kernel_size=3, stride=2, padding=1))
-        self.head.add_module("CNNBlock_2",CNNBlock(
-                    in_channels=1024, out_channels=1024, kernel_size=1, stride=1, padding=0))
-        self.head.add_module("CNNBlock_3",CNNBlock(
-                    in_channels=1024, out_channels=1024, kernel_size=1, stride=1, padding=0))
-        
+        self.head = torch.nn.Sequential(
+            torch.nn.MaxPool2d(2,2),
+            torch.nn.Conv2d(512, 1024, 3, 1, 1),
+            torch.nn.Conv2d(1024, 512, 1, 1, 0),
+            torch.nn.MaxPool2d(2,2),
+            torch.nn.Conv2d(512, 1024, 3, 1, 1),
+            torch.nn.Conv2d(1024, 512, 1, 1, 0),
+            torch.nn.MaxPool2d(2,2)
+        )
         ### Fully connected part
         self.fc = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(1024 * self.S * self.S, 4096), # 4096 -> 496 modifié le 16/11 
+            torch.nn.Linear(512 * self.S * self.S, 4096), # 4096 -> 496 modifié le 16/11 
             torch.nn.LeakyReLU(0.1),
             torch.nn.Dropout(0.5), # dropout ajouté le 16/11 
             torch.nn.Linear(4096, self.S * self.S * (self.C + self.B*5)),
@@ -58,8 +57,10 @@ class YoloResNet(torch.nn.Module):
         )
     
     def forward(self, input):
+        from icecream import ic
         x = self.backbone(input)
         x = self.head(x)
+        ic(x.shape)
         x = self.fc(x)
         x = x.view(x.size(0), self.S, self.S, self.B * 5 + self.C)
         return x
@@ -81,5 +82,5 @@ def yoloResnet(load_yoloweights=False, resnet_pretrained=True, **kwargs) -> Yolo
     
 
 if __name__ == "__main__":
-    model = yoloResnet(in_channels=3, S=7, B=2, C=8)
+    model = yoloResnet(S=7, B=2, C=8)
     summary(model, (16, 3, 448, 448))
