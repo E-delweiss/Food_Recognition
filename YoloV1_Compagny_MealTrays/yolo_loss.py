@@ -91,13 +91,16 @@ class YoloLoss(torch.nn.Module):
         ### Retrieve predicted box coordinates and stack them regarding the best box : (N,S,S,1) -> (N,S,S,2)
         ### Clamp to prevent negative coordinates and sizes
         xywhc_hat = torch.gather(prediction, -1, idx)
-        xy_hat = xywhc_hat[...,:2].clamp(min=0)
-        wh_hat = xywhc_hat[...,2:4].clamp(min=0)
+        # xy_hat = xywhc_hat[...,:2].clamp(min=0)
+        # wh_hat = xywhc_hat[...,2:4].clamp(min=0)
+        xy_hat = xywhc_hat[...,:2]
+        wh_hat = xywhc_hat[...,2:4]
         xy = target[...,:2]
         wh = target[...,2:4]
         
         ### Retrieve confidence numbers (N,S,S,1)
-        confidence_hat = xywhc_hat[...,4].unsqueeze(-1).clamp(min=0, max=1)
+        # confidence_hat = xywhc_hat[...,4].unsqueeze(-1).clamp(min=0, max=1)
+        confidence_hat = xywhc_hat[...,4].unsqueeze(-1)
         confidence = target[..., 4].unsqueeze(-1)
 
         ### Retrieve groundtruth class labels

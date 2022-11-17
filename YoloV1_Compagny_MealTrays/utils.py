@@ -2,6 +2,7 @@ import logging
 import glob
 from datetime import datetime
 import pickle
+from configparser import ConfigParser
 
 from tqdm import tqdm
 import PIL
@@ -123,6 +124,16 @@ def update_lr(current_epoch:int, optimizer:torch.optim, do_scheduler:bool):
         if current_epoch % 20 == 0 and current_epoch != 0:
             optimizer.defaults['lr'] = optimizer.defaults['lr']/2
         logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
+
+
+def defineRanger(pt_file, num_epoch):
+    """
+    TODO
+    """
+    start_epoch = int(pt_file[:pt_file.find("epochs")][-3:])
+    end_epoch = start_epoch + num_epoch
+    ranger = range(start_epoch, end_epoch+1)
+    return ranger
 
 
 def save_model(model, prefix:str, current_epoch:int, save:bool):

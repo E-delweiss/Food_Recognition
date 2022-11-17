@@ -50,10 +50,10 @@ class YoloResNet(torch.nn.Module):
         ### Fully connected part
         self.fc = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(1024 * self.S * self.S, 496), # 4096 -> 496 modifié le 16/11 
+            torch.nn.Linear(1024 * self.S * self.S, 4096), # 4096 -> 496 modifié le 16/11 
             torch.nn.LeakyReLU(0.1),
             torch.nn.Dropout(0.5), # dropout ajouté le 16/11 
-            torch.nn.Linear(496, self.S * self.S * (self.C + self.B*5)),
+            torch.nn.Linear(4096, self.S * self.S * (self.C + self.B*5)),
             torch.nn.Sigmoid()  # normalized to 0~1 ajouté le 16/11 
         )
     

@@ -68,6 +68,11 @@ loss_yolo = YoloLoss(lambd_coord=LAMBD_COORD, lambd_noobj=LAMBD_NOOBJ, S=S, devi
 training_dataloader = get_training_dataset(BATCH_SIZE, split="train", isNormalize=isNormalize_trainset, isAugment=isAugment_trainset)
 validation_dataloader = get_validation_dataset(split="test", isNormalize=isNormalize_valset, isAugment=isAugment_valset)
 
+if LOAD_CHECKPOINT:
+    pt_file = config.getflgetoat('WEIGHTS', 'resnetYolo_weights')
+    ranger = utils.defineRanger(pt_file, EPOCHS)
+else:
+    ranger = range(EPOCHS)
 ################################################################################
 
 delta_time = datetime.timedelta(hours=1)
@@ -82,6 +87,7 @@ print(f"Learning rate : {optimizer.defaults['lr']}")
 
 utils.create_logging(prefix=PREFIX)
 logging.info(f"Pretrained is {PRETRAINED}")
+if LOAD_CHECKPOINT: logging.info(f"RESTART FROM CHECKPOINT")
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
 logging.info(f"Using optimizer : {optimizer}")
@@ -101,7 +107,7 @@ batch_val_class_acc = []
 
 all_pred_boxes = []
 all_true_boxes = []
-for epoch in range(EPOCHS):
+for epoch in ranger:
     utils.update_lr(epoch, optimizer, LR_SCHEDULER)
     epochs_loss = 0.
     

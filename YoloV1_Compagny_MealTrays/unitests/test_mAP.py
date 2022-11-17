@@ -14,7 +14,8 @@ import mAP
 import NMS
 import utils
 from mealtrays_dataset import get_validation_dataset
-from resnet101 import resnet
+# from resnet101 import resnet
+from yoloResnet import yoloResnet
 from darknet import darknet
 from validation import validation_loop
 
@@ -29,7 +30,7 @@ class TestmAP(unittest.TestCase):
         self.channel_img = 3
         self.BATCH_SIZE = 16
         self.val_loader = get_validation_dataset(self.BATCH_SIZE, isAugment=False)
-        self.model = darknet(pretrained=True, in_channels=3, S=7, B=2, C=8)
+        self.model = yoloResnet(load_yoloweights=True, resnet_pretrained=False, in_channels=3, S=7, B=2, C=8)
         self.model.eval()
 
     def test_mAP(self):      
