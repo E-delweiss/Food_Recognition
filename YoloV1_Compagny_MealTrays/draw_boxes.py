@@ -12,7 +12,7 @@ from validation import validation_loop
 from mealtrays_dataset import get_validation_dataset
 import IoU
 import utils
-# import NMS
+import NMS
 
 config = ConfigParser()
 config.read("config.ini")
@@ -20,6 +20,8 @@ IN_CHANNEL = config.getint("MODEL", "in_channel")
 S = config.getint("MODEL", "GRID_SIZE")
 C = config.getint("MODEL", "NB_CLASS")
 B = config.getint("MODEL", "NB_BOX")
+PROB_THRESHOLD = 0.4
+IOU_THRESHOLD = 0.5
 
 
 def show(imgs):
@@ -56,9 +58,19 @@ def draw_boxes(
     img_idx = inv_normalize(img_idx) * 255.0
     img_idx = img_idx.to(torch.uint8)
 
-    ### Choose label & argmax of one-hot vectors.
-    label_true = target[idx,:,:,5:]
-    label_true_argmax = torch.argmax(label_true, dim=-1)
+    ### TODO
+    all_pred_boxes = []
+    all_true_boxes = []
+    target_abs_box = IoU.relative2absolute(target[idx].unsqueeze(0)) * target[idx,:,:,4].unsqueeze(-1) #prevent noisy coordinates when confident=0
+    true_bboxes = utils.tensor2boxlist(target_abs_box)
+    nms_box_val = NMS.non_max_suppression(prediction[idx].unsqueeze(0), PROB_THRESHOLD, IOU_THRESHOLD)
+
+    bboxes_nms = NMS.non_max_suppression(prediction, 0.4, 0.5)
+
+    for box in true_bboxes:
+        if box[4] > PROB_THRESHOLD:
+            all_true_boxes.append(box)
+                    
 
     label_pred = prediction[idx,:,:,10:]
     label_pred_argmax = torch.argmax(torch.softmax(label_pred, dim=-1), dim=-1) #(N,S,S,8) -> (N,S,S,1)
