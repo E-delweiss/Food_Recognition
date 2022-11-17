@@ -37,7 +37,6 @@ SAVE_MODEL = config.getboolean('SAVING', 'save_model')
 SAVE_LOSS = config.getboolean('SAVING', 'save_loss')
 
 PREFIX = config.get('MODEL', 'model_name')
-IN_CHANNEL = config.getint('MODEL', 'in_channel')
 S = config.getint('MODEL', 'grid_size')
 B = config.getint('MODEL', 'nb_box')
 C = config.getint('MODEL', 'nb_class')
@@ -60,7 +59,7 @@ FREQ = config.getint('PRINTING', 'freq')
 ################################################################################
 device = utils.set_device(DEVICE, verbose=0)
 
-model = yoloResnet(resnet_pretrained=PRETRAINED, load_yoloweights=LOAD_CHECKPOINT, in_channels=IN_CHANNEL, S=S, B=B, C=C)
+model = yoloResnet(resnet_pretrained=PRETRAINED, load_yoloweights=LOAD_CHECKPOINT, S=S, B=B, C=C)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
 loss_yolo = YoloLoss(lambd_coord=LAMBD_COORD, lambd_noobj=LAMBD_NOOBJ, S=S, device=device)
@@ -116,6 +115,10 @@ for epoch in ranger:
     print(" "*5 + f"Learning rate : lr = {optimizer.defaults['lr']}")
     print("-"*20)
 
+    ### Checkpoint
+    if epoch == 100:
+        utils.save_model(model, PREFIX+"CHECKPOINT__", epoch, SAVE_MODEL)
+
     ################################################################################
 
     for batch, (img, target) in utils.tqdm_fct(training_dataloader):
@@ -137,10 +140,6 @@ for epoch in ranger:
         
         ### Weight updates
         optimizer.step()
-
-        ### Checkpoint
-        if epoch == 100:
-            utils.save_model(model, PREFIX+"CHECKPOINT__", epoch, SAVE_MODEL)
 
         ##### Class accuracy
         train_class_acc, _ = class_acc(target, prediction)
@@ -168,7 +167,7 @@ for epoch in ranger:
                 all_pred_boxes = []
                 all_true_boxes = []
                 for idx in range(len(target_val)):
-                    true_bboxes = IoU.relative2absolute(target_val[idx].unsqueeze(0))
+                    true_bboxes = IoU.relative2absolute(target_val[idx].unsqueeze(0)) * target[idx,:,:,4].unsqueeze(-1) 
                     true_bboxes = utils.tensor2boxlist(true_bboxes)
 
                     nms_box_val = NMS.non_max_suppression(prediction_val[idx].unsqueeze(0), PROB_THRESHOLD, IOU_THRESHOLD)
