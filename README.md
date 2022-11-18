@@ -34,7 +34,34 @@ Trainable params: 21,359,612
 After understanding what's under the hood of YOLO, this project aims to detect and recognize various objects on meal trays from my former compagny restaurant. Make sure to see the [RoadMap] if needed. \
 Each photo contains a meal tray with various objects on it. Each photo was taken from the same point of view four times : when the "photo kiosk" detects a meal tray, it captures 4 photos to cover the time spent by the employee to place his meal tray correctly.
 
-Each meal tray contains various objects that I labelised with cvat.org. Since this exercice is a kind of "proof of concept", and since the labelisation process is time-consumming, I labelised only about **300** images.  
+Each meal tray contains various objects that I labelised with www.cvat.org (www.cvat.ai now). Since this exercice is a kind of a "proof of concept", and since the labelisation process is time-consumming, I labelised only about **480** images.
+
+The goal is...
+
+```
+===============================================================================================
+YoloResNet                                    [16, 7, 7, 18]            --
+├─Sequential: 1-1                             [16, 512, 56, 56]         --
+├─Sequential: 1-2                             [16, 512, 7, 7]           --
+│    └─MaxPool2d: 2-7                         [16, 512, 28, 28]         --
+│    └─Conv2d: 2-8                            [16, 1024, 28, 28]        4,719,616
+│    └─Conv2d: 2-9                            [16, 512, 28, 28]         524,800
+│    └─MaxPool2d: 2-10                        [16, 512, 14, 14]         --
+│    └─Conv2d: 2-11                           [16, 1024, 14, 14]        4,719,616
+│    └─Conv2d: 2-12                           [16, 512, 14, 14]         524,800
+│    └─MaxPool2d: 2-13                        [16, 512, 7, 7]           --
+├─Sequential: 1-3                             [16, 882]                 --
+│    └─Flatten: 2-14                          [16, 25088]               --
+│    └─Linear: 2-15                           [16, 4096]                102,764,544
+│    └─LeakyReLU: 2-16                        [16, 4096]                --
+│    └─Dropout: 2-17                          [16, 4096]                --
+│    └─Linear: 2-18                           [16, 882]                 3,613,554
+│    └─Sigmoid: 2-19                          [16, 882]                 --
+===============================================================================================
+Total params: 119,432,114
+Trainable params: 116,866,930
+Non-trainable params: 2,565,184
+```
 
 [in process]
 
