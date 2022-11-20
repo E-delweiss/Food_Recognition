@@ -121,8 +121,13 @@ def update_lr(current_epoch:int, optimizer:torch.optim, do_scheduler:bool):
     # logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
 
     if do_scheduler:
-        if current_epoch % 20 == 0 and current_epoch != 0:
+        if current_epoch < 30:
+            lr = [0.0001 + x * (0.001 - 0.0001)/30 for x in range(30)]
+            optimizer.defaults['lr'] = lr[current_epoch]
+        if current_epoch >= 80:
             optimizer.defaults['lr'] = optimizer.defaults['lr']/2
+        # if current_epoch % 20 == 0 and current_epoch != 0:
+        #     optimizer.defaults['lr'] = optimizer.defaults['lr']/2
         logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
 
 
@@ -258,12 +263,11 @@ def get_cells_with_object(tensor:torch.Tensor)->tuple:
 def tensor2boxlist(tensor:torch.Tensor):
     """
     tensor (N,S,S,6-11) -> list[img1[box1[x,y,w,h,c,label], ...], img2[...]]
+    TODO
     """
     C = 8
     S = 7
     B = (tensor.shape[-1] - C) // 5
-    # BATCH_SIZE = len(tensor)
-
     tensor_old = tensor.clone()
 
     tensor = torch.zeros(1,7,7,5*B+1)
@@ -271,13 +275,13 @@ def tensor2boxlist(tensor:torch.Tensor):
     tensor[...,5*B] = torch.argmax(torch.softmax(tensor_old[...,5*B:], dim=-1), dim=-1)
 
     if B == 2 :
-        tensor_box1 = tensor[...,:5].view(S*S, 5) #.view(1, S*S, 5)?
+        tensor_box1 = tensor[...,:5].view(S*S, 5)
         tensor_box2 = tensor[...,5:10].view(S*S, 5)
         tensor_box = torch.concat((tensor_box1, tensor_box2), dim=0)
     else : 
         tensor_box = tensor[...,:5].view(S*S, 5)
 
-    tensor_box = torch.concat((tensor_box, tensor[...,5*B].view(S*S, 1).repeat(B,1)),dim=-1) #.view(1, S*S, 5)?
+    tensor_box = torch.concat((tensor_box, tensor[...,5*B].view(S*S, 1).repeat(B,1)),dim=-1)
 
     return tensor_box.tolist()
 

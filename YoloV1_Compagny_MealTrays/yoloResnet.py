@@ -57,10 +57,8 @@ class YoloResNet(torch.nn.Module):
         )
     
     def forward(self, input):
-        from icecream import ic
         x = self.backbone(input)
         x = self.head(x)
-        ic(x.shape)
         x = self.fc(x)
         x = x.view(x.size(0), self.S, self.S, self.B * 5 + self.C)
         return x

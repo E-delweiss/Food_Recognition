@@ -14,7 +14,7 @@ from yoloResnet import yoloResnet
 from mealtrays_dataset import get_training_dataset, get_validation_dataset
 from metrics import class_acc
 from validation import validation_loop
-from yolo_loss import YoloLoss
+from loss import YoloLoss
 
 ################################################################################
 current_folder = os.path.dirname(locals().get("__file__"))
@@ -62,13 +62,13 @@ device = utils.set_device(DEVICE, verbose=0)
 model = yoloResnet(resnet_pretrained=PRETRAINED, load_yoloweights=LOAD_CHECKPOINT, S=S, B=B, C=C)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
-loss_yolo = YoloLoss(lambd_coord=LAMBD_COORD, lambd_noobj=LAMBD_NOOBJ, S=S, device=device)
+criterion = YoloLoss(lambd_coord=LAMBD_COORD, lambd_noobj=LAMBD_NOOBJ, S=S, device=device)
 
 training_dataloader = get_training_dataset(BATCH_SIZE, split="train", isNormalize=isNormalize_trainset, isAugment=isAugment_trainset)
 validation_dataloader = get_validation_dataset(split="test", isNormalize=isNormalize_valset, isAugment=isAugment_valset)
 
 if LOAD_CHECKPOINT:
-    pt_file = config.getflgetoat('WEIGHTS', 'resnetYolo_weights')
+    pt_file = config.get('WEIGHTS', 'resnetYolo_weights')
     ranger = utils.defineRanger(pt_file, EPOCHS)
 else:
     ranger = range(EPOCHS)
@@ -90,7 +90,7 @@ if LOAD_CHECKPOINT: logging.info(f"RESTART FROM CHECKPOINT")
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
 logging.info(f"Using optimizer : {optimizer}")
-logging.info("Lr Scheduler : lr/2 each 20 epochs")
+logging.info("Lr Scheduler : None")
 logging.info("")
 logging.info("Start training")
 logging.info(f"[START] : {time_formatted}")
@@ -111,13 +111,13 @@ for epoch in ranger:
     epochs_loss = 0.
     
     print("-"*20)
-    print(" "*5 + f"EPOCH {epoch+1}/{EPOCHS}")
+    print(" "*5 + f"EPOCH {epoch+1}/{EPOCHS+ranger[0]}")
     print(" "*5 + f"Learning rate : lr = {optimizer.defaults['lr']}")
     print("-"*20)
 
     ### Checkpoint
-    if epoch == 100:
-        utils.save_model(model, PREFIX+"CHECKPOINT__", epoch, SAVE_MODEL)
+    if epoch % 50 == 0 and epoch != 0:
+        utils.save_model(model, PREFIX+"CHECKPOINT_", epoch, SAVE_MODEL)
 
     ################################################################################
 
@@ -133,7 +133,7 @@ for epoch in ranger:
         prediction = model(img)
         
         ### compute losses over each grid cell for each image in the batch
-        losses, loss = loss_yolo(prediction, target)
+        losses, loss = criterion(prediction, target)
     
         ### compute gradients
         loss.backward()
@@ -167,7 +167,7 @@ for epoch in ranger:
                 all_pred_boxes = []
                 all_true_boxes = []
                 for idx in range(len(target_val)):
-                    true_bboxes = IoU.relative2absolute(target_val[idx].unsqueeze(0)) * target[idx,:,:,4].unsqueeze(-1) 
+                    true_bboxes = IoU.relative2absolute(target_val[idx].unsqueeze(0))
                     true_bboxes = utils.tensor2boxlist(true_bboxes)
 
                     nms_box_val = NMS.non_max_suppression(prediction_val[idx].unsqueeze(0), PROB_THRESHOLD, IOU_THRESHOLD)

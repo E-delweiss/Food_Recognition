@@ -9,8 +9,7 @@ import torch
 from sklearn.metrics import confusion_matrix
 import seaborn as sn
 
-
-from darknet import darknet
+from yoloResnet import yoloResnet
 from mealtrays_dataset import get_validation_dataset
 from validation import validation_loop
 from utils import get_cells_with_object
@@ -100,7 +99,7 @@ y_pred = []
 y_true = []
 
 ### Loading model weights
-model = darknet(True, in_channels=3, S=S, C=C, B=B)
+model = yoloResnet(load_yoloweights=True, resnet_pretrained=False, S=S, C=C, B=B)
 
 ### Validation loop
 img, target, prediction = validation_loop(model, get_validation_dataset())

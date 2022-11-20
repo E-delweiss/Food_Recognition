@@ -29,8 +29,6 @@ class TestUtils(unittest.TestCase):
         target = self.target[N, cells_i, cells_j]
         idx1 = np.random.randint(0, len(target))
         idx2 = np.random.randint(0, len(target[idx1][:5]))
-        import icecream
-        icecream.ic(N, cells_i)
 
         self.assertIs(type(N), torch.Tensor)
         self.assertIs(type(cells_i), torch.Tensor)

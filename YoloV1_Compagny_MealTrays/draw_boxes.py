@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from torchvision.utils import draw_bounding_boxes
 from icecream import ic
 
-# from darknet import YoloV1
 from resnet50_old import resnet
+from yoloResnet import yoloResnet
 from validation import validation_loop
 from mealtrays_dataset import get_validation_dataset
 import IoU
@@ -63,7 +63,7 @@ def draw_boxes(
     img_idx = img_idx.to(torch.uint8)
 
     ### TODO
-    target_abs_box = IoU.relative2absolute(target[idx].unsqueeze(0)) * target[idx,:,:,4].unsqueeze(-1) #prevent noisy coordinates when confident=0
+    target_abs_box = IoU.relative2absolute(target[idx].unsqueeze(0))
     true_bboxes = utils.tensor2boxlist(target_abs_box)
     true_bboxes = [box for box in true_bboxes if box[4]>0]
     bboxes_nms = NMS.non_max_suppression(prediction[idx].unsqueeze(0), PROB_THRESHOLD, IOU_THRESHOLD)
@@ -84,9 +84,10 @@ def draw_boxes(
 if __name__ == "__main__":
     print("Load model...")
     model = resnet(pretrained=True, in_channels=IN_CHANNEL, S=S, B=B, C=C)
+    # model = yoloResnet(load_yoloweights=True, pretrained=False, S=S, B=B, C=C)
     
     print("Validation loop")
-    validation_dataset = get_validation_dataset(32, isNormalize=True, isAugment=False)
+    validation_dataset = get_validation_dataset(isNormalize=True, isAugment=False)
     img, target, prediction = validation_loop(model, validation_dataset, ONE_BATCH=True)
 
     draw_boxes(img, target, prediction)
