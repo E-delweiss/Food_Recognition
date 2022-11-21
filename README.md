@@ -31,7 +31,7 @@ Trainable params: 21,359,612
 
 
 ### Project 2 : Food Recognition on Company Meal Trays
-After understanding what's under the hood of YOLO, this project aims to detect and recognize various objects on meal trays from my former compagny restaurant. Make sure to see the [RoadMap] if needed. \
+After understanding what's under the hood of YOLO, this project aims to detect and recognize various objects on meal trays from my former company restaurant. Make sure to see the [RoadMap] if needed. \
 Each photo contains a meal tray with various objects on it. Each photo was taken from the same point of view four times : when the "photo kiosk" detects a meal tray, it captures 4 photos to cover the time spent by the employee to place his meal tray correctly.
 
 Each meal tray contains various objects that I labelised with www.cvat.org (www.cvat.ai now). Since this exercice is a kind of a "proof of concept", and since the labelisation process is time-consumming, I labelised only about **480** images.
