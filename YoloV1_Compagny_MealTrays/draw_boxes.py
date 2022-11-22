@@ -46,7 +46,7 @@ def draw_boxes(
     TODO
     """
     color_dict = {'Plate':'blue', 'Starter':'green', 'Bread':'red', 'Drink':'cyan', 
-            'Yogurt':'darkred', 'Dessert':'black', 'Fruit':'magenta', 'Fromage':'yellow'}
+            'Yogurt':'darkred', 'Dessert':'black', 'Fruit':'magenta', 'Cheese':'yellow'}
     label_dict = {0:'Plate', 1:'Starter', 2:'Bread', 3:'Drink', 
         4:'Yogurt', 5:'Dessert', 6:'Fruit', 7:'Cheese'}
 
