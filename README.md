@@ -36,7 +36,19 @@ Each photo contains a meal tray with various objects on it. Each photo was taken
 
 Each meal tray contains various objects that I labelised with www.cvat.org (www.cvat.ai now). Since this exercice is a kind of a "proof of concept", and since the labelisation process is time-consumming, I labelised only about **480** images.
 
-The goal is...
+The goal is to localize and classify objects between 8 categories :
+* Plate (the main dish)
+* Starter
+* Dessert
+* Bread
+* Yogurt
+* Fruit
+* Drink (soda can, juice can, water bottle...)
+* Cheese
+
+An overview of category distribution is available [here].
+
+Since I do not have a large dataset, I took advantage of pretrained ResNet 152 to custruct a *yoloResNet* model which has 2,5M non-trainable parameters.
 
 ```
 ===============================================================================================
