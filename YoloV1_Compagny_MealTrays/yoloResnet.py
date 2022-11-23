@@ -82,3 +82,19 @@ def yoloResnet(load_yoloweights=False, resnet_pretrained=True, **kwargs) -> Yolo
 if __name__ == "__main__":
     model = yoloResnet(S=7, B=2, C=8)
     summary(model, (16, 3, 448, 448))
+    
+    
+    
+    
+#### TRY :
+if False:
+        ### Fully connected part
+        self.backbone = torch.nn.Sequential(*list(resnet.children())[:-2])
+        self.fc = torch.nn.Sequential(
+            torch.nn.Flatten(),
+            torch.nn.Linear(512 * self.S * self.S, 4096), # 4096 -> 496 modifié le 16/11 
+            torch.nn.LeakyReLU(0.1),
+            torch.nn.Dropout(0.5), # dropout ajouté le 16/11 
+            torch.nn.Linear(4096, self.S * self.S * (self.C + self.B*5)),
+            torch.nn.Sigmoid()  # normalized to 0~1 ajouté le 16/11 
+        )
