@@ -33,7 +33,7 @@ Trainable params: 21,359,612
 ### Project 2 : Food Recognition on Company Meal Trays
 After understanding what's under the hood of YOLO, this project aims to detect and recognize various objects on meal trays from my former company restaurant. Make sure to see the [RoadMap] if needed. \
 
-The dataset and its details are available in their own ![repository](https://github.com/E-delweiss/mealtray_dataset).
+The dataset and its details are available in their own [repository](https://github.com/E-delweiss/mealtray_dataset).
 
 The goal is to localize and classify objects among 8 categories :
 * Plate (the main dish)
