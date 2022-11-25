@@ -32,11 +32,10 @@ Trainable params: 21,359,612
 
 ### Project 2 : Food Recognition on Company Meal Trays
 After understanding what's under the hood of YOLO, this project aims to detect and recognize various objects on meal trays from my former company restaurant. Make sure to see the [RoadMap] if needed. \
-Each photo contains a meal tray with various objects on it. Each photo was taken from the same point of view four times : when the "photo kiosk" detects a meal tray, it captures 4 photos to cover the time spent by the employee to place his meal tray correctly.
 
-Each meal tray contains various objects that I labelised with www.cvat.org (www.cvat.ai now). Since this exercice is a kind of a "proof of concept", and since the labelisation process is time-consumming, I labelised only about **480** images.
+The dataset and its details are available in their own ![repository](https://github.com/E-delweiss/mealtray_dataset).
 
-The goal is to localize and classify objects between 8 categories :
+The goal is to localize and classify objects among 8 categories :
 * Plate (the main dish)
 * Starter
 * Dessert
@@ -46,9 +45,7 @@ The goal is to localize and classify objects between 8 categories :
 * Drink (soda can, juice can, water bottle...)
 * Cheese
 
-An overview of category distribution is available [here].
-
-Since I do not have a large dataset, I took advantage of pretrained ResNet 152 to custruct a *yoloResNet* model which has 2,5M non-trainable parameters.
+Since I do not have a large dataset, I took advantage of pretrained ResNet 152 to custruct a *yoloResNet* model which has ??? non-trainable parameters.
 
 ```
 ===============================================================================================
@@ -74,9 +71,3 @@ Total params: 119,432,114
 Trainable params: 116,866,930
 Non-trainable params: 2,565,184
 ```
-
-[in process]
-
-
-**Disclaimer: all the photos in my dataset are NOT under licence or NDA. They were given to me by the restaurant adminitration after a lawyer approval.**
-
