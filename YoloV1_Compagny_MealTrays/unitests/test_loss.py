@@ -8,11 +8,11 @@ current_folder = os.path.dirname(locals().get("__file__"))
 parent_folder = Path(current_folder).parent
 sys.path.append(str(parent_folder))
 
-from yolo_loss import YoloLoss
+from loss import YoloLoss
 
-class TestYololoss(unittest.TestCase):
-    def __init__(self, TestYololoss) -> None:
-        super().__init__(TestYololoss)
+class TestLoss(unittest.TestCase):
+    def __init__(self, TestLoss) -> None:
+        super().__init__(TestLoss)
         self.size = 448
         self.S = 7
         self.B = 2
@@ -20,7 +20,7 @@ class TestYololoss(unittest.TestCase):
         self.channel_img = 3
         self.BATCH_SIZE = 32
 
-    def test_Yolo_loss(self):      
+    def test_loss(self):      
         box_pred = torch.rand(self.BATCH_SIZE, self.S, self.S, self.B*(4+1) + self.C)
         box_true = torch.rand(self.BATCH_SIZE, self.S, self.S, 5 + self.C)
 

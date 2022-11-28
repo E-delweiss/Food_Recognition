@@ -1,4 +1,3 @@
-from cProfile import label
 from configparser import ConfigParser
 
 import torch
@@ -6,13 +5,15 @@ import torchvision
 import numpy as np
 import matplotlib.pyplot as plt
 from torchvision.utils import draw_bounding_boxes
+from icecream import ic
 
-from darknet import YoloV1
+from resnet50_old import resnet
+from yoloResnet import yoloResnet
 from validation import validation_loop
 from mealtrays_dataset import get_validation_dataset
 import IoU
 import utils
-# import NMS
+import NMS
 
 config = ConfigParser()
 config.read("config.ini")
@@ -20,9 +21,14 @@ IN_CHANNEL = config.getint("MODEL", "in_channel")
 S = config.getint("MODEL", "GRID_SIZE")
 C = config.getint("MODEL", "NB_CLASS")
 B = config.getint("MODEL", "NB_BOX")
+PROB_THRESHOLD = 0.4
+IOU_THRESHOLD = 0.2
 
 
 def show(imgs):
+    """
+    TODO
+    """
     if not isinstance(imgs, list):
         imgs = [imgs]
     fix, axs = plt.subplots(ncols=len(imgs), squeeze=False)
@@ -39,10 +45,10 @@ def draw_boxes(
     """
     TODO
     """
-    color_dict = {'Assiette':'b', 'Entree':'g', 'Pain':'r', 'Boisson':'c', 
-            'Yaourt':'darkred', 'Dessert':'k', 'Fruit':'m', 'Fromage':'y'}
-    label_dict = {0:'Assiette', 1:'Entree', 2:'Pain', 3:'Boisson', 
-        4:'Yaourt', 5:'Dessert', 6:'Fruit', 7:'Fromage'}
+    color_dict = {'Plate':'blue', 'Starter':'green', 'Bread':'red', 'Drink':'cyan', 
+            'Yogurt':'darkred', 'Dessert':'black', 'Fruit':'magenta', 'Cheese':'yellow'}
+    label_dict = {0:'Plate', 1:'Starter', 2:'Bread', 3:'Drink', 
+        4:'Yogurt', 5:'Dessert', 6:'Fruit', 7:'Cheese'}
 
     BATCH_SIZE = len(img)
     idx = np.random.randint(0, BATCH_SIZE)
@@ -56,50 +62,32 @@ def draw_boxes(
     img_idx = inv_normalize(img_idx) * 255.0
     img_idx = img_idx.to(torch.uint8)
 
-    ### Choose label & argmax of one-hot vectors.
-    label_true = target[idx,:,:,5:]
-    label_true_argmax = torch.argmax(label_true, dim=-1)
+    ### TODO
+    target_abs_box = IoU.relative2absolute(target[idx].unsqueeze(0))
+    true_bboxes = utils.tensor2boxlist(target_abs_box)
+    true_bboxes = [box for box in true_bboxes if box[4]>0]
+    bboxes_nms = NMS.non_max_suppression(prediction[idx].unsqueeze(0), PROB_THRESHOLD, IOU_THRESHOLD)
 
-    label_pred = prediction[idx,:,:,10:]
-    label_pred_argmax = torch.argmax(torch.softmax(label_pred, dim=-1), dim=-1) #(N,S,S,8) -> (N,S,S,1)
+    labels_list = [label_dict.get(box[5]) for box in bboxes_nms]
+    colors_list = [color_dict.get(label_name) for label_name in labels_list]
 
-    ### Groundtruth & preds boxes
-    box_true = target[idx, :, :, :5].unsqueeze(0)
-    box_pred = prediction[idx, :, :, :10] ### !!!
+    draw_bbox = draw_bounding_boxes(image=img_idx, 
+                                    boxes=torch.tensor(bboxes_nms)[:,:4],
+                                    labels=labels_list,
+                                    colors=colors_list,
+                                    font_size=15,
+                                    font="Courier",
+                                    fill=True)
+    show(draw_bbox)
 
-#### ------------------------ ##########
-
-    ### Get cells with object
-    N, cell_i, cell_j = utils.get_cells_with_object(box_true)
-    
-    ### Convert to absolute coord
-    box_true_abs = IoU.relative2absolute(box_true, N, cell_i, cell_j)
-
-    ### Retrive label names as a list 
-    label_true_argmax = label_true_argmax[cell_i, cell_j]
-    label_list = [label_dict.get(label.item()) for label in label_true_argmax]
-
-    ### Choose the best predicted bounding box
-    #NMS !!!
-
-    # n_box_pred_abs = IoU.relative2absolute(box_pred[:,:,:,:5], N, cell_i, cell_j) #TBM
-    N_unique = torch.unique(N)
-    N_freq = torch.bincount(N)
-    N_cumsum = torch.cumsum(N_freq, dim=0)
-    N_sort = torch.stack((N_unique, N_freq, N_cumsum), dim=-1)
-
-    start = N_sort[0,2]-N_sort[0,1]
-    stop = N_sort[0,2]
-    drawn_boxes = draw_bounding_boxes(img_idx.to(torch.uint8), box_true_abs[start: stop], labels=label_list, width=2, font='Arial Bold', font_size=15)
-    show(drawn_boxes)
-   
 
 if __name__ == "__main__":
     print("Load model...")
-    darknet = YoloV1(pretrained=True, in_channels=IN_CHANNEL, S=S, B=B, C=C)
+    model = resnet(pretrained=True, in_channels=IN_CHANNEL, S=S, B=B, C=C)
+    # model = yoloResnet(load_yoloweights=True, pretrained=False, S=S, B=B, C=C)
     
     print("Validation loop")
-    validation_dataset = get_validation_dataset(8, isNormalize=True, isAugment=False)
-    img, target, prediction = validation_loop(darknet, validation_dataset, ONE_BATCH=True)
+    validation_dataset = get_validation_dataset(isNormalize=True, isAugment=False)
+    img, target, prediction = validation_loop(model, validation_dataset, ONE_BATCH=True)
 
     draw_boxes(img, target, prediction)

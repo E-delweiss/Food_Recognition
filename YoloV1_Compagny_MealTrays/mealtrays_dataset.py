@@ -299,7 +299,7 @@ def get_training_dataset(BATCH_SIZE=16, **kwargs):
     """
     Loads and maps the training split of the dataset using the custom dataset class. 
     """
-    dataset = MealtraysDataset(root="mealtrays_dataset", **kwargs)
+    dataset = MealtraysDataset(root="../../mealtray_dataset/dataset", **kwargs)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     return dataloader
 
@@ -307,7 +307,7 @@ def get_validation_dataset(BATCH_SIZE=None, **kwargs):
     """
     Loads and maps the validation split of the datasetusing the custom dataset class. 
     """
-    dataset = MealtraysDataset(root="mealtrays_dataset", **kwargs)
+    dataset = MealtraysDataset(root="../../mealtray_dataset/dataset", **kwargs)
     if BATCH_SIZE is None:
         BATCH_SIZE = len(dataset)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)

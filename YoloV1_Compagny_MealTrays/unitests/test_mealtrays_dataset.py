@@ -24,7 +24,7 @@ class TestMealtraysDataset(unittest.TestCase):
         self.C = 8
         self.CELL_SIZE = 1/self.S
 
-        dataset = MealtraysDataset(root="mealtrays_dataset", 
+        dataset = MealtraysDataset(root="../../mealtray_dataset/dataset",
             split="train", isNormalize=True, isAugment=True)        
         idx = np.random.randint(len(dataset))
         self.output = dataset[idx]
@@ -45,10 +45,10 @@ class TestMealtraysDataset(unittest.TestCase):
         self.assertEqual(self.output[1].shape[2], self.B*(4+1) + self.C)
 
     def test_plot_dataset(self):
-        color_dict = {'Assiette':'b', 'Entree':'g', 'Pain':'r', 'Boisson':'c', 
-            'Yaourt':'darkred', 'Dessert':'k', 'Fruit':'m', 'Fromage':'y'}
-        label_dict = {0:'Assiette', 1:'Entree', 2:'Pain', 3:'Boisson', 
-            4:'Yaourt', 5:'Dessert', 6:'Fruit', 7:'Fromage'}
+        color_dict = {'Plate':'b', 'Starter':'g', 'Bread':'r', 'Drink':'c', 
+            'Yogurt':'darkred', 'Dessert':'k', 'Fruit':'m', 'Cheese':'y'}
+        label_dict = {0:'Plate', 1:'Starter', 2:'Bread', 3:'Drink', 
+            4:'Yogurt', 5:'Dessert', 6:'Fruit', 7:'Cheese'}
 
         img_idx, target = self.output
 
@@ -78,6 +78,7 @@ class TestMealtraysDataset(unittest.TestCase):
         ax.imshow(img_idx)
         ax.set_xticks = []
         ax.set_yticks = []
+        ax.set_axis_off()
 
         k = 0
         for box in box_infos:

@@ -2,7 +2,7 @@ import logging
 import glob
 from datetime import datetime
 import pickle
-import os
+from configparser import ConfigParser
 
 from tqdm import tqdm
 import PIL
@@ -34,7 +34,8 @@ def create_logging(prefix:str):
         filemode="w",
         filename=(logging_name),
     )
-    logging.info("Model is {}.".format(prefix))
+    logging.info(f"Model is {prefix}")
+    
 
 
 def set_device(device, verbose=0)->torch.device:
@@ -120,12 +121,27 @@ def update_lr(current_epoch:int, optimizer:torch.optim, do_scheduler:bool):
     # logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
 
     if do_scheduler:
-        if current_epoch % 20 == 0 and current_epoch != 0:
+        if current_epoch < 30:
+            lr = [0.0001 + x * (0.001 - 0.0001)/30 for x in range(30)]
+            optimizer.defaults['lr'] = lr[current_epoch]
+        if current_epoch >= 80:
             optimizer.defaults['lr'] = optimizer.defaults['lr']/2
+        # if current_epoch % 20 == 0 and current_epoch != 0:
+        #     optimizer.defaults['lr'] = optimizer.defaults['lr']/2
         logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
 
 
-def save_model(model, path:str, save:bool):
+def defineRanger(pt_file, num_epoch):
+    """
+    TODO
+    """
+    start_epoch = int(pt_file[:pt_file.find("epochs")][-3:])
+    end_epoch = start_epoch + num_epoch
+    ranger = range(start_epoch, end_epoch+1)
+    return ranger
+
+
+def save_model(model, prefix:str, current_epoch:int, save:bool):
     """
     TODO
 
@@ -135,6 +151,7 @@ def save_model(model, path:str, save:bool):
         save (bool): _description_
     """
     if save:
+        path = f"{prefix}_{current_epoch+1}epochs"
         tm = datetime.now()
         tm = tm.strftime("%d%m%Y_%Hh%M")
         path = path+'_'+tm+'.pt'
@@ -241,6 +258,35 @@ def get_cells_with_object(tensor:torch.Tensor)->tuple:
     N, cells_i, cells_j = torch.unique(cells_with_obj,dim=1)
 
     return N, cells_i, cells_j
+
+
+def tensor2boxlist(tensor:torch.Tensor):
+    """
+    tensor (N,S,S,6-11) -> list[img1[box1[x,y,w,h,c,label], ...], img2[...]]
+    TODO
+    """
+    C = 8
+    S = 7
+    B = (tensor.shape[-1] - C) // 5
+    tensor_old = tensor.clone()
+
+    tensor = torch.zeros(1,7,7,5*B+1)
+    tensor[...,:5*B] = tensor_old[...,:5*B]
+    tensor[...,5*B] = torch.argmax(torch.softmax(tensor_old[...,5*B:], dim=-1), dim=-1)
+
+    if B == 2 :
+        tensor_box1 = tensor[...,:5].view(S*S, 5)
+        tensor_box2 = tensor[...,5:10].view(S*S, 5)
+        tensor_box = torch.concat((tensor_box1, tensor_box2), dim=0)
+    else : 
+        tensor_box = tensor[...,:5].view(S*S, 5)
+
+    tensor_box = torch.concat((tensor_box, tensor[...,5*B].view(S*S, 1).repeat(B,1)),dim=-1)
+
+    return tensor_box.tolist()
+
+
+
 
 if __name__ == "__main__":
     mean, std = mean_std_normalization()

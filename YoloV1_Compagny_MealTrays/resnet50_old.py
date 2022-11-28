@@ -12,15 +12,15 @@ class ResNet(torch.nn.Module):
         self.C = C
         self.B = B
 
-        resnet101 = torchvision.models.resnet50(weights='DEFAULT')
+        resnet50 = torchvision.models.resnet50(weights='DEFAULT')
         count=0
-        for param in resnet101.parameters():
+        for param in resnet50.parameters():
             param.requires_grad = False
             # if count == 9:
             #     break
             count+=1
 
-        self.seq1 = torch.nn.Sequential(*list(resnet101.children())[:-4])
+        self.seq1 = torch.nn.Sequential(*list(resnet50.children())[:-4])
         self.seq2 = torch.nn.Sequential(
             torch.nn.MaxPool2d(2,2),
             torch.nn.Conv2d(512, 1024, 3, 1, 1),
@@ -46,14 +46,13 @@ class ResNet(torch.nn.Module):
 
 
 if __name__ == "__main__":
-    # darknet = resnet101(in_channels=3, S=7, B=2, C=8)
     ResNet = ResNet(3, 7, 8, 2)
     summary(ResNet, (64, 3, 448, 448))
 
 def resnet(pretrained=False, **kwargs) -> ResNet:
     config = ConfigParser()
     config.read("config.ini")
-    model_weights = config.get("WEIGHTS", "PT_FILE")
+    model_weights = config.get("WEIGHTS", "resnetYolo_weights_old")
 
     model = ResNet(**kwargs)
     if pretrained:
