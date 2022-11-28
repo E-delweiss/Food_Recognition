@@ -12,12 +12,18 @@ S = config.getint("MODEL", "GRID_SIZE")
 
 def relative2absolute(tensor)->torch.Tensor:
     """
-    TODO
+    Turn tensor with relative coordinates to tensor with absolute coordinates.
+    Warning: handles a unique bounding box.
+
+    Args:
+        tensor (torch.Tensor of shape (N,S,S,_))
+            Groundtruth or predicted tensor containing a unique bounding box coordinates at 
+            positions 0,1,2,3.
 
     Returns:
-        box_prediction_absolute (torch.Tensor of shape (N,5))
-            Contains the 4 predicted coordinates xmin, ymin, 
-            xmax, ymax and confidence_score for each image.
+        box (torch.Tensor of shape (N,S,S,_))
+            Tensor containing absolute coordinates at the first 4 positions. Keep the remaining
+            unchange.
     """
     assert len(tensor.shape) == 4, "Error: box_prediction is torch.Tensor of shape (N,S,S,_)"
     assert tensor.shape[-1] >= 4, "Error: box_prediction should contain a least one box -> (N,S,S,4+)"

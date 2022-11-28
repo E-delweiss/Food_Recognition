@@ -11,10 +11,10 @@ import torchvision
 
 def create_logging(prefix:str):
     """
-    TODO
+    Create logging file.
 
     Args:
-        prefix (str): _description_
+        prefix (str)
     """
     assert type(prefix) is str, TypeError
 
@@ -131,9 +131,16 @@ def update_lr(current_epoch:int, optimizer:torch.optim, do_scheduler:bool):
         logging.info(f"Learning rate : lr {optimizer.defaults['lr']}")
 
 
-def defineRanger(pt_file, num_epoch):
+def defineRanger(pt_file:str, num_epoch:int)->range:
     """
-    TODO
+    Create a ranger for the training loop. 
+    Handle a start != 0 for checkpoint.
+
+    Args:
+        pt_file (str)
+            Pytorch checkpoint file.
+        num_epoch (int)
+            Number of epochs (modify the epoch to start with)
     """
     start_epoch = int(pt_file[:pt_file.find("epochs")][-3:])
     end_epoch = start_epoch + num_epoch
@@ -143,12 +150,17 @@ def defineRanger(pt_file, num_epoch):
 
 def save_model(model, prefix:str, current_epoch:int, save:bool):
     """
-    TODO
+    Save Pytorch weights of the model. Set the name based on timeclock.
 
     Args:
-        model (_type_): _description_
-        path (str): _description_
-        save (bool): _description_
+        model (torch model)
+            Training model.
+        prefix (str)
+            Used to create the pt file name.
+        current_epoch (int)
+            Used to create the pt file name.
+        save (bool)
+            If False, set a warning in log file.
     """
     if save:
         path = f"{prefix}_{current_epoch+1}epochs"
@@ -166,13 +178,13 @@ def save_model(model, prefix:str, current_epoch:int, save:bool):
 
 def save_losses(train_loss:dict, val_loss:dict, model_name:str, save:bool):
     """
-    TODO
+    Save training en validation losses to pickle files.
 
     Args:
-        train_loss (dict): _description_
-        val_loss (dict): _description_
-        val_loss (str): _description_
-        save (bool): _description_
+        train_loss (dict)
+        val_loss (dict)
+        model_name (str)
+        save (bool)
     """
     if save:
         tm = datetime.now()
@@ -195,10 +207,7 @@ def save_losses(train_loss:dict, val_loss:dict, model_name:str, save:bool):
 
 def tqdm_fct(training_dataset):
     """
-    TODO
-
-    Args:
-        training_dataset (_type_): _description_
+    Set a tqdm progress bar.
     """
     return tqdm(enumerate(training_dataset),
                 total=len(training_dataset),
@@ -262,6 +271,7 @@ def get_cells_with_object(tensor:torch.Tensor)->tuple:
 
 def tensor2boxlist(tensor:torch.Tensor):
     """
+    Turn tensor into list of boxes.
     tensor (N,S,S,6-11) -> list[img1[box1[x,y,w,h,c,label], ...], img2[...]]
     TODO
     """

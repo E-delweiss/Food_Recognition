@@ -4,15 +4,25 @@ import torch
 import IoU
 import utils
 
-def non_max_suppression(prediction, prob_threshold, iou_threshold):
+def non_max_suppression(prediction:torch.Tensor, prob_threshold:float, iou_threshold:float)->list:
     """
-    Use confidence number and class probabilities such as pc = pc * P(C)
-    to keep only predicted boxes with the highest confidence number.
-    Convert boxes into absolute coordinates and compute IoU.
-    prediction is (1,7,7,18)
-    TODO
+    Apply non max suppression algorithm.
+
+    Args:
+        prediction (torch.Tensor of shape (N,S,S,5+C*B))
+            Predicted tensor containing 2 bounding boxes per grid cell.
+        prob_threshold (float)  
+            Threshold set to discard all predicted bounding box with smaller probability than
+            a selected bounding box.
+        iou_threshold (float)
+            If the intersection over union between two bboxes is larger than this threshold, then
+            those bboxes are not predicted for the same object.
+
+    Returns:
+        bboxes_nms (list)
+            List of all bounding box for the predicted tensor after NMS.
+            Contains infos such as [box1[x,y,w,h,c,label], box2[...],...]
     """
-    # ic(torch.concat((prediction[...,:5], prediction[...,10:]), dim=-1).shape)
     prediction_temp = torch.concat((prediction[...,:5], prediction[...,10:]), dim=-1)
     prediction_abs_box1 = IoU.relative2absolute(prediction_temp)
     prediction_abs_box2 = IoU.relative2absolute(prediction[...,5:])
@@ -21,8 +31,6 @@ def non_max_suppression(prediction, prob_threshold, iou_threshold):
     list_box1 = utils.tensor2boxlist(prediction_abs_box1)
     list_box2 = utils.tensor2boxlist(prediction_abs_box2)
     list_all_boxes = list_box1 + list_box2
-
-    # ic(list_box1)
 
     bboxes = [box for box in list_all_boxes if box[4] > prob_threshold]
     bboxes = sorted(bboxes, key=lambda x: x[4], reverse=True)

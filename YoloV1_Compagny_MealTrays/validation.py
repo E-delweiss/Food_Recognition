@@ -2,7 +2,6 @@ import torch
 
 def validation_loop(model, validation_dataset, S=7, device=torch.device("cpu"), ONE_BATCH=False):
     """
-    TODO
     Execute validation loop
 
     Args:
