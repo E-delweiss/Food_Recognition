@@ -31,10 +31,10 @@ def relative2absolute(tensor)->torch.Tensor:
     SIZEHW = 448
     CELL_SIZE = 1/S
     box = tensor.clone()
-    
+
     ### xyrcell to xyr_img
-    box[...,0] = box[...,0] * CELL_SIZE + torch.arange(0,S) * CELL_SIZE
-    box[...,1] = box[...,1] * CELL_SIZE + torch.arange(0,S).reshape(S,1) * CELL_SIZE
+    box[...,0] = box[...,0] * CELL_SIZE + torch.arange(0,S).to(box.device) * CELL_SIZE
+    box[...,1] = box[...,1] * CELL_SIZE + torch.arange(0,S).reshape(S,1).to(box.device) * CELL_SIZE
 
     ### xyr_img to xy_abs
     box[...,0] = (box[...,0] - box[...,2]/2) * SIZEHW
@@ -68,7 +68,7 @@ def intersection_over_union(box_1:torch.Tensor, box_2:torch.Tensor)->torch.Tenso
     xmin_2, ymin_2, xmax_2, ymax_2 = box_2[:,:4].permute(1,0)
 
     smoothing_factor = 1e-10
-    zero = torch.Tensor([0])
+    zero = torch.Tensor([0]).to(box_1.device)
     
     ### x, y overlaps btw 1 and 2
     xmin_overlap = torch.maximum(xmin_1, xmin_2)

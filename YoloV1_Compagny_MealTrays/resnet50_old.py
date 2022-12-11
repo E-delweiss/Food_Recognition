@@ -6,13 +6,13 @@ import torch
 from torchinfo import summary
 
 class ResNet(torch.nn.Module):
-    def __init__(self, in_channels, S, C, B):
+    def __init__(self, S, C, B):
         super(ResNet, self).__init__()
         self.S = S
         self.C = C
         self.B = B
 
-        resnet50 = torchvision.models.resnet50(weights='DEFAULT')
+        resnet50 = torchvision.models.resnet50(pretrained=True)
         count=0
         for param in resnet50.parameters():
             param.requires_grad = False
@@ -32,9 +32,9 @@ class ResNet(torch.nn.Module):
         )
         self.fc = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(512 * self.S * self.S, 4096),
+            torch.nn.Linear(512 * self.S * self.S, 2048),
             torch.nn.LeakyReLU(0.1),
-            torch.nn.Linear(4096, self.S * self.S * (self.C + self.B*5))
+            torch.nn.Linear(2048, self.S * self.S * (self.C + self.B*5))
         )
     
     def forward(self, input):
@@ -45,22 +45,18 @@ class ResNet(torch.nn.Module):
         return x
 
 
-if __name__ == "__main__":
-    ResNet = ResNet(3, 7, 8, 2)
-    summary(ResNet, (64, 3, 448, 448))
-
-def resnet(pretrained=False, **kwargs) -> ResNet:
+def resnet(**kwargs) -> ResNet:
     config = ConfigParser()
     config.read("config.ini")
     model_weights = config.get("WEIGHTS", "resnetYolo_weights_old")
 
     model = ResNet(**kwargs)
-    if pretrained:
-        model.load_state_dict(torch.load(model_weights))
+    # if pretrained:
+    #     model.load_state_dict(torch.load(model_weights))
     
     return model
     
 
 if __name__ == "__main__":
-    model = ResNet(in_channels=3, S=7, B=2, C=8)
+    model = resnet(in_channels=3, S=7, B=2, C=8)
     summary(model, (64, 3, 448, 448))

@@ -4,30 +4,15 @@ import torch
 import torchvision
 from torchinfo import summary
 
-class CNNBlock(torch.nn.Module):
-    def __init__(self, in_channels, out_channels, **kwargs):
-        super(CNNBlock, self).__init__()
-        self.conv = torch.nn.Conv2d(in_channels, out_channels, bias=False, **kwargs)
-        self.bn = torch.nn.BatchNorm2d(out_channels)
-        self.l_relu = torch.nn.LeakyReLU(0.1)
-    
-    def forward(self, input):
-        x = self.conv(input)
-        x = self.bn(x)
-        return self.l_relu(x)
-
 class YoloResNet(torch.nn.Module):
-    def __init__(self, S, C, B, resnet_pretrained=False):
+    def __init__(self, S, C, B, pretrained=False):
         super(YoloResNet, self).__init__()
         self.S = S
         self.C = C
         self.B = B
 
         ### Load ResNet model
-        resnet_weights = None
-        if resnet_pretrained:
-            resnet_weights = 'DEFAULT'
-        resnet = torchvision.models.resnet152(weights=resnet_weights)
+        resnet = torchvision.models.resnet152(pretrained=True)
         
         ### Freeze ResNet weights
         for param in resnet.parameters():
@@ -64,9 +49,7 @@ class YoloResNet(torch.nn.Module):
         return x
 
 
-def yoloResnet(load_yoloweights=False, resnet_pretrained=True, **kwargs) -> YoloResNet:
-    assert load_yoloweights != resnet_pretrained, "Can't load both ResNetYolo weights and ResNet50 weights"
-    
+def yoloResnet(load_yoloweights=False, **kwargs) -> YoloResNet:    
     config = ConfigParser()
     config.read("config.ini")
 

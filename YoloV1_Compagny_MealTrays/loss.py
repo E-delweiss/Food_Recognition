@@ -86,7 +86,7 @@ class YoloLoss(torch.nn.Module):
         iou_mask = torch.gt(iou_box1, iou_box2).to(torch.int64)
         idx = iou_mask*5
         idx = idx.view(BATCH_SIZE, self.S, self.S, 1).repeat(1,1,1,5)
-        idx = idx + torch.tensor([0,1,2,3,4])
+        idx = idx + torch.tensor([0,1,2,3,4]).to(target.device)
 
         ### Retrieve predicted box coordinates and stack them regarding the best box : (N,S,S,1) -> (N,S,S,2)
         ### Clamp to prevent negative coordinates and sizes

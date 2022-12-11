@@ -11,6 +11,7 @@ import mAP
 import NMS
 import utils
 from yoloResnet import yoloResnet
+from resnet50_old import resnet
 from mealtrays_dataset import get_training_dataset, get_validation_dataset
 from metrics import class_acc
 from validation import validation_loop
@@ -59,7 +60,8 @@ FREQ = config.getint('PRINTING', 'freq')
 ################################################################################
 device = utils.set_device(DEVICE, verbose=0)
 
-model = yoloResnet(resnet_pretrained=PRETRAINED, load_yoloweights=LOAD_CHECKPOINT, S=S, B=B, C=C)
+# model = yoloResnet(pretrained=PRETRAINED, load_yoloweights=LOAD_CHECKPOINT, S=S, B=B, C=C)
+model = resnet(S=S, B=B, C=C)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
 criterion = YoloLoss(lambd_coord=LAMBD_COORD, lambd_noobj=LAMBD_NOOBJ, S=S, device=device)

@@ -57,7 +57,7 @@ def set_device(device, verbose=0)->torch.device:
 
     if device == 'mps' and torch.has_mps:
         logging.warning(f"Device {device} currently not working well with PyTorch.")
-        device = torch.device('cpu')
+        # device = torch.device('cpu')
 
     logging.info("Execute on {}".format(device))
     if verbose:
@@ -258,7 +258,7 @@ def get_cells_with_object(tensor:torch.Tensor)->tuple:
     assert len(tensor.shape) == 4, "Error: tensor side should be (N,S,S,_). Ex: torch.Size([32, 7, 7, 5])"
 
     ### Get all indices with non zero values
-    N, cells_i, cells_j, _ = tensor.nonzero().permute(1,0)
+    N, cells_i, cells_j, _ = tensor.to("cpu").nonzero().permute(1,0)
 
     ### Stacking in a new tensor
     cells_with_obj = torch.stack((N, cells_i, cells_j), dim=0)
