@@ -83,11 +83,11 @@ def draw_boxes(
 
 if __name__ == "__main__":
     print("Load model...")
-    model = resnet(pretrained=True, in_channels=IN_CHANNEL, S=S, B=B, C=C)
-    # model = yoloResnet(load_yoloweights=True, pretrained=False, S=S, B=B, C=C)
+    # model = resnet(pretrained=True, in_channels=IN_CHANNEL, S=S, B=B, C=C)
+    model = yoloResnet(load_yoloweights=True, pretrained=False, S=S, B=B, C=C).to(torch.device("mps"))
     
     print("Validation loop")
-    validation_dataset = get_validation_dataset(isNormalize=True, isAugment=False)
-    img, target, prediction = validation_loop(model, validation_dataset, ONE_BATCH=True)
+    validation_dataset = get_validation_dataset(BATCH_SIZE=32, isNormalize=True, isAugment=False)
+    img, target, prediction = validation_loop(model, validation_dataset, device=torch.device("mps"), ONE_BATCH=True)
 
     draw_boxes(img, target, prediction)
