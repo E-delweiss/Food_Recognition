@@ -2,11 +2,11 @@
 .DS_Store
 .ipynb_checkpoints
 *.pt
-*.ipynb
+/**/*.ipynb
 
-WarmingUp_with_MNIST/*.ipynb
+# WarmingUp_with_MNIST/*.ipynb
 
-YoloV1_Compagny_MealTrays/*.ipynb
+# YoloV1_Compagny_MealTrays/*.ipynb
 YoloV1_Compagny_MealTrays/*.pkl
 YoloV1_Compagny_MealTrays/*.log
 YoloV1_Compagny_MealTrays/logs/
