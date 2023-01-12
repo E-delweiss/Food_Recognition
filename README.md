@@ -1,4 +1,8 @@
 ![alt text](https://github.com/ThOpaque/Food_Recognition/blob/main/WarmingUp_with_MNIST/results/MNIST_localization_10exemples.png)
+<p align="center">
+  <img src="https://github.com/E-delweiss/Food_Recognition/blob/main/YoloV1_Compagny_MealTrays/img_utils/ex_food_reco.png" width="700"/>
+</p>
+
 
 
 ### Project 1 : Warming Up with MNIST
@@ -45,7 +49,7 @@ The goal is to localize and classify objects among 8 categories :
 * Drink (soda can, juice can, water bottle...)
 * Cheese
 
-Since I do not have a large dataset, I took advantage of pretrained ResNet 152 to custruct a *yoloResNet* model which has ??? non-trainable parameters.
+Since I do not have a large dataset, I took advantage of pretrained ResNet 152 to custruct a *yoloResNet* model.
 
 ```
 ===============================================================================================
