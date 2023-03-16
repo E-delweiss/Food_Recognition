@@ -1,4 +1,5 @@
 import numpy as np
+import random as rd
 
 import torch
 import torch.nn.functional as F
@@ -21,37 +22,72 @@ class MNISTDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.dataset)
 
-    def _numpy_pad_to_bounding_box(self, image, offset_height=0, offset_width=0, target_height=0, target_width=0):
-        assert image.shape[:-1][0] <= target_height-offset_height, "height must be <= target - offset"
-        assert image.shape[:-1][1] <= target_width-offset_width, "width must be <= target - offset"
+    def _numpy_pad_to_bounding_box(self, idx_list, offset_height, offset_width, frame_height, frame_width):
+        # assert image.shape[:-1][0] <= target_height-offset_height, "height must be <= target - offset"
+        # assert image.shape[:-1][1] <= target_width-offset_width, "width must be <= target - offset"
         
-        target_array = np.zeros((target_height, target_width, image.shape[-1]))
+        digit_size = 28
+        
+        images = []
+        for idx in idx_list:
+            img = torchvision.transforms.ToTensor()(self.dataset[idx][0])
+            img = torch.reshape(img, (digit_size, digit_size, 1,))
+            images.append(img)
 
-        for k in range(image.shape[0]):
-            target_array[offset_height+k][offset_width:image.shape[1]+offset_width] = image[k]
-        
-        return target_array
+        target_tensor = torch.zeros((frame_height, frame_width, 1))
 
-    def _pasting75(self, image):
-        ### xmin, ymin of digit
-        xmin = torch.randint(0, 48, (1,))
-        ymin = torch.randint(0, 48, (1,))
+        for k, img in enumerate(images):
+            target_tensor[offset_height[k]:offset_height[k]+digit_size, offset_width[k]:offset_width[k]+digit_size] = img
         
-        image = torchvision.transforms.ToTensor()(image)
-        image = torch.reshape(image, (28,28,1,))
-        image = torch.from_numpy(self._numpy_pad_to_bounding_box(image, ymin, xmin, 75, 75))
-        image = image.permute(2, 0, 1) #(C,H,W)
+        image = target_tensor.permute(2,0,1) #(C,H,W)
         image = image.to(torch.float)
-        
-        xmin, ymin = xmin.to(torch.float), ymin.to(torch.float)
+        return image
 
-        xmax_bbox, ymax_bbox = (xmin + 28), (ymin + 28)
-        xmin_bbox, ymin_bbox = xmin, ymin
+    def _pasting(self, idx):
         
-        w_bbox = xmax_bbox - xmin_bbox
-        h_bbox = ymax_bbox - ymin_bbox
+        digit_size = 28
+        frame_size = 140
+        
+        xmin_list = []
+        ymin_list = []
+        xmin_list.append(rd.randint(0, frame_size-digit_size))
+        ymin_list.append(rd.randint(0, frame_size-digit_size))
 
-        box = [xmin, ymin, w_bbox, h_bbox]
+        for k in range(idx):
+            area_of_intersection_list = [False]
+            while all(area_of_intersection_list) != True:
+                area_of_intersection_list = []
+                xmin = rd.randint(0, frame_size-digit_size)
+                ymin = rd.randint(0, frame_size-digit_size)
+                xmax = xmin + digit_size
+                ymax = ymin + digit_size
+                for xmin_k, ymin_k in zip(xmin_list, ymin_list):
+                    ix1 = np.maximum(xmin_k, xmin)
+                    iy1 = np.maximum(ymin_k, ymin)
+                    ix2 = np.minimum(xmin_k+digit_size, xmax)
+                    iy2 = np.minimum(ymin_k+digit_size, ymax)
+
+                    i_height = np.maximum(iy2 - iy1 + 1, np.array(0.))
+                    i_width = np.maximum(ix2 - ix1 + 1, np.array(0.))
+                    area_of_intersection = i_height * i_width
+                    area_of_intersection_list.append(area_of_intersection == 0)
+
+            xmin_list.append(xmin)
+            ymin_list.append(ymin)
+
+            ################
+            image = self._numpy_pad_to_bounding_box(idx, ymin, xmin, frame_size, frame_size)
+
+            for xmin, ymin in zip(xmin_list, ymin_list):
+                xmin, ymin = xmin.to(torch.float), ymin.to(torch.float)
+                xmax_bbox, ymax_bbox = (xmin + digit_size), (ymin + digit_size)
+                xmin_bbox, ymin_bbox = xmin, ymin
+            
+                w_bbox = xmax_bbox - xmin_bbox
+                h_bbox = ymax_bbox - ymin_bbox
+
+                box = [xmin, ymin, w_bbox, h_bbox]
+                
         return image, box
 
     def _encode(self, box, label):    
@@ -91,14 +127,18 @@ class MNISTDataset(torch.utils.data.Dataset):
         return box_target, one_hot_label
 
     def __getitem__(self, idx):
+        # idx useless
         if torch.is_tensor(idx):
             idx = idx.tolist()
         
-        img = self.dataset[idx][0]
-        label = self.dataset[idx][1]
+        nb_digit = rd.randint(1, 6) #from 1 to 5
+        idx = rd.choices(range(len(self.dataset)), k=nb_digit)
+        
+        # img = self.dataset[idx][0]
+        # label = self.dataset[idx][1]
 
-        image, box = self._pasting75(img)
-        box, one_hot_label = self._encode(box, label)
+        image, box = self._pasting(idx)
+        box, one_hot_label = self._encode(box, label?)
         
         return image, box, one_hot_label
 
@@ -121,3 +161,10 @@ def get_validation_dataset(BATCH_SIZE = None):
         BATCH_SIZE = len(dataset)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
     return dataloader
+
+
+if __name__ == "__main__":
+    from icecream import ic
+    dataset = MNISTDataset(root="data", split="train", download=True)
+    img, box, label = dataset[3]
+    ic(img.shape)

@@ -1,3 +1,5 @@
+# THIS ROADMAP IS IN PROCESS
+
 # Introduction
 This notebook aims to help the reader to walk through the YoloV1 code for MNIST localization. It will not explain all the code in detail but will focus on the most important parts.
 
