@@ -1,5 +1,6 @@
 import torch
 from torchinfo import summary
+from icecream import ic
 
 class CNNBlock(torch.nn.Module):
     def __init__(self, in_channels, out_channels, **kwargs):
@@ -27,8 +28,9 @@ class NetMNIST(torch.nn.Module):
         self.seq.add_module(f"conv_2", CNNBlock(32, 128, stride=1, kernel_size=3, padding=0))
         self.seq.add_module(f"maxpool_2", torch.nn.MaxPool2d(2))
         self.seq.add_module(f"conv_3", CNNBlock(128, 64, stride=1, kernel_size=1, padding=0))
-        self.seq.add_module(f"conv_4", CNNBlock(64, 128, stride=1, kernel_size=3, padding=0))
-        self.seq.add_module(f"conv_5", CNNBlock(128, 128, stride=1, kernel_size=3, padding=1))
+        self.seq.add_module(f"conv_4", CNNBlock(64, 128, stride=1, kernel_size=3, padding=1))
+        self.seq.add_module(f"maxpool_3", torch.nn.MaxPool2d(2))
+        self.seq.add_module(f"conv_5", CNNBlock(128, 128, stride=1, kernel_size=3, padding=0))
         
         self.fcs = self._create_fcs()
 
@@ -93,6 +95,7 @@ class NetMNIST(torch.nn.Module):
                 6x6 grid cells.
         """     
         x = self.seq(input)
+        # ic(x.shape)
         x = self.fcs(x)
         x = x.view(x.size(0), self.S, self.S, self.B * 5 + self.C)
         box_coord = x[:,:,:,0:5]
@@ -101,8 +104,8 @@ class NetMNIST(torch.nn.Module):
 
 
 if __name__ == "__main__":
-    model = NetMNIST(sizeHW=75, S=6, C=10, B=1)
+    model = NetMNIST(sizeHW=140, S=6, C=10, B=2)
 
     BATCH_SIZE = 64
-    img_test = torch.rand(BATCH_SIZE, 1, 75, 75)
+    img_test = torch.rand(BATCH_SIZE, 1, 140, 140)
     summary(model, input_size = img_test.shape)
