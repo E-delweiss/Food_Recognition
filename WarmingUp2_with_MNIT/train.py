@@ -8,20 +8,20 @@ import torch
 import utils
 from yolo_loss import YoloLoss
 from MNIST_dataset import get_training_dataset, get_validation_dataset
-from smallnet import NetMNIST
+from smallnet import netMNIST
 from metrics import MSE, MSE_confidenceScore, class_acc
 from validation import validation_loop
 
 learning_rate = 0.001
-BATCH_SIZE = 128
+BATCH_SIZE = 32
 SAVE_MODEL = True
-prefix="tinydarknet"
+prefix="smallnet"
 utils.create_logging(prefix=prefix)
 device = utils.device(verbose=1)
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
-
-model_MNIST = NetMNIST(75, S=6, B=1, C=10)
+                
+model_MNIST = netMNIST(140, S=6, B=2, C=10)
 model_MNIST = model_MNIST.to(device)
 optimizer = torch.optim.Adam(params=model_MNIST.parameters(), lr=learning_rate, weight_decay=0.0005)
 loss_yolo = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=6, device=device)

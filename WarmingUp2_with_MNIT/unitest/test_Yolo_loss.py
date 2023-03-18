@@ -3,6 +3,10 @@ import torch
 
 from yolo_loss import YoloLoss
 
+current_folder = os.path.dirname(locals().get("__file__"))
+parent_folder = Path(current_folder).parent
+sys.path.append(str(parent_folder))
+
 class TestYololoss(unittest.TestCase):
     def __init__(self, TestYololoss) -> None:
         super().__init__(TestYololoss)

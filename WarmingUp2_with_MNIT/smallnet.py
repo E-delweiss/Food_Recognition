@@ -98,9 +98,14 @@ class NetMNIST(torch.nn.Module):
         # ic(x.shape)
         x = self.fcs(x)
         x = x.view(x.size(0), self.S, self.S, self.B * 5 + self.C)
-        box_coord = x[:,:,:,0:5]
-        classifier = x[:,:,:,5:]
-        return box_coord, classifier
+        return x
+
+
+def netMNIST(**kwargs) -> YoloResNet: 
+    model = NetMNIST(**kwargs)
+   
+    return model
+
 
 
 if __name__ == "__main__":

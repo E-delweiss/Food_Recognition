@@ -2,6 +2,10 @@ import unittest
 import numpy as np
 from MNIST_dataset import MNISTDataset
 
+current_folder = os.path.dirname(locals().get("__file__"))
+parent_folder = Path(current_folder).parent
+sys.path.append(str(parent_folder))
+
 class TestMNISTDataset(unittest.TestCase):
     def __init__(self, TestMNISTDataset) -> None:
         super().__init__(TestMNISTDataset)

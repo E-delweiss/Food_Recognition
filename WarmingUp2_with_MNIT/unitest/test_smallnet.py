@@ -3,6 +3,10 @@ import torch
 
 from smallnet import NetMNIST
 
+current_folder = os.path.dirname(locals().get("__file__"))
+parent_folder = Path(current_folder).parent
+sys.path.append(str(parent_folder))
+
 class TestSmallNet(unittest.TestCase):
     def __init__(self, TestDarknetlike) -> None:
         super().__init__(TestDarknetlike)
