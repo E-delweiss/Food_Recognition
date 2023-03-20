@@ -3,7 +3,7 @@ from configparser import ConfigParser
 import os, sys
 
 
-def relative2absolute(tensor)->torch.Tensor:
+def relative2absolute(tensor, frame_size)->torch.Tensor:
     """
     Turn tensor with relative coordinates to tensor with absolute coordinates.
     Warning: handles a unique bounding box.
@@ -21,8 +21,8 @@ def relative2absolute(tensor)->torch.Tensor:
     assert len(tensor.shape) == 4, "Error: box_prediction is torch.Tensor of shape (N,S,S,_)"
     assert tensor.shape[-1] >= 4, "Error: box_prediction should contain a least one box -> (N,S,S,4+)"
 
-    S = 6
-    SIZEHW = 140
+    SIZEHW = frame_size
+    S = tensor.shape[1]
     CELL_SIZE = 1/S
     box = tensor.clone()
 

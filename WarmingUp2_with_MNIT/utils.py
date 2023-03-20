@@ -136,12 +136,39 @@ def tqdm_fct(training_dataset):
                 ncols=100)
 
 
-def tensor2boxlist(tensor:torch.Tensor, B:int, S:int, C:int):
+def get_cells_with_object(tensor:torch.Tensor)->tuple:
+    """
+    TODO
+
+    Args:
+        tensor (torch.Tensor): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    assert type(tensor) is torch.Tensor, "Error: wrong type. Sould be torch.tensor"
+    assert len(tensor.shape) == 4, "Error: tensor side should be (N,S,S,_). Ex: torch.Size([32, 7, 7, 5])"
+
+    ### Get all indices with non zero values
+    N, cells_i, cells_j, _ = tensor.to("cpu").nonzero().permute(1,0)
+
+    ### Stacking in a new tensor
+    cells_with_obj = torch.stack((N, cells_i, cells_j), dim=0)
+
+    ### Get rid of same values
+    N, cells_i, cells_j = torch.unique(cells_with_obj,dim=1)
+
+    return N, cells_i, cells_j
+
+
+def tensor2boxlist(tensor:torch.Tensor, B:int=1):
     """
     Turn tensor into list of boxes.
     tensor (N,S,S,6-11) -> list[img1[box1[x,y,w,h,c,label], ...], img2[...]]
     TODO
     """
+    S = tensor.shape[1]
+
     tensor_old = tensor.clone()
 
     tensor = torch.zeros(1,S,S,5*B+1)

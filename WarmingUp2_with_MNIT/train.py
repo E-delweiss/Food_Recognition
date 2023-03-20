@@ -9,8 +9,9 @@ import utils
 from yolo_loss import YoloLoss
 from MNIST_dataset import get_training_dataset, get_validation_dataset
 from smallnet import netMNIST
-from metrics import MSE, MSE_confidenceScore, class_acc
+from metrics import class_acc
 from validation import validation_loop
+import NMS, mAP
 
 learning_rate = 0.001
 BATCH_SIZE = 32
@@ -47,6 +48,11 @@ logging.info(f"[START] : {str_t}")
 
 EPOCHS = 10
 S = 6
+C = 10
+B=2
+frame_size = 140
+PROB_THRESHOLD = 0.5
+IOU_THRESHOLD = 0.5
 
 ################################################################################
 batch_total_train_loss_list = []
@@ -111,8 +117,42 @@ for epoch in range(EPOCHS):
             utils.pretty_print(batch, len(training_dataset.dataset), current_loss, losses, train_classes_acc)
 
             ############### Compute validation metrics each 100 batch ###########################################
-            _, target_val, prediction_val = validation_loop(model_MNIST, validation_dataset, S, device)
-            
+            if DO_VALIDATION:
+                train_idx = 0
+                _, target_val, prediction_val = validation_loop(model_MNIST, validation_dataloader, S, device)
+                
+                all_pred_boxes = []
+                all_true_boxes = []
+                for idx in range(len(target_val)):
+                    true_bboxes = IoU.relative2absolute(target_val[idx].unsqueeze(0), frame_size)
+                    true_bboxes = utils.tensor2boxlist(true_bboxes)
+
+                    nms_box_val = NMS.non_max_suppression(prediction_val[idx].unsqueeze(0), frame_size, PROB_THRESHOLD, IOU_THRESHOLD)
+
+                    for nms_box in nms_box_val:
+                        all_pred_boxes.append([train_idx] + nms_box)
+
+                    for box in true_bboxes:
+                        # many will get converted to 0 pred
+                        if box[4] > PROB_THRESHOLD:
+                            all_true_boxes.append([train_idx] + box)
+                    
+                    train_idx += 1
+
+                meanAP = mAP.mean_average_precision(all_true_boxes, all_pred_boxes, S, C, IOU_THRESHOLD)
+
+                ### Validation accuracy
+                acc, hard_acc = class_acc(target_val, prediction_val)
+
+                batch_val_class_acc.append(acc)
+
+                print(f"| Mean Average Precision @{IOU_THRESHOLD} : {meanAP:.2f}")
+                print(f"| Validation class acc : {acc*100:.2f}%")
+                print(f"| Validation class hard acc : {hard_acc*100:.2f}%")
+                print("\n\n")
+            else : 
+                meanAP, acc, hard_acc = 9999, 9999, 9999
+
             ### Validation MSE score
             # mse_score = MSE(bbox_true, bbox_preds)
             mse_score = 999999
