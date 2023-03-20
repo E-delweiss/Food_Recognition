@@ -175,11 +175,11 @@ def get_validation_dataset(BATCH_SIZE = None):
     return dataloader
 
 
-# if __name__ == "__main__":
-#     from icecream import ic
-#     dataset = MNISTDataset(root="data", split="train", download=True)
-#     img, box = dataset[3]
-#     dataloader = get_training_dataset()
-#     img = next(iter(dataloader))[0][8]
-#     img_PIL = torchvision.transforms.ToPILImage()(img)
-#     img_PIL.show()
+if __name__ == "__main__":
+    from icecream import ic
+    dataset = MNISTDataset(root="data", split="train", download=True)
+    img, box = dataset[3]
+    dataloader = get_validation_dataset(32)
+    img = next(iter(dataloader))[0][8]
+    img_PIL = torchvision.transforms.ToPILImage()(img)
+    img_PIL.show()

@@ -18,7 +18,7 @@ def create_logging(prefix:str):
 
     tm = datetime.now()
     tm = tm.strftime("%d%m%Y_%Hh%M")
-    logging_name = 'YoloV1_Compagny_MealTrays/logging_'+prefix+'_'+tm+'.log'
+    logging_name = 'logging_'+prefix+'_'+tm+'.log'
 
     logging.basicConfig(
         level=logging.INFO,
@@ -56,13 +56,15 @@ def device(verbose=0)->torch.device:
     return device
 
 
-def pretty_print(batch:int, len_training_ds:int, current_loss:float, losses:dict, train_classes_acc:float):
+def pretty_print(batch:int, BATCH_SIZE:int, len_training_ds:int, current_loss:float, losses:dict, train_classes_acc:float):
     """
     Print all training infos for the current batch.
 
     Args:
         batch (int)
             Current batch.
+        BATCH_SIZE (int)
+            Len of the batch size
         len_training_ds (int)
             Len of the training dataset.
         current_loss (float)
@@ -132,6 +134,33 @@ def tqdm_fct(training_dataset):
                 initial=1,
                 desc="Training : image",
                 ncols=100)
+
+
+def tensor2boxlist(tensor:torch.Tensor, B:int, S:int, C:int):
+    """
+    Turn tensor into list of boxes.
+    tensor (N,S,S,6-11) -> list[img1[box1[x,y,w,h,c,label], ...], img2[...]]
+    TODO
+    """
+    tensor_old = tensor.clone()
+
+    tensor = torch.zeros(1,S,S,5*B+1)
+    tensor[...,:5*B] = tensor_old[...,:5*B]
+    tensor[...,5*B] = torch.argmax(torch.softmax(tensor_old[...,5*B:], dim=-1), dim=-1)
+
+    if B == 2 :
+        tensor_box1 = tensor[...,:5].view(S*S, 5)
+        tensor_box2 = tensor[...,5:10].view(S*S, 5)
+        tensor_box = torch.concat((tensor_box1, tensor_box2), dim=0)
+    else : 
+        tensor_box = tensor[...,:5].view(S*S, 5)
+
+    tensor_box = torch.concat((tensor_box, tensor[...,5*B].view(S*S, 1).repeat(B,1)),dim=-1)
+
+    return tensor_box.tolist()
+
+
+
 
 
 if __name__ == "__main__":

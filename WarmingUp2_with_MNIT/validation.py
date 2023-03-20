@@ -1,6 +1,6 @@
 import torch
 
-def validation_loop(model, validation_dataset, S=6, device=torch.device("cpu")):
+def validation_loop(model, validation_dataset, S=6, device=torch.device("cpu"), ONE_BATCH=True):
     """
     Execute validation loop
 
@@ -29,14 +29,17 @@ def validation_loop(model, validation_dataset, S=6, device=torch.device("cpu")):
     model.eval()
     print("|")
     print("| Validation...")
-    for (img, bbox_true, labels) in validation_dataset:
-        img, bbox_true, labels  = img.to(device), bbox_true.to(device), labels.to(device)
+    for (img, target) in validation_dataset:
+        img, target = img.to(device), target.to(device)
         
         with torch.no_grad():
-            ### prediction (N,S,S,5) & (N,S,S,10)
-            bbox_pred, labels_pred = model(img)
-        break
-    return img, bbox_true, bbox_pred, labels, labels_pred
+            ### prediction
+            prediction = model(img)
+            
+            if ONE_BATCH is True:
+                break
+
+    return img, target, prediction
 
 
 

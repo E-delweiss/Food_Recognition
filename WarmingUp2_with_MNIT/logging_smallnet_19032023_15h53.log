@@ -1,0 +1,23 @@
+19/03/2023 15:53:24 ::INFO:: Model is smallnet.
+19/03/2023 15:53:24 ::INFO:: Execute on mps
+19/03/2023 15:53:24 ::INFO:: Learning rate = 0.001
+19/03/2023 15:53:24 ::INFO:: Batch size = 32
+19/03/2023 15:53:24 ::INFO:: Using optimizer : Adam (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    capturable: False
+    differentiable: False
+    eps: 1e-08
+    foreach: None
+    fused: False
+    lr: 0.001
+    maximize: False
+    weight_decay: 0.0005
+)
+19/03/2023 15:53:24 ::INFO:: Start training
+19/03/2023 15:53:24 ::INFO:: [START] : 2023-03-19 15:53:24
+19/03/2023 16:19:20 ::INFO:: 
+Model saved to MNIST_smallnet_10epochs_19032023_16h19.pt.
+19/03/2023 16:19:20 ::INFO:: Time duration: 0:25:55.814755.
+19/03/2023 16:19:20 ::INFO:: End training.

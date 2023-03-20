@@ -101,9 +101,17 @@ class NetMNIST(torch.nn.Module):
         return x
 
 
-def netMNIST(**kwargs) -> YoloResNet: 
+def netMNIST(load_weights=False, **kwargs) -> NetMNIST: 
     model = NetMNIST(**kwargs)
-   
+
+    mnist_weights = "MNIST_smallnet_10epochs_19032023_16h19.pt"
+    if load_weights:
+        try : 
+            model.load_state_dict(torch.load(mnist_weights))
+            print("Weights succefully loaded")
+        except :
+            print("ERROR : Weights do not exist")
+
     return model
 
 

@@ -21,14 +21,14 @@ device = utils.device(verbose=1)
 logging.info(f"Learning rate = {learning_rate}")
 logging.info(f"Batch size = {BATCH_SIZE}")
                 
-model_MNIST = netMNIST(140, S=6, B=2, C=10)
+model_MNIST = netMNIST(sizeHW=140, S=6, B=2, C=10)
 model_MNIST = model_MNIST.to(device)
 optimizer = torch.optim.Adam(params=model_MNIST.parameters(), lr=learning_rate, weight_decay=0.0005)
 loss_yolo = YoloLoss(lambd_coord=5, lambd_noobj=0.5, S=6, device=device)
 logging.info(f"Using optimizer : {optimizer}")
 
 training_dataset = get_training_dataset()
-validation_dataset = get_validation_dataset()
+validation_dataset = get_validation_dataset(32)
 
 ################################################################################
 
@@ -71,20 +71,20 @@ for epoch in range(EPOCHS):
 
     #########################################################################
 
-    for batch, (img, bbox_true, labels) in utils.tqdm_fct(training_dataset):
+    for batch, (img, target) in utils.tqdm_fct(training_dataset):
         model_MNIST.train()
         loss = 0
         begin_batch_time = timer()
-        img, bbox_true, labels = img.to(device), bbox_true.to(device), labels.to(device)
+        img, target = img.to(device), target.to(device)
         
         ### clear gradients
         optimizer.zero_grad()
         
         ### prediction (N,S,S,5) & (N,S,S,10)
-        bbox_preds, label_preds = model_MNIST(img)
+        prediction = model_MNIST(img)
         
         ### compute losses over each grid cell for each image in the batch
-        losses, loss = loss_yolo(bbox_preds, bbox_true, label_preds, labels)
+        losses, loss = loss_yolo(prediction, target)
     
         ### compute gradients
         loss.backward()
@@ -93,7 +93,8 @@ for epoch in range(EPOCHS):
         optimizer.step()
 
         ##### Class accuracy
-        train_classes_acc = class_acc(bbox_true, labels, label_preds)
+        # train_classes_acc = class_acc(bbox_true, labels, label_preds)
+        train_classes_acc = 999999
 
         ######### print part #######################
         current_loss = loss.item()
@@ -110,16 +111,19 @@ for epoch in range(EPOCHS):
             utils.pretty_print(batch, len(training_dataset.dataset), current_loss, losses, train_classes_acc)
 
             ############### Compute validation metrics each 100 batch ###########################################
-            _, bbox_true, bbox_preds, labels, label_preds = validation_loop(model_MNIST, validation_dataset, S, device)
+            _, target_val, prediction_val = validation_loop(model_MNIST, validation_dataset, S, device)
             
             ### Validation MSE score
-            mse_score = MSE(bbox_true, bbox_preds)
+            # mse_score = MSE(bbox_true, bbox_preds)
+            mse_score = 999999
 
             ### Validation accuracy
-            acc = class_acc(bbox_true, labels, label_preds)
+            # acc = class_acc(bbox_true, labels, label_preds)
+            acc = 99999
 
             ### Validation confidence_score
-            mse_confidence_score = MSE_confidenceScore(bbox_true, bbox_preds)
+            # mse_confidence_score = MSE_confidenceScore(bbox_true, bbox_preds)
+            mse_confidence_score = 999999
 
             batch_val_MSE_box_list.append(mse_score)
             batch_val_confscore_list.append(mse_confidence_score)
