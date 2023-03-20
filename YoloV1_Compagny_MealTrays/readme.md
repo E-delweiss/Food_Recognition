@@ -1,7 +1,7 @@
 # Introduction
 This notebook aims to help the reader to walk through the YoloV1 code for Food Recognition on company meal trays. It will not explain the whole code here but will focus on the most important parts.
 
-The first project of this repo *[WarmingUp_with_MNIST](https://github.com/E-delweiss/Food_Recognition/Warming-up-with-MNIST)* helps to understand the Yolo mindset with a unique object localization (MNIST digit). 
+The first project of this repo *[WarmingUp_with_MNIST](https://github.com/E-delweiss/Food_Recognition/tree/main/WarmingUp_with_MNIST)* helps to understand the Yolo mindset with a unique object localization (MNIST digit). 
 
 Some helpfull links :
 * YoloV1 [paper](https://arxiv.org/pdf/1506.02640.pdf)
