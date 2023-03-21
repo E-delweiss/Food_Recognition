@@ -99,7 +99,7 @@ for epoch in range(EPOCHS):
         optimizer.step()
 
         ##### Class accuracy
-        # train_classes_acc = class_acc(bbox_true, labels, label_preds)
+        train_classes_acc = class_acc(bbox_true, labels, label_preds)
         train_classes_acc = 999999
 
         ######### print part #######################
@@ -119,7 +119,7 @@ for epoch in range(EPOCHS):
             ############### Compute validation metrics each 100 batch ###########################################
             if DO_VALIDATION:
                 train_idx = 0
-                _, target_val, prediction_val = validation_loop(model_MNIST, validation_dataloader, S, device)
+                _, target_val, prediction_val = validation_loop(model_MNIST, validation_dataloader, S, device, ONE_BATCH=True)
                 
                 all_pred_boxes = []
                 all_true_boxes = []
@@ -139,7 +139,7 @@ for epoch in range(EPOCHS):
                     
                     train_idx += 1
 
-                meanAP = mAP.mean_average_precision(all_true_boxes, all_pred_boxes, S, C, IOU_THRESHOLD)
+                meanAP = mAP.mean_average_precision(all_true_boxes, all_pred_boxes, IOU_THRESHOLD, S, C)
 
                 ### Validation accuracy
                 acc, hard_acc = class_acc(target_val, prediction_val)
@@ -152,18 +152,6 @@ for epoch in range(EPOCHS):
                 print("\n\n")
             else : 
                 meanAP, acc, hard_acc = 9999, 9999, 9999
-
-            ### Validation MSE score
-            # mse_score = MSE(bbox_true, bbox_preds)
-            mse_score = 999999
-
-            ### Validation accuracy
-            # acc = class_acc(bbox_true, labels, label_preds)
-            acc = 99999
-
-            ### Validation confidence_score
-            # mse_confidence_score = MSE_confidenceScore(bbox_true, bbox_preds)
-            mse_confidence_score = 999999
 
             batch_val_MSE_box_list.append(mse_score)
             batch_val_confscore_list.append(mse_confidence_score)

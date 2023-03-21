@@ -4,7 +4,6 @@ import torch
 
 import IoU
 
-
 def mean_average_precision(target:torch.Tensor, prediction:torch.Tensor, iou_threshold:float, S, C)->float:
     """
     TODO
