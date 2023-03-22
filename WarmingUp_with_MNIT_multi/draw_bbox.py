@@ -42,15 +42,6 @@ def draw_boxes(
     img_idx = img_idx * 255.0
     img_idx = img_idx.to(torch.uint8)
 
-    ### Choose image & rescale pixel values to un-normed values (from 0 -black- to 255 -white-)
-    # img_idx = img[idx]
-    # inv_normalize = torchvision.transforms.Normalize(
-    #     mean=[-0.4168/0.3475, -0.4055/0.3442, -0.3838/0.3386],
-    #     std=[1/0.3475, 1/0.3442, 1/0.3386]
-    #     )
-    # img_idx = inv_normalize(img_idx) * 255.0
-    # img_idx = img_idx.to(torch.uint8)
-
     ### Extract target bounding boxes
     target_abs_box = IoU.relative2absolute(target[idx].unsqueeze(0), frame_size)
     true_bboxes = utils.tensor2boxlist(target_abs_box)
