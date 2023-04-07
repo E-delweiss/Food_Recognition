@@ -18,8 +18,8 @@ class MealtraysDataset(torch.utils.data.Dataset):
         self.C = C
 
         ### Sizes
-        self.SIZE_TEMP = 500
-        self.SIZE = 448
+        self.SIZE_TEMP = 300
+        self.SIZE = 224 #448
         self.CELL_SIZE = 1/self.S
 
         ### Get data

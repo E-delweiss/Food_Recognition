@@ -60,8 +60,8 @@ FREQ = config.getint('PRINTING', 'freq')
 ################################################################################
 device = utils.set_device(DEVICE, verbose=0)
 
-# model = yoloResnet(pretrained=PRETRAINED, load_yoloweights=LOAD_CHECKPOINT, S=S, B=B, C=C)
-model = resnet(S=S, B=B, C=C)
+model = yoloResnet(pretrained=PRETRAINED, load_yoloweights=LOAD_CHECKPOINT, S=S, B=B, C=C)
+# model = resnet(S=S, B=B, C=C)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
 criterion = YoloLoss(lambd_coord=LAMBD_COORD, lambd_noobj=LAMBD_NOOBJ, S=S, device=device)
@@ -131,9 +131,10 @@ for epoch in ranger:
         ### clear gradients
         optimizer.zero_grad()
         
+        
         ### prediction (N,S,S,B*(4+1)+C) -> (N,7,7,18)
         prediction = model(img)
-        
+
         ### compute losses over each grid cell for each image in the batch
         losses, loss = criterion(prediction, target)
     

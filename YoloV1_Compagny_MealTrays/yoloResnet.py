@@ -3,16 +3,17 @@ from configparser import ConfigParser
 import torch
 import torchvision
 from torchinfo import summary
+from icecream import icecream
 
 class YoloResNet(torch.nn.Module):
-    def __init__(self, S, C, B, pretrained=False):
+    def __init__(self, S, C, B, pretrained=True):
         super(YoloResNet, self).__init__()
         self.S = S
         self.C = C
         self.B = B
 
         ### Load ResNet model
-        resnet = torchvision.models.resnet152(pretrained=True)
+        resnet = torchvision.models.resnet152(pretrained=pretrained)
         
         ### Freeze ResNet weights
         for param in resnet.parameters():
@@ -27,17 +28,17 @@ class YoloResNet(torch.nn.Module):
             torch.nn.Conv2d(512, 1024, 3, 1, 1),
             torch.nn.Conv2d(1024, 512, 1, 1, 0),
             torch.nn.MaxPool2d(2,2),
-            torch.nn.Conv2d(512, 1024, 3, 1, 1),
-            torch.nn.Conv2d(1024, 512, 1, 1, 0),
-            torch.nn.MaxPool2d(2,2)
+            torch.nn.Conv2d(512, 512, 3, 1, 1),
+            # torch.nn.Conv2d(1024, 512, 1, 1, 0),
+            # torch.nn.MaxPool2d(2,2)
         )
         ### Fully connected part
         self.fc = torch.nn.Sequential(
             torch.nn.Flatten(),
-            torch.nn.Linear(512 * self.S * self.S, 4096), # 4096 -> 496 modifié le 16/11 
+            torch.nn.Linear(512 * self.S * self.S, 496),
             torch.nn.LeakyReLU(0.1),
             torch.nn.Dropout(0.5), # dropout ajouté le 16/11 
-            torch.nn.Linear(4096, self.S * self.S * (self.C + self.B*5)),
+            torch.nn.Linear(496, self.S * self.S * (self.C + self.B*5)),
             torch.nn.Sigmoid()  # normalized to 0~1 ajouté le 16/11 
         )
     
@@ -64,7 +65,7 @@ def yoloResnet(load_yoloweights=False, **kwargs) -> YoloResNet:
 
 if __name__ == "__main__":
     model = yoloResnet(S=7, B=2, C=8)
-    summary(model, (16, 3, 448, 448))
+    summary(model, (16, 3, 224, 224))
     
     
     
