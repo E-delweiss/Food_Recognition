@@ -1,5 +1,6 @@
 import torch
 import utils
+from icecream import ic
 
 def class_acc(target:torch.Tensor, prediction:torch.Tensor)->float:
     """
@@ -32,6 +33,7 @@ def class_acc(target:torch.Tensor, prediction:torch.Tensor)->float:
 
     ### Compute hard accuracy : 0 if one object is not correctly classify
     N, cells_i, cells_j = N.to("cpu"), cells_i.to("cpu"), cells_j.to("cpu")
+
     N_tab = torch.stack((torch.unique(N), torch.bincount(N), torch.cumsum(torch.bincount(N), dim=-1)), dim=-1)
 
     start = N_tab.permute(1,0)[2] - N_tab.permute(1,0)[1]

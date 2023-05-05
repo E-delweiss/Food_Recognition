@@ -25,7 +25,7 @@ class TestMealtraysDataset(unittest.TestCase):
         self.CELL_SIZE = 1/self.S
 
         dataset = MealtraysDataset(root="../../mealtray_dataset/dataset",
-            split="test", isNormalize=True, isAugment=False)        
+            split="test", isNormalize=True, isAugment=True)        
         idx = np.random.randint(len(dataset))
         self.output = dataset[idx]
 

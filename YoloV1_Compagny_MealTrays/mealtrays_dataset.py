@@ -7,9 +7,11 @@ import PIL
 import torch
 import torch.nn.functional as F
 import torchvision
+from icecream import ic
+import albumentations as A
 
 class MealtraysDataset(torch.utils.data.Dataset):
-    def __init__(self, root:str, split:str="train", isNormalize:bool=True, isAugment:bool=True, S=7, C=8):
+    def __init__(self, root:str, split:str="train", isNormalize:bool=False, isAugment:bool=False, S=7, C=8):
         """
         label_names = {0:'Assiette', 1:'Entree', 2:'Pain', 3:'Boisson', 4:'Yaourt', 5:'Dessert', 6:'Fruit', 7:'Fromage'}
         """
@@ -18,7 +20,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
         self.C = C
 
         ### Sizes
-        self.SIZE_TEMP = 300
+        self.SIZE_TEMP = 330
         self.SIZE = 224 #448
         self.CELL_SIZE = 1/self.S
 
@@ -43,14 +45,10 @@ class MealtraysDataset(torch.utils.data.Dataset):
         ### get only data_txt that has been labelised
         self.annotations, self.data_txt_labelised = self._build_annotations(data_txt)
 
-        ### Data augmentation.
+        ### Data augmentation
         self.isAugment = isAugment
-        self.FLIP_H = False
-        self.FLIP_V = False
-        self.CROP = False
-        self.HARDCROP = False
 
-        ### Data normalization. See utils.py module
+        ### Data normalization
         self.isNormalize = isNormalize
 
         ### Only to generate mean/std
@@ -60,11 +58,8 @@ class MealtraysDataset(torch.utils.data.Dataset):
         """
         Example : for key = '20220308112654_000042_059_0000000001_B______xx_C (1636)' 
         Output = [
-            [0, 0.414109, 0.291401, 0.412906, 0.565905],
-            [5, 0.233531, 0.713405, 0.1885, 0.362759],
-            [1, 0.510547, 0.746034, 0.319969, 0.411121],
-            [6, 0.742875, 0.764784, 0.158688, 0.243017],
-            [3, 0.673172, 0.466121, 0.133281, 0.230948]
+            [0.414109, 0.291401, 0.412906, 0.565905, 0],
+            [0.233531, 0.713405, 0.1885, 0.362759, 5],
             ]
         """
         annotations = {}
@@ -78,8 +73,8 @@ class MealtraysDataset(torch.utils.data.Dataset):
                 while len(line_list) != 0:
                     # Read params in the line
                     line_list = [float(k) for k in line_list.split()]
-                    label = int(line_list[0])
-                    line_list[0] = label
+                    label = int(line_list.pop(0))
+                    line_list.append(label)
                     # Append to obj_list which contains all the params for 
                     # one object in the current image
                     obj_list.append(line_list)
@@ -96,8 +91,8 @@ class MealtraysDataset(torch.utils.data.Dataset):
 
     def _convert_to_PIL(self, img_path):
         new_size = (self.SIZE, self.SIZE)
-        if self.isAugment:
-            new_size = (self.SIZE_TEMP, self.SIZE_TEMP)
+        # if self.isAugment:
+        #     new_size = (self.SIZE_TEMP, self.SIZE_TEMP)
 
         img = PIL.Image.open(img_path).convert('RGB').resize(new_size, PIL.Image.Resampling.BICUBIC)
         return img
@@ -122,73 +117,9 @@ class MealtraysDataset(torch.utils.data.Dataset):
 
         return mean, std
 
-    def _transform(self, img_PIL):
-        img_tensor = torchvision.transforms.ToTensor()(img_PIL)
-        if self.isNormalize:
-            img_tensor = torchvision.transforms.Normalize(
-                mean=(0.4168, 0.4055, 0.3838), std=(0.3475, 0.3442, 0.3386)
-                )(img_tensor)
-        return img_tensor
-
-    def _flipH(self, img_PIL):
-        self.FLIP_H = True
-        if rd.random() < 0.5:
-            self.FLIP_H = False
-            return img_PIL
-        img_PIL = torchvision.transforms.RandomHorizontalFlip(p=1.)(img_PIL)
-        return img_PIL
-
-    def _flipV(self, img_PIL):
-        self.FLIP_V = True
-        if rd.random() < 0.5:
-            self.FLIP_V = False
-            return img_PIL
-        img_PIL = torchvision.transforms.RandomVerticalFlip(p=1.)(img_PIL)
-        return img_PIL
-
-    def _crop(self, img_PIL):
-        self.CROP = True 
-        if rd.random() < 0.5:
-            self.CROP = False
-            new_size = (self.SIZE, self.SIZE)
-            img_PIL = img_PIL.resize(new_size, PIL.Image.Resampling.BICUBIC)
-            return img_PIL
-        
-        crop_size = (self.SIZE, self.SIZE)
-        crop_infos = list(torchvision.transforms.RandomCrop.get_params(img_PIL, crop_size))
-        img_PIL = torchvision.transforms.functional.crop(img_PIL, *crop_infos)
-        return img_PIL, crop_infos
-
-    def _hardcrop(self, img_PIL):
-        self.HARDCROP = True
-        if rd.random() < 0.00001:
-            self.HARDCROP = False
-            new_size = (self.SIZE, self.SIZE)
-            img_PIL = img_PIL.resize(new_size, PIL.Image.Resampling.BICUBIC)
-            return img_PIL
-
-        crop_size = (400, 400)
-        crop_infos = list(torchvision.transforms.RandomCrop.get_params(img_PIL, crop_size))
-        img_PIL = torchvision.transforms.functional.crop(img_PIL, *crop_infos)
-        img_PIL = img_PIL.resize((448,448), PIL.Image.Resampling.BICUBIC)
-
-        # offset = 448 - 400
-        # crop_infos[1] += offset
-        # crop_infos[0] += offset
-
-        print("\nDEBUG: ", crop_infos)
-
-        return img_PIL, crop_infos
-
-    def _augmentation(self, img_PIL):
-        img_PIL = self._flipH(img_PIL)
-        img_PIL = self._flipV(img_PIL)
-        img_PIL = self._crop(img_PIL)
-        # img_PIL = self._hardcrop(img_PIL)
-        return img_PIL
-
-    def _encode(self, img_path, crop_infos=()):
+    def _process(self, img_path):
         """
+        TODO
         Encode box informations (coordinates, size and label) as a 
         (S,S,C+B+4+1) tensor.
 
@@ -203,54 +134,33 @@ class MealtraysDataset(torch.utils.data.Dataset):
         """
         ### Retrieve image name (without '.jpg') from path 
         img_name = img_path[img_path.rfind('/')+1 : img_path.rfind('.jpg')]
+        annotations = self.annotations.get(img_name)
+        img_PIL = self._convert_to_PIL(img_path)
+        img_tensor = torchvision.transforms.ToTensor()(img_PIL)
+
+        if self.isNormalize:
+            img_tensor = torchvision.transforms.Normalize(
+                mean=(0.4168, 0.4055, 0.3838), std=(0.3475, 0.3442, 0.3386)
+                )(img_tensor)
+
+        if self.isAugment:
+            ### ALBUMENTATION
+            albumentation = A.Compose([
+                A.RandomResizedCrop(width=self.SIZE, height=self.SIZE, scale=(0.6, 1.0), p=0.33),
+                A.HorizontalFlip(p=0.5),
+                A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=[-0.2,0.1], p=0.5)
+                ], bbox_params=A.BboxParams(format='yolo', min_visibility = 0.4)
+                )
+
+            albu_dict = albumentation(image=np.array(img_tensor.permute(1,2,0)), bboxes=annotations)
+            img_tensor = torch.Tensor(albu_dict['image']).permute(2,0,1)
+            annotations = albu_dict['bboxes']
+
 
         target = torch.zeros(self.S, self.S, self.C + 4+1)
-        for target_infos in self.annotations.get(img_name):
+        for target_infos in annotations:
             ### Relative box infos
-            label, xcr_img, ycr_img, wr_img, hr_img = target_infos
-
-            ### Handle flip augmentation
-            if self.FLIP_H:
-                xcr_img = 1-xcr_img
-
-            if self.FLIP_V:
-                ycr_img = 1-ycr_img
-
-            ### Handle random crop (500,500) -> (448,448)
-            if self.CROP:
-                posXcrop_rimg = crop_infos[1]/self.SIZE
-                posYcrop_rimg = crop_infos[0]/self.SIZE
-            
-                ### Compute absolute coord in 500x500 img
-                xc = xcr_img * self.SIZE_TEMP
-                yc = ycr_img * self.SIZE_TEMP
-            
-                ### Compute relative coord to 448x448 img and handle cropping
-                xcr_img = xc/self.SIZE - posXcrop_rimg
-                ycr_img = yc/self.SIZE - posYcrop_rimg
-
-                ### Restrict the cropping btw 0 & 1
-                xcr_img = np.clip(xcr_img, 0, 1)
-                ycr_img = np.clip(ycr_img, 0, 1)
-
-            if self.HARDCROP: #TODO
-                posXcrop_rimg = crop_infos[1]/self.SIZE
-                posYcrop_rimg = crop_infos[0]/self.SIZE
-            
-                ### Compute absolute coord in 500x500 img
-                xc = xcr_img * self.SIZE_TEMP + 48
-                yc = ycr_img * self.SIZE_TEMP + 48
-            
-                ### Compute relative coord to 448x448 img and handle cropping
-                xcr_img = xc/self.SIZE - posXcrop_rimg
-                ycr_img = yc/self.SIZE - posYcrop_rimg
-
-                ### Restrict the cropping btw 0 & 1
-                xcr_img = np.clip(xcr_img, 0, 1)
-                ycr_img = np.clip(ycr_img, 0, 1)
-
-                wr_img += 48 / 500
-                hr_img += 48 / 500
+            xcr_img, ycr_img, wr_img, hr_img, label = target_infos
 
             ### Object grid location
             i = np.ceil(xcr_img / self.CELL_SIZE) - 1.0
@@ -271,7 +181,8 @@ class MealtraysDataset(torch.utils.data.Dataset):
             ### 4 coords + 1 conf + 8 classes
             target[j, i, :4+1] = torch.Tensor([xcr_cell, ycr_cell, wr_img, hr_img, 1.])
             target[j, i, 4+1:] = one_hot_label
-        return target
+        
+        return img_tensor, target
 
     def __len__(self):
         return len(self.data_txt_labelised)
@@ -280,19 +191,15 @@ class MealtraysDataset(torch.utils.data.Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        crop_infos = ()
         img_path = self.data_txt_labelised[idx].replace(".txt", ".jpg")
-
-        img_PIL = self._convert_to_PIL(img_path)
-        if self.isAugment:
-            img_PIL = self._augmentation(img_PIL)
-            if self.CROP: #or self.HARDCROP:
-                img_PIL, crop_infos = img_PIL
-
-        img = self._transform(img_PIL)
-        target = self._encode(img_path, crop_infos)
+        img, target = self._process(img_path)
 
         return img, target
+
+
+
+
+
 
 
 def get_training_dataset(BATCH_SIZE=16, **kwargs):

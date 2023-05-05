@@ -142,13 +142,13 @@ def defineRanger(pt_file:str, num_epoch:int)->range:
         num_epoch (int)
             Number of epochs (modify the epoch to start with)
     """
-    start_epoch = int(pt_file[:pt_file.find("epochs")][-3:])
+    start_epoch = int(pt_file[:pt_file.find("epochs")][-2:])
     end_epoch = start_epoch + num_epoch
     ranger = range(start_epoch, end_epoch+1)
     return ranger
 
 
-def save_model(model, prefix:str, current_epoch:int, save:bool):
+def save_model(model, prefix:str, current_epoch:int, save:bool, time=True):
     """
     Save Pytorch weights of the model. Set the name based on timeclock.
 
@@ -166,7 +166,10 @@ def save_model(model, prefix:str, current_epoch:int, save:bool):
         path = f"{prefix}_{current_epoch+1}epochs"
         tm = datetime.now()
         tm = tm.strftime("%d%m%Y_%Hh%M")
-        path = path+'_'+tm+'.pt'
+        if time:
+            path = path+'_'+tm+'.pt'
+        else:
+            path = path+'.pt' 
         torch.save(model.state_dict(), path)
         print("\n")
         print("*"*5, "Model saved to {}.".format(path))

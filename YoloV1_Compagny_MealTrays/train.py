@@ -5,6 +5,7 @@ import sys
 from configparser import ConfigParser
 
 import torch
+from icecream import ic
 
 import IoU
 import mAP
@@ -61,7 +62,8 @@ FREQ = config.getint('PRINTING', 'freq')
 ################################################################################
 device = utils.set_device(DEVICE, verbose=0)
 
-model = yoloResnet(pretrained=PRETRAINED, load_yoloweights=LOAD_CHECKPOINT, S=S, B=B, C=C)
+# model = yoloResnet(pretrained=PRETRAINED, load_yoloweights=LOAD_CHECKPOINT, S=S, B=B, C=C)
+model = yoloModel(pretrained=PRETRAINED, load_yoloweights=LOAD_CHECKPOINT, S=S, B=B, C=C)
 # model = resnet(S=S, B=B, C=C)
 model = model.to(device)
 optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight_decay=WEIGHT_DECAY)
@@ -71,7 +73,7 @@ training_dataloader = get_training_dataset(BATCH_SIZE, split="train", isNormaliz
 validation_dataloader = get_validation_dataset(split="test", isNormalize=isNormalize_valset, isAugment=isAugment_valset)
 
 if LOAD_CHECKPOINT:
-    pt_file = config.get('WEIGHTS', 'resnetYolo_weights')
+    pt_file = config.get('WEIGHTS', 'efficientnet_weights')
     ranger = utils.defineRanger(pt_file, EPOCHS)
 else:
     ranger = range(EPOCHS)
@@ -128,10 +130,10 @@ for epoch in ranger:
         model.train()
         loss = 0
         img, target = img.to(device), target.to(device)
-        
+        print("\n")
+
         ### clear gradients
         optimizer.zero_grad()
-        
         
         ### prediction (N,S,S,B*(4+1)+C) -> (N,7,7,18)
         prediction = model(img)
@@ -210,6 +212,7 @@ for epoch in ranger:
                 logging.info(f"***** Validation class acc : {acc*100:.2f}%")
                 logging.info(f"***** Validation class hard acc : {hard_acc*100:.2f}%\n")
 
+                utils.save_model(model, PREFIX, epoch, SAVE_MODEL, time=False)
 ################################################################################
 ### Saving results
 pickle_val_results = {

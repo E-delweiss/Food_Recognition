@@ -26,6 +26,7 @@ def validation_loop(model, validation_dataset, S=7, device=torch.device("cpu"), 
     """
     print("|")
     print("| Validation...")
+    model.eval()
     for (img, target) in validation_dataset:
         img, target = img.to(device), target.to(device)
         
