@@ -12,6 +12,7 @@ import NMS
 import utils
 from yoloResnet import yoloResnet
 from resnet50_old import resnet
+from yoloModel import yoloModel
 from mealtrays_dataset import get_training_dataset, get_validation_dataset
 from metrics import class_acc
 from validation import validation_loop

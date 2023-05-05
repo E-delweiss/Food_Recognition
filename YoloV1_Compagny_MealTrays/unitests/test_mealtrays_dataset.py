@@ -18,14 +18,14 @@ from mealtrays_dataset import MealtraysDataset
 class TestMealtraysDataset(unittest.TestCase):
     def __init__(self, TestMealtraysDataset) -> None:
         super().__init__(TestMealtraysDataset)
-        self.SIZE = 448
+        self.SIZE = 224
         self.S = 7
         self.B = 1
         self.C = 8
         self.CELL_SIZE = 1/self.S
 
         dataset = MealtraysDataset(root="../../mealtray_dataset/dataset",
-            split="train", isNormalize=True, isAugment=True)        
+            split="test", isNormalize=True, isAugment=False)        
         idx = np.random.randint(len(dataset))
         self.output = dataset[idx]
 
