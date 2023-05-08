@@ -23,9 +23,11 @@ class TestMealtraysDataset(unittest.TestCase):
         self.B = 1
         self.C = 8
         self.CELL_SIZE = 1/self.S
+        self.mean = np.array([0.4167, 0.4045, 0.3833])
+        self.std=np.array([0.3480, 0.3439, 0.3379])
 
-        dataset = MealtraysDataset(root="../../mealtray_dataset/dataset",
-            split="test", isNormalize=True, isAugment=True)        
+        dataset = MealtraysDataset(root="../data/mealtray_dataset",
+            split="train", isNormalize=True, isAugment=True)        
         idx = np.random.randint(len(dataset))
         self.output = dataset[idx]
 
@@ -61,9 +63,9 @@ class TestMealtraysDataset(unittest.TestCase):
         print("Std of the image:", std)
 
         inv_normalize = torchvision.transforms.Normalize(
-        mean=[-0.4168/0.3475, -0.4055/0.3442, -0.3838/0.3386],
-        std=[1/0.3475, 1/0.3442, 1/0.3386]
-        )
+            mean = -self.mean/self.std,
+            std = 1/self.std
+            )
         img_idx = inv_normalize(img_idx)
         img_idx = torchvision.transforms.ToPILImage()(img_idx)
         

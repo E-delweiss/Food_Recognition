@@ -23,23 +23,19 @@ class MealtraysDataset(torch.utils.data.Dataset):
         self.SIZE_TEMP = 330
         self.SIZE = 224 #448
         self.CELL_SIZE = 1/self.S
+        self.mean = torch.tensor([0.4167, 0.4045, 0.3833])
+        self.std = torch.tensor([0.3480, 0.3439, 0.3379])
 
         ### Get data
         self.root = root
-        data_txt = glob.glob(root + '/obj_train_data/*.txt')
-        assert len(data_txt) != 0, "\nError : the path may be wrong."
-        for data in data_txt:
-            assert os.path.isfile(data), "\nError : the file {data} does not exist."
 
         ### Get train/validation
         if split == 'train':
-            split_pct = 0.8
-            length_data = round(len(data_txt) * split_pct)
-            data_txt = data_txt[:length_data]
+            data_txt = glob.glob(root + '/train/*.txt')
+            assert len(data_txt) != 0, "\nError : the path may be wrong."
         else :
-            split_pct = 0.2
-            length_data = round(len(data_txt) * split_pct)
-            data_txt = data_txt[-length_data:]
+            data_txt = glob.glob(root + '/val/*.txt')
+            assert len(data_txt) != 0, "\nError : the path may be wrong."
 
         ### Build annotations for an image as a dict and 
         ### get only data_txt that has been labelised
@@ -91,9 +87,6 @@ class MealtraysDataset(torch.utils.data.Dataset):
 
     def _convert_to_PIL(self, img_path):
         new_size = (self.SIZE, self.SIZE)
-        # if self.isAugment:
-        #     new_size = (self.SIZE_TEMP, self.SIZE_TEMP)
-
         img = PIL.Image.open(img_path).convert('RGB').resize(new_size, PIL.Image.Resampling.BICUBIC)
         return img
 
@@ -116,6 +109,15 @@ class MealtraysDataset(torch.utils.data.Dataset):
         print(mean, std)
 
         return mean, std
+
+    def _unNormalize(self, img_tensor):
+        inv_normalize = torchvision.transforms.Normalize(
+            mean = -self.mean/self.std,
+            std = 1/self.std
+            )
+        img_tensor = inv_normalize(img_tensor)
+        img_PIL = torchvision.transforms.ToPILImage()(img_tensor)
+        return img_PIL
 
     def _process(self, img_path):
         """
@@ -140,15 +142,15 @@ class MealtraysDataset(torch.utils.data.Dataset):
 
         if self.isNormalize:
             img_tensor = torchvision.transforms.Normalize(
-                mean=(0.4168, 0.4055, 0.3838), std=(0.3475, 0.3442, 0.3386)
+                mean=self.mean, std=self.std
                 )(img_tensor)
 
         if self.isAugment:
             ### ALBUMENTATION
             albumentation = A.Compose([
-                A.RandomResizedCrop(width=self.SIZE, height=self.SIZE, scale=(0.6, 1.0), p=0.33),
+                A.RandomResizedCrop(width=self.SIZE, height=self.SIZE, scale=(0.5, 1), p=1),
                 A.HorizontalFlip(p=0.5),
-                A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=[-0.2,0.1], p=0.5)
+                A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=[-0.2,0.1], p=0.5),
                 ], bbox_params=A.BboxParams(format='yolo', min_visibility = 0.4)
                 )
 
@@ -198,15 +200,11 @@ class MealtraysDataset(torch.utils.data.Dataset):
 
 
 
-
-
-
-
 def get_training_dataset(BATCH_SIZE=16, **kwargs):
     """
     Loads and maps the training split of the dataset using the custom dataset class. 
     """
-    dataset = MealtraysDataset(root="../../mealtray_dataset/dataset", **kwargs)
+    dataset = MealtraysDataset(root="../data/mealtray_dataset", **kwargs)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     return dataloader
 
@@ -214,8 +212,16 @@ def get_validation_dataset(BATCH_SIZE=None, **kwargs):
     """
     Loads and maps the validation split of the datasetusing the custom dataset class. 
     """
-    dataset = MealtraysDataset(root="../../mealtray_dataset/dataset", **kwargs)
+    dataset = MealtraysDataset(root="../data/mealtray_dataset", **kwargs)
     if BATCH_SIZE is None:
         BATCH_SIZE = len(dataset)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=False)
     return dataloader
+
+
+if __name__ == "__main__":
+    # dataset = MealtraysDataset(root="../data/mealtray_dataset", isAugment=False, isNormalize=False)
+    # dataset._mean_std_fct()
+    dataloader = get_training_dataset(BATCH_SIZE=8, isAugment=True, isNormalize=True)
+    a, b = next(iter(dataloader))
+    ic(a.shape, b.shape)

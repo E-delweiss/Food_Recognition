@@ -43,8 +43,8 @@ PREFIX = config.get('MODEL', 'model_name')
 S = config.getint('MODEL', 'grid_size')
 B = config.getint('MODEL', 'nb_box')
 C = config.getint('MODEL', 'nb_class')
-PRETRAINED = config.getboolean('MODEL', 'pretrained_resnet')
-LOAD_CHECKPOINT = config.getboolean('MODEL', 'yoloResnet_checkpoint')
+PRETRAINED = config.getboolean('MODEL', 'pretrained')
+LOAD_CHECKPOINT = config.getboolean('MODEL', 'yoloModel_checkpoint')
 
 isNormalize_trainset = config.getboolean('DATASET', 'isNormalize_trainset')
 isAugment_trainset = config.getboolean('DATASET', 'isAugment_trainset')
@@ -121,8 +121,8 @@ for epoch in ranger:
     print("-"*20)
 
     ### Checkpoint
-    if epoch % 50 == 0 and epoch != 0:
-        utils.save_model(model, PREFIX+"CHECKPOINT_", epoch, SAVE_MODEL)
+    # if epoch % 50 == 0 and epoch != 0:
+    #     utils.save_model(model, PREFIX+"CHECKPOINT_", epoch, SAVE_MODEL)
 
     ################################################################################
 
@@ -165,7 +165,7 @@ for epoch in ranger:
             utils.pretty_print(batch, len(training_dataloader.dataset), current_loss, losses, train_class_acc, batch_size=BATCH_SIZE)
 
             ############### Compute validation metrics each FREQ batch ###########################################
-            if DO_VALIDATION:
+            if DO_VALIDATION and batch != 0:
                 model.eval()
                 train_idx = 0
                 _, target_val, prediction_val = validation_loop(model, validation_dataloader, S, device)
