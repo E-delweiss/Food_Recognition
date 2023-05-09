@@ -18,6 +18,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
         ### Yolo output params S:grid ; B:boxes ; C:classes
         self.S = S
         self.C = C
+        self.split = split
 
         ### Sizes
         self.SIZE_TEMP = 330
@@ -30,7 +31,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
         self.root = root
 
         ### Get train/validation
-        if split == 'train':
+        if self.split == 'train':
             data_txt = glob.glob(root + '/train/*.txt')
             assert len(data_txt) != 0, "\nError : the path may be wrong."
         else :
@@ -86,7 +87,10 @@ class MealtraysDataset(torch.utils.data.Dataset):
         return annotations, data_txt_labelised
 
     def _convert_to_PIL(self, img_path):
-        new_size = (self.SIZE, self.SIZE)
+        if self.split == "train":
+            new_size = (self.SIZE_TEMP, self.SIZE_TEMP)
+        else:
+            new_size = (self.SIZE, self.SIZE)
         img = PIL.Image.open(img_path).convert('RGB').resize(new_size, PIL.Image.Resampling.BICUBIC)
         return img
 
@@ -148,7 +152,7 @@ class MealtraysDataset(torch.utils.data.Dataset):
         if self.isAugment:
             ### ALBUMENTATION
             albumentation = A.Compose([
-                A.RandomResizedCrop(width=self.SIZE, height=self.SIZE, scale=(0.5, 1), p=1),
+                A.RandomResizedCrop(width=self.SIZE, height=self.SIZE, scale=(0.6, 1), p=1),
                 A.HorizontalFlip(p=0.5),
                 A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=[-0.2,0.1], p=0.5),
                 ], bbox_params=A.BboxParams(format='yolo', min_visibility = 0.4)
