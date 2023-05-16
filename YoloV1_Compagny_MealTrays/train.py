@@ -70,6 +70,7 @@ optimizer = torch.optim.Adam(params=model.parameters(), lr=learning_rate, weight
 criterion = YoloLoss(lambd_coord=LAMBD_COORD, lambd_noobj=LAMBD_NOOBJ, S=S, device=device)
 
 training_dataloader = get_training_dataset(BATCH_SIZE, split="train", isNormalize=isNormalize_trainset, isAugment=isAugment_trainset)
+# validation_dataloader = get_validation_dataset(split="train", isNormalize=isNormalize_valset, isAugment=isAugment_valset)
 validation_dataloader = get_validation_dataset(split="test", isNormalize=isNormalize_valset, isAugment=isAugment_valset)
 
 if LOAD_CHECKPOINT:
@@ -148,7 +149,10 @@ for epoch in ranger:
         optimizer.step()
 
         ##### Class accuracy
-        train_class_acc, _ = class_acc(target, prediction)
+        try:
+            train_class_acc, _ = class_acc(target, prediction)
+        except RuntimeError:
+            train_class_acc = None
 
         ######### print part #######################
         current_loss = loss.item()
@@ -160,12 +164,13 @@ for epoch in ranger:
             # Recording each losses
             batch_train_losses_list.append(losses)
             # Recording class accuracy
-            batch_train_class_acc.append(train_class_acc)
+            if train_class_acc:
+                batch_train_class_acc.append(train_class_acc)
 
-            utils.pretty_print(batch, len(training_dataloader.dataset), current_loss, losses, train_class_acc, batch_size=BATCH_SIZE)
+                utils.pretty_print(batch, len(training_dataloader.dataset), current_loss, losses, train_class_acc, batch_size=BATCH_SIZE)
 
             ############### Compute validation metrics each FREQ batch ###########################################
-            if DO_VALIDATION and batch != 0:
+            if DO_VALIDATION and batch == len(training_dataloader.dataset)//BATCH_SIZE:
                 model.eval()
                 train_idx = 0
                 _, target_val, prediction_val = validation_loop(model, validation_dataloader, S, device)
@@ -193,7 +198,7 @@ for epoch in ranger:
                 ### Validation accuracy
                 acc, hard_acc = class_acc(target_val, prediction_val)
 
-                batch_val_class_acc.append(acc)
+                batch_val_class_acc.append(acc) 
 
                 print(f"| Mean Average Precision @{IOU_THRESHOLD} : {meanAP:.2f}")
                 print(f"| Validation class acc : {acc*100:.2f}%")
@@ -212,7 +217,7 @@ for epoch in ranger:
                 logging.info(f"***** Validation class acc : {acc*100:.2f}%")
                 logging.info(f"***** Validation class hard acc : {hard_acc*100:.2f}%\n")
 
-                utils.save_model(model, PREFIX, epoch, SAVE_MODEL, time=False)
+                # utils.save_model(model, PREFIX, epoch, SAVE_MODEL, time=False)
 ################################################################################
 ### Saving results
 pickle_val_results = {
