@@ -152,16 +152,17 @@ class MealtraysDataset(torch.utils.data.Dataset):
         if self.isAugment:
             ### ALBUMENTATION
             albumentation = A.Compose([
-                A.RandomResizedCrop(width=self.SIZE, height=self.SIZE, scale=(0.6, 1), p=1),
+                A.RandomResizedCrop(width=self.SIZE, height=self.SIZE, scale=(0.5, 1), p=1),
                 A.HorizontalFlip(p=0.5),
-                A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=[-0.2,0.1], p=0.5),
-                ], bbox_params=A.BboxParams(format='yolo', min_visibility = 0.4)
+                # A.Blur(blur_limit=(3, 3), p=0.25),
+                # A.Cutout(num_holes=5, max_h_size=50, max_w_size=20, fill_value=0, p=0.5)
+                # A.Cutout(num_holes=100, max_h_size=5, max_w_size=5, fill_value=0, p=0.33)
+                ], bbox_params=A.BboxParams(format='yolo', min_visibility=0.4)
                 )
 
             albu_dict = albumentation(image=np.array(img_tensor.permute(1,2,0)), bboxes=annotations)
             img_tensor = torch.Tensor(albu_dict['image']).permute(2,0,1)
             annotations = albu_dict['bboxes']
-
 
         target = torch.zeros(self.S, self.S, self.C + 4+1)
         for target_infos in annotations:

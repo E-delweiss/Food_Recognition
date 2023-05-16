@@ -13,19 +13,22 @@ class YoloModel(torch.nn.Module):
         self.B = B
 
         ### Load ResNet model
-        PT_weights = torchvision.models.EfficientNet_B4_Weights.DEFAULT if pretrained else None
-        model = torchvision.models.efficientnet_b4(weights=PT_weights)
+        if pretrained:
+            PT_weights = torchvision.models.EfficientNet_B5_Weights.DEFAULT
+            model = torchvision.models.efficientnet_b5(weights=PT_weights)
         
-        ### Freeze ResNet weights
-        for param in model.parameters():
-            param.requires_grad = False
+            ### Freeze ResNet weights
+            for param in model.parameters():
+                param.requires_grad = False
+        else:
+            model = torchvision.models.efficientnet_b5(weights=None)
 
         ### Backbone part
         self.backbone = torch.nn.Sequential(*list(model.children())[:-2])
 
         ### Head part
         self.head = torch.nn.Sequential(
-            torch.nn.Conv2d(1792, 512, kernel_size=1, padding=0, stride=1, bias=False),
+            torch.nn.Conv2d(2048, 512, kernel_size=1, padding=0, stride=1, bias=False),
             torch.nn.BatchNorm2d(512),
             torch.nn.SiLU(),
             torch.nn.Conv2d(512, 256, kernel_size=1, padding=0, stride=1, bias=False),
@@ -64,7 +67,7 @@ def yoloModel(load_yoloweights=False, **kwargs) -> YoloModel:
     
 
 if __name__ == "__main__":
-    model = yoloModel(S=7, B=2, C=8)
+    model = yoloModel(S=7, B=2, C=8, pretrained=False)
     x = torch.rand(3, 3, 224, 224)
-    ic(model(x).shape)
-    # summary(model, x.shape)
+    # ic(model(x).shape)
+    summary(model, x.shape)

@@ -58,9 +58,9 @@ class TestMealtraysDataset(unittest.TestCase):
         mean, std = img_idx.mean([1,2]), img_idx.std([1,2])
         
         # print mean and std
-        print("\nMean and Std of normalized image:")
-        print("Mean of the image:", mean)
-        print("Std of the image:", std)
+        # print("\nMean and Std of normalized image:")
+        # print("Mean of the image:", mean)
+        # print("Std of the image:", std)
 
         inv_normalize = torchvision.transforms.Normalize(
             mean = -self.mean/self.std,
